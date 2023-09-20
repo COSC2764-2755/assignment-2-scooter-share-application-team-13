@@ -1,11 +1,11 @@
 import sqlite3 as lite
-
+from .records import Customer
 class DatabaseConnector:
     def __init__(self) -> None:
         self._file = 'ScootShare.db'
 
-    def create_table():
-        con = lite.connect()
+    def create_table(self):
+        con = lite.connect(self._file)
         with con: 
             cur = con.cursor() 
             cur.execute("DROP TABLE IF EXISTS Customer") # Temporary while db is local
@@ -19,3 +19,18 @@ class DatabaseConnector:
                         password VARCHAR(255),      \
                         balance DECIMAL(10, 2));"
                         )
+    
+    def add_customer(self, new_customer:Customer):
+        con = lite.connect(self._file)
+        with con: 
+            cur = con.cursor() 
+            query = "INSERT INTO Customer (id, first_name, last_name, phone_number, email_address, username, password, balance) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+            customer_data = (new_customer.customer_id,
+                             new_customer.first_name,
+                             new_customer.last_name,
+                             new_customer.phone_number,
+                             new_customer.email_address,
+                             new_customer.username,
+                             new_customer.password,
+                             new_customer.balance)
+            cur.execute(query, customer_data)
