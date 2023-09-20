@@ -1,5 +1,7 @@
 import sqlite3 as lite
 from records import Customer
+from db_utils import hash_password
+
 class DatabaseConnector:
     def __init__(self) -> None:
         self._file = '.\ScootShare\ScootShare.db'
@@ -32,7 +34,7 @@ class DatabaseConnector:
                              new_customer.phone_number,
                              new_customer.email_address,
                              new_customer.username,
-                             new_customer.password,
+                             hash_password(new_customer.password),
                              new_customer.balance)
             cur.execute(query, customer_data)
             con.commit()
