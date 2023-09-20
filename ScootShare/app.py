@@ -2,6 +2,8 @@
 from flask import Flask
 from flask_restful import Api, Resource, reqparse
 from records import Customer
+from db import DatabaseConnector
+
 
 app = Flask(__name__)
 api = Api(app)
@@ -21,10 +23,17 @@ class Registration(Resource):
 
     def put(self):
         args = self._cust_put_args.parse_args()
-        customer_object = Customer(args['id'], args['first_name'], args['last_name'], 
-                                   args['phone_number'], args['email_address'], 
-                                   args['username'], args['password'], args['balance'])
-        return f"{customer_object._first_name} has the password {customer_object._password}"
+        customer_object = Customer(args['id'], args['first_name'], 
+                                   args['last_name'], args['phone_number'], 
+                                   args['email_address'], args['username'], 
+                                   args['password'], args['balance'])
+        
+        database_controller = DatabaseConnector() # TODO: Find somewhere better to initialise db
+        database_controller.create_table()
+        
+        database_controller.add_customer(customer_object)
+
+        return f"{customer_object.first_name} has the password {customer_object.password}"
     
     
 api.add_resource(Registration, "/register")
