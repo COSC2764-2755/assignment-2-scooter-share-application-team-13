@@ -1,8 +1,8 @@
 import sqlite3 as lite
-from .records import Customer
+from records import Customer
 class DatabaseConnector:
     def __init__(self) -> None:
-        self._file = 'ScootShare.db'
+        self._file = '.\ScootShare\ScootShare.db'
 
     def create_table(self):
         con = lite.connect(self._file)
@@ -19,6 +19,7 @@ class DatabaseConnector:
                         password VARCHAR(255),      \
                         balance DECIMAL(10, 2));"
                         )
+            con.commit()
     
     def add_customer(self, new_customer:Customer):
         con = lite.connect(self._file)
@@ -34,3 +35,4 @@ class DatabaseConnector:
                              new_customer.password,
                              new_customer.balance)
             cur.execute(query, customer_data)
+            con.commit()
