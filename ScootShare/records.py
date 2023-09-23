@@ -11,3 +11,51 @@ class Customer():
         self.password = password
         self.balance = balance
 
+
+class Scooter():
+    def __init__(self, id, history, status, make, color, location, power, cost) -> None:
+        self.scooter_id = id
+        ##Of type History()
+        self.history = history
+        self.status = status
+        self.make = make
+        self.color = color
+        self.location = location
+        self.power = power
+        self.cost = cost
+
+
+class History():
+    def __init__(self, id, scooter_id) -> None:
+        self.id = id
+        self.scooter_id = scooter_id
+        self.bookings = []  
+        self.reports = []  
+        self.repairs = []  
+
+class Booking():
+    def __init__(self, booking_id, scooter_id, customer_id, start_time, duration, cost, status) -> None:
+        self.booking_id = booking_id
+        self.customer_id = customer_id
+        self.start_time = start_time
+        self.duration = duration
+        self.cost = cost
+        self.status = status
+    
+
+class Report():
+    def __init__(self, report_id, description, time_of_report, status) -> None:
+        self.id = report_id
+        self.description = description
+        self.time_of_report = time_of_report
+        self.status = status
+       
+
+class Repair():
+    def __init__(self, repair_id, description, linked_report_id, time_of_repair) -> None:
+        self.repair_id = repair_id
+        self.description = description
+        self.linked_report_id = linked_report_id
+        self.time_of_repair = time_of_repair
+
+
