@@ -16,7 +16,7 @@ class Scooter():
     def __init__(self, id, history, status, make, color, location, power, cost) -> None:
         self.scooter_id = id
         ##Of type History()
-        self.history = history
+        #self.history = history #Need to decide how we do this here as it will effect database operations
         self.status = status
         self.make = make
         self.color = color
