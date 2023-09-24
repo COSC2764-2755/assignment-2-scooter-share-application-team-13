@@ -13,7 +13,7 @@ class Customer():
 
 
 class Scooter():
-    def __init__(self, id, history, status, make, color, location, power, cost) -> None:
+    def __init__(self, id, status, make, color, location, power, cost) -> None:
         self.scooter_id = id
         ##Of type History()
         #self.history = history #Need to decide how we do this here as it will effect database operations
@@ -30,21 +30,24 @@ class History():
         self.id = id
         self.scooter_id = scooter_id
         self.bookings = []  
-        self.reports = []  
+        self.reports = []
         self.repairs = []  
 
 class Booking():
-    def __init__(self, booking_id, scooter_id, customer_id, start_time, duration, cost, status) -> None:
+    def __init__(self, location, booking_id, scooter_id, customer_id, start_time, duration, cost, status) -> None:
+        self.location = location
         self.booking_id = booking_id
+        self.scooter_id = scooter_id
         self.customer_id = customer_id
         self.start_time = start_time
         self.duration = duration
         self.cost = cost
         self.status = status
-    
+
 
 class Report():
-    def __init__(self, report_id, description, time_of_report, status) -> None:
+    def __init__(self, report_id, scooter_id, description, time_of_report, status) -> None:
+        self.scooter_id = scooter_id
         self.id = report_id
         self.description = description
         self.time_of_report = time_of_report
@@ -52,7 +55,8 @@ class Report():
        
 
 class Repair():
-    def __init__(self, repair_id, description, linked_report_id, time_of_repair) -> None:
+    def __init__(self, repair_id, scooter_id, description, linked_report_id, time_of_repair) -> None:
+        self.scooter_id =scooter_id
         self.repair_id = repair_id
         self.description = description
         self.linked_report_id = linked_report_id

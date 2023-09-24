@@ -1,7 +1,7 @@
 # Flask main
 from flask import Flask
 from flask_restful import Api, Resource, reqparse
-from records import Customer
+from records import *
 from db import DatabaseConnector
 
 
@@ -35,7 +35,35 @@ class Registration(Resource):
 
         return f"{customer_object.first_name} has the password {customer_object.password}"
     
-    
+
+class Booking(Resource):
+    def __init__(self) -> None:
+        super().__init__()
+        self._booking_put_args = reqparse.RequestParser()
+        self._booking_put_args.add_argument("location", type=str, help="Booking location")
+        self._booking_put_args.add_argument("booking_id", type=int, help="Booking ID")
+        self._booking_put_args.add_argument("scooter_id", type=int, help="Scooter ID")
+        self._booking_put_args.add_argument("customer_id", type=int, help="Customer ID")
+        self._booking_put_args.add_argument("start_time", type=str, help="Start time")
+        self._booking_put_args.add_argument("duration", type=float, help="Booking duration")
+        self._booking_put_args.add_argument("cost", type=float, help="Booking cost")
+        self._booking_put_args.add_argument("status", type=str, help="Booking status")
+
+    def put(self):
+        #Not sure why this is saying wrong number of args
+        args = self._booking_put_args.parse_args()
+        booking_object = Booking(args['location'], args['booking_id'],
+            args['scooter_id'], args['customer_id'],
+            args['start_time'], args['duration'],
+            args['cost'], args['status'])
+
+        database_controller = DatabaseConnector()  # TODO: Find somewhere better to initialize db
+        database_controller.create_table()
+        database_controller.add_booking(booking_object)
+
+        return f"You have made a booking for {booking_object.start_time} under the customer id: {booking_object.customer_id}"
+
+api.add_resource(Booking, "/add_booking")    
 api.add_resource(Registration, "/register")
 
 if __name__ == "__main__":

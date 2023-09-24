@@ -41,10 +41,8 @@ class DatabaseConnector:
 
 
 
-#Scooter related database interactions 
+#Scooter related database interactions - Bookings, repairs and reports # check if we need to make an individual histroy table
 
-#Scooter table with auto incrmenting to assign ID (other ways could be used). Also decide how to handle the histroy which incapsualtes bookings,
-#reports and reapires for a single scooter
     def create_scooter_table(self):
         con = lite.connect(self._file)
         with con:
@@ -59,6 +57,50 @@ class DatabaseConnector:
                         power DECIMAL(10, 2),       \
                         cost DECIMAL(10, 2));")
             con.commit()
+
+
+    def create_booking_table(self):
+        con = lite.connect(self._file)
+        with con:
+            cur = con.cursor()
+            cur.execute("CREATE TABLE IF NOT EXISTS Booking (      \
+                        booking_id INT PRIMARY KEY AUTOINCREMENT, \                               \
+                        scooter_id INT,                              \
+                        customer_id INT,                             \
+                        start_time DATETIME,                         \
+                        duration DECIMAL(10, 2),                     \
+                        cost DECIMAL(10, 2),                         \
+                        status VARCHAR(255));")
+            con.commit()
+
+
+    def create_report_table(self):
+        con = lite.connect(self._file)
+        with con:
+            cur = con.cursor()
+            cur.execute("CREATE TABLE IF NOT EXISTS Report (      \
+                        report_id INT PRIMARY KEY AUTOINCREMENT,  \
+                        time_of_report DATETIME,                    \
+                        scooter_id INT,                             \
+                        start_time DATETIME,                         \
+                        status VARCHAR(255));")
+            con.commit()
+
+
+    def create_rapair_table(self):
+        con = lite.connect(self._file)
+        with con:
+            cur = con.cursor()
+            cur.execute("CREATE TABLE IF NOT EXISTS Repair (      \
+                        repair_id INT PRIMARY KEY AUTOINCREMENT,  \
+                        time_of_repair DATETIME,                    \
+                        scooter_id INT,                             \
+                        start_time DATETIME,                         \
+                        linked_report_id INT);")
+            con.commit()
+
+           
+
 
 #Simply adds a new scooter instance to the database, #Does not need to include the ID as that is auto incremented in the database 
     def add_scoooter(self, new_scooter:Scooter):
@@ -103,6 +145,38 @@ class DatabaseConnector:
                 return scooter
             else:
                 return None
+
+
+#Takes in a single id and retrives the booking, tho assumes the id is unique 
+    def get_booking_by_id(self, booking_id):
+        con = lite.connect(self._file)
+        with con:
+            cur = con.cursor()
+            query = "SELECT * FROM Booking WHERE id = ?"
+            cur.execute(query, (booking_id))
+            row = cur.fetchone()
+                #Double check that this maps out correctly when getting the db data in an instance
+            if row:
+                Booking = Booking(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7])
+                return Booking
+            else:
+                return None
+
+#Takes in a booking instance and sends it to the database, id is left out as it is assinged in the db
+    def add_booking(self, new_booking:Booking):
+        con = lite.connect(self._file)
+        with con: 
+            cur = con.cursor() 
+            query = "INSERT INTO Booking (booking_location, scooter_id, customer_id, start_time, duration, cost, status) VALUES (?, ?, ?, ?, ?, ?, ?)"
+            booking_data = (new_booking.location,
+                            new_booking.scooter_id,
+                            new_booking.customer_id, 
+                            new_booking.start_time, 
+                            new_booking.duration, 
+                            new_booking.cost, 
+                            new_booking.status)
+            cur.execute(query, booking_data)
+            con.commit()
 
 
 
