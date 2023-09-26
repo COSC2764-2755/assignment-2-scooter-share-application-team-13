@@ -14,5 +14,9 @@ def register():
 def login():
     return render_template("login.html")
 
+@app.route('/booking')
+def booking():
+    return render_template('booking.html')
+
 if __name__ == '__main__':
     app.run(debug=True)
