@@ -30,7 +30,8 @@ class Registration(Resource):
         
         database_controller.add_customer(customer_object)
 
-        return f"{customer_object.first_name} has the password {customer_object.password}"
+        return f"Account with username {customer_object.username} created successfully!"
+        
     
     
 class Login(Resource):
