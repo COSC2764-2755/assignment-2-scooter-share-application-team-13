@@ -35,6 +35,20 @@ response = requests.put(BASE + endpoint, data=json.dumps(scooter_data), headers=
 
 print(response.json())
 
-        
+#Test create scooter
+        # Define the scooter data for testing
+scooter_data = {
+            "status": "Available",
+            "make": "ABC",
+            "color": "Blue",
+            "location": "Location A",
+            "power": 90,
+            "cost": 6.0
+        }
+headers = {"Content-Type": "application/json"}  # Set the Content-Type header
+endpoint = "add_scooter"
+response = requests.put(BASE + endpoint, data=json.dumps(scooter_data), headers=headers)  # Use json.dumps to convert the payload to JSON
+
+print(response.json())   
 
 #Test create Booking 
