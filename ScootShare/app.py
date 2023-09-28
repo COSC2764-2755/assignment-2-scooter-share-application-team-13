@@ -36,7 +36,7 @@ class Registration(Resource):
         return f"{customer_object.first_name} has the password {customer_object.password}"
     
 
-class Booking(Resource):
+class Make_Booking(Resource):
     def __init__(self) -> None:
         super().__init__()
         self._booking_put_args = reqparse.RequestParser()
@@ -50,7 +50,6 @@ class Booking(Resource):
         self._booking_put_args.add_argument("status", type=str, help="Booking status")
 
     def put(self):
-        #Not sure why this is saying wrong number of args
         args = self._booking_put_args.parse_args()
         booking_object = Booking(args['location'], args['booking_id'],
             args['scooter_id'], args['customer_id'],
@@ -63,7 +62,39 @@ class Booking(Resource):
 
         return f"You have made a booking for {booking_object.start_time} under the customer id: {booking_object.customer_id}"
 
-api.add_resource(Booking, "/add_booking")    
+class addScooter(Resource):
+    def __init__(self) -> None:
+        super().__init__()
+        self._scooter_put_args = reqparse.RequestParser()
+        self._scooter_put_args.add_argument("status", type=str, help="Scooter status")
+        self._scooter_put_args.add_argument("make", type=str, help="Scooter make")
+        self._scooter_put_args.add_argument("color", type=str, help="Scooter color")
+        self._scooter_put_args.add_argument("location", type=str, help="Scooter location")
+        self._scooter_put_args.add_argument("power", type=float, help="Power remaining")
+        self._scooter_put_args.add_argument("cost", type=float, help="Cost per min")
+
+    def put(self):
+        args = self._scooter_put_args.parse_args()
+        scooter = Scooter(
+            status=args['status'],
+            make=args['make'],
+            color=args['color'],
+            location=args['location'],
+            power=args['power'],
+            cost=args['cost']
+        )
+
+        database_controller = DatabaseConnector() # TODO: Find somewhere better to initialise db
+        database_controller.create_scooter_table()
+        database_controller.add_scoooter(scooter)
+
+        # Print the parsed arguments in a single statement
+        print(f"Parsed Arguments:\nStatus: {args['status']}\nMake: {args['make']}\nColor: {args['color']}\nLocation: {args['location']}\nPower: {args['power']}\nCost: {args['cost']}")
+
+        return f"You added a new scooter to the db colored {scooter.color} and with a charge of {scooter.power}"
+
+api.add_resource(addScooter, "/add_scooter")
+api.add_resource(Make_Booking, "/add_booking")    
 api.add_resource(Registration, "/register")
 
 if __name__ == "__main__":

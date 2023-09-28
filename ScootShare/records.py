@@ -13,10 +13,8 @@ class Customer():
 
 
 class Scooter():
-    def __init__(self, id, status, make, color, location, power, cost) -> None:
+    def __init__(self, status, make, color, location, power, cost,id=None) -> None:
         self.scooter_id = id
-        ##Of type History()
-        #self.history = history #Need to decide how we do this here as it will effect database operations
         self.status = status
         self.make = make
         self.color = color

@@ -49,7 +49,7 @@ class DatabaseConnector:
             cur = con.cursor()
             cur.execute("DROP TABLE IF EXISTS Scooter")
             cur.execute("CREATE TABLE Scooter (      \
-                        id INT PRIMARY KEY AUTOINCREMENT,         \
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,         \
                         status VARCHAR(255),          \
                         make VARCHAR(255),          \
                         color VARCHAR(255),         \
@@ -145,6 +145,21 @@ class DatabaseConnector:
                 return scooter
             else:
                 return None
+            
+    def fetch_scooters_from_db(self):
+        con = lite.connect(self._file)
+        with con:
+            cur = con.cursor()
+            query = "SELECT id, status, make, color, location, power, cost FROM Scooter"
+            cur.execute(query)
+            scooters_data = cur.fetchall()
+
+        scooters = [Scooter(*row) for row in scooters_data]
+
+        return scooters
+            
+
+
 
 
 #Takes in a single id and retrives the booking, tho assumes the id is unique 
