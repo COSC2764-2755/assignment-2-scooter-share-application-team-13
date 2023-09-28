@@ -43,6 +43,7 @@ class DatabaseConnector:
 
 #Scooter related database interactions - Bookings, repairs and reports # check if we need to make an individual histroy table
 
+#Discuss if we will merge all the create table methods 
     def create_scooter_table(self):
         con = lite.connect(self._file)
         with con:
@@ -64,7 +65,7 @@ class DatabaseConnector:
         with con:
             cur = con.cursor()
             cur.execute("CREATE TABLE IF NOT EXISTS Booking (      \
-                        booking_id INT PRIMARY KEY AUTOINCREMENT, \                               \
+                        booking_id INTEGER PRIMARY KEY AUTOINCREMENT,                              \
                         scooter_id INT,                              \
                         customer_id INT,                             \
                         start_time DATETIME,                         \
@@ -79,7 +80,7 @@ class DatabaseConnector:
         with con:
             cur = con.cursor()
             cur.execute("CREATE TABLE IF NOT EXISTS Report (      \
-                        report_id INT PRIMARY KEY AUTOINCREMENT,  \
+                        report_id INTEGER PRIMARY KEY AUTOINCREMENT,  \
                         time_of_report DATETIME,                    \
                         scooter_id INT,                             \
                         start_time DATETIME,                         \
@@ -92,7 +93,7 @@ class DatabaseConnector:
         with con:
             cur = con.cursor()
             cur.execute("CREATE TABLE IF NOT EXISTS Repair (      \
-                        repair_id INT PRIMARY KEY AUTOINCREMENT,  \
+                        repair_id INTEGER PRIMARY KEY AUTOINCREMENT,  \
                         time_of_repair DATETIME,                    \
                         scooter_id INT,                             \
                         start_time DATETIME,                         \
@@ -119,8 +120,7 @@ class DatabaseConnector:
             con.commit()
 
     
-#Decide if we want to pass in an already updated scooter object and pull the values from that, or if we just pass in the needed info being the 
-# new status and the scooter to update it on (how its intended to work now)
+#Takes in an id and updates the status of that scooter 
     def change_scooter_status(self, scooter_id, new_status):
         con = lite.connect(self._file)
         with con:
@@ -130,7 +130,7 @@ class DatabaseConnector:
             con.commit()
 
 
-#Pass in an id and get a scooter instance, 
+#Get a specfic scooter by ID 
     def get_scooter_by_id(self, scooter_id):
         con = lite.connect(self._file)
         with con:
@@ -146,11 +146,12 @@ class DatabaseConnector:
             else:
                 return None
             
+#Gets all scooters in the db
     def fetch_scooters_from_db(self):
         con = lite.connect(self._file)
         with con:
             cur = con.cursor()
-            query = "SELECT id, status, make, color, location, power, cost FROM Scooter"
+            query = "SELECT status, make, color, location, power, cost, id FROM Scooter;"
             cur.execute(query)
             scooters_data = cur.fetchall()
 
@@ -158,9 +159,7 @@ class DatabaseConnector:
 
         return scooters
             
-
-
-
+#Booking related methods
 
 #Takes in a single id and retrives the booking, tho assumes the id is unique 
     def get_booking_by_id(self, booking_id):
@@ -176,6 +175,44 @@ class DatabaseConnector:
                 return Booking
             else:
                 return None
+
+#Returns all bookings evermade
+    def get_all_bookings(self):
+        con = lite.connect(self._file)
+        with con:
+            cur = con.cursor()
+            query = "SELECT * FROM Booking"
+            cur.execute(query)
+            booking_data = cur.fetchall()
+
+        bookings = [Booking(*row) for row in booking_data]
+        return bookings
+    
+#Takes in a customerID and gets all bookings attached to that customer
+    def get_bookings_by_customer_id(self, customer_id):
+        con = lite.connect(self._file)
+        with con:
+            cur = con.cursor()
+            query = "SELECT * FROM Booking WHERE customer_id = ?"
+            cur.execute(query, (customer_id,))
+            booking_data = cur.fetchall()
+
+        bookings = [Booking(*row) for row in booking_data]
+        return bookings
+    
+    #Takes in a scooterID and gets all bookings for that scooter
+    def get_bookings_by_scooter_id(self, scooter_id):
+        con = lite.connect(self._file)
+        with con:
+            cur = con.cursor()
+            query = "SELECT * FROM Booking WHERE scooter_id = ?"
+            cur.execute(query, (scooter_id,))
+            booking_data = cur.fetchall()
+
+        bookings = [Booking(*row) for row in booking_data]
+        return bookings
+
+
 
 #Takes in a booking instance and sends it to the database, id is left out as it is assinged in the db
     def add_booking(self, new_booking:Booking):
@@ -195,3 +232,29 @@ class DatabaseConnector:
 
 
 
+#Repair methods #For this to work to create instance as with for bookings and scooters the order of the valuea access needs to be inline with
+#the constructer for each class, otherwise you might make wrong assignments 
+
+    def get_repairs_by_scooter_id(self, scooter_id):
+            con = lite.connect(self._file)
+            with con:
+                cur = con.cursor()
+                query = "SELECT * FROM Repair WHERE scooter_id = ?"
+                cur.execute(query, (scooter_id,))
+                repair_data = cur.fetchall()
+
+            repairs = [Repair(*row) for row in repair_data]
+            return repairs
+
+#Report methods
+
+    def get_reports_by_scooter_id(self, scooter_id):
+                con = lite.connect(self._file)
+                with con:
+                    cur = con.cursor()
+                    query = "SELECT * FROM Report WHERE scooter_id = ?"
+                    cur.execute(query, (scooter_id,))
+                    report_data = cur.fetchall()
+
+                reports = [Report(*row) for row in report_data]
+                return reports

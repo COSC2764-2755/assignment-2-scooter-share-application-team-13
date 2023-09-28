@@ -88,10 +88,54 @@ class addScooter(Resource):
         database_controller.create_scooter_table()
         database_controller.add_scoooter(scooter)
 
-        # Print the parsed arguments in a single statement
-        print(f"Parsed Arguments:\nStatus: {args['status']}\nMake: {args['make']}\nColor: {args['color']}\nLocation: {args['location']}\nPower: {args['power']}\nCost: {args['cost']}")
+        listOfScooters = database_controller.fetch_scooters_from_db()
+
+#Loop here to test 
+        for scooter in listOfScooters:
+            print("Status:", scooter.status)
+            print("Make:", scooter.make)
+            print("Color:", scooter.color)
+            #You will notice that the id repeats itself, 1,1 i'm not sure what the cause
+            #is, though the database is assinging 1 but not incremnting right 
+            print("Scooter ID:", scooter.scooter_id)
+            print("-----------") 
 
         return f"You added a new scooter to the db colored {scooter.color} and with a charge of {scooter.power}"
+
+
+class AddBooking(Resource):
+    def __init__(self) -> None:
+        super().__init__()
+        self._booking_put_args = reqparse.RequestParser()
+        self._booking_put_args.add_argument("location", type=str, help="Booking location")
+        self._booking_put_args.add_argument("scooter_id", type=int, help="Scooter ID")
+        self._booking_put_args.add_argument("customer_id", type=int, help="Customer ID")
+        self._booking_put_args.add_argument("start_time", type=str, help="Start time")
+        self._booking_put_args.add_argument("duration", type=int, help="Duration")
+        self._booking_put_args.add_argument("cost", type=float, help="Booking cost")
+        self._booking_put_args.add_argument("status", type=str, help="Booking status")
+
+    def put(self):
+        args = self._booking_put_args.parse_args()
+        booking = Booking(
+            location=args['location'],
+            scooter_id=args['scooter_id'],
+            customer_id=args['customer_id'],
+            start_time=args['start_time'],
+            duration=args['duration'],
+            cost=args['cost'],
+            status=args['status']
+    )
+        database_controller = DatabaseConnector() # TODO: Find somewhere better to initialise db
+        database_controller.create_booking_table()
+        database_controller.add_booking(booking)
+        listOfBookings = database_controller.get_all_bookings()
+    # Perform actions with the booking object, such as storing it in the database or processing the booking.
+    
+
+
+
+
 
 api.add_resource(addScooter, "/add_scooter")
 api.add_resource(Make_Booking, "/add_booking")    
