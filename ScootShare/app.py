@@ -4,7 +4,6 @@ from flask_restful import Api, Resource, reqparse
 from records import *
 from db import DatabaseConnector
 
-
 app = Flask(__name__)
 api = Api(app)
 
@@ -30,37 +29,10 @@ class Registration(Resource):
         
         database_controller = DatabaseConnector() # TODO: Find somewhere better to initialise db
         database_controller.create_table()
-        
         database_controller.add_customer(customer_object)
 
         return f"{customer_object.first_name} has the password {customer_object.password}"
     
-
-class Make_Booking(Resource):
-    def __init__(self) -> None:
-        super().__init__()
-        self._booking_put_args = reqparse.RequestParser()
-        self._booking_put_args.add_argument("location", type=str, help="Booking location")
-        self._booking_put_args.add_argument("booking_id", type=int, help="Booking ID")
-        self._booking_put_args.add_argument("scooter_id", type=int, help="Scooter ID")
-        self._booking_put_args.add_argument("customer_id", type=int, help="Customer ID")
-        self._booking_put_args.add_argument("start_time", type=str, help="Start time")
-        self._booking_put_args.add_argument("duration", type=float, help="Booking duration")
-        self._booking_put_args.add_argument("cost", type=float, help="Booking cost")
-        self._booking_put_args.add_argument("status", type=str, help="Booking status")
-
-    def put(self):
-        args = self._booking_put_args.parse_args()
-        booking_object = Booking(args['location'], args['booking_id'],
-            args['scooter_id'], args['customer_id'],
-            args['start_time'], args['duration'],
-            args['cost'], args['status'])
-
-        database_controller = DatabaseConnector()  # TODO: Find somewhere better to initialize db
-        database_controller.create_table()
-        database_controller.add_booking(booking_object)
-
-        return f"You have made a booking for {booking_object.start_time} under the customer id: {booking_object.customer_id}"
 
 class addScooter(Resource):
     def __init__(self) -> None:
@@ -90,20 +62,20 @@ class addScooter(Resource):
 
         listOfScooters = database_controller.fetch_scooters_from_db()
 
-#Loop here to test 
+        # Loop here to test 
         for scooter in listOfScooters:
             print("Status:", scooter.status)
             print("Make:", scooter.make)
             print("Color:", scooter.color)
-            #You will notice that the id repeats itself, 1,1 i'm not sure what the cause
-            #is, though the database is assinging 1 but not incremnting right 
+            # You will notice that the id repeats itself, 1,1 i'm not sure what the cause
+            # is, though the database is assigning 1 but not incrementing right
             print("Scooter ID:", scooter.scooter_id)
             print("-----------") 
 
         return f"You added a new scooter to the db colored {scooter.color} and with a charge of {scooter.power}"
-
-
-class AddBooking(Resource):
+       
+  
+class Make_Booking(Resource):
     def __init__(self) -> None:
         super().__init__()
         self._booking_put_args = reqparse.RequestParser()
@@ -125,17 +97,16 @@ class AddBooking(Resource):
             duration=args['duration'],
             cost=args['cost'],
             status=args['status']
-    )
+        )
+        
         database_controller = DatabaseConnector() # TODO: Find somewhere better to initialise db
         database_controller.create_booking_table()
         database_controller.add_booking(booking)
-        listOfBookings = database_controller.get_all_bookings()
-    # Perform actions with the booking object, such as storing it in the database or processing the booking.
-    
+        print("Booking added to db")
 
-
-
-
+        bookings = database_controller.get_all_bookings()
+        
+        return f"You have made a booking for {booking.start_time} under the customer id: {booking.customer_id}"
 
 api.add_resource(addScooter, "/add_scooter")
 api.add_resource(Make_Booking, "/add_booking")    
@@ -143,3 +114,5 @@ api.add_resource(Registration, "/register")
 
 if __name__ == "__main__":
     app.run(debug=True)
+    
+

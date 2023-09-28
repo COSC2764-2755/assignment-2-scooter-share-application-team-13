@@ -44,13 +44,14 @@ class DatabaseConnector:
 #Scooter related database interactions - Bookings, repairs and reports # check if we need to make an individual histroy table
 
 #Discuss if we will merge all the create table methods 
+#Also this seems to be incrementing incorrectly
     def create_scooter_table(self):
         con = lite.connect(self._file)
         with con:
             cur = con.cursor()
             cur.execute("DROP TABLE IF EXISTS Scooter")
-            cur.execute("CREATE TABLE Scooter (      \
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,         \
+            cur.execute("CREATE TABLE IF NOT EXISTS Scooter (      \
+                        scooter_id INTEGER PRIMARY KEY AUTOINCREMENT,         \
                         status VARCHAR(255),          \
                         make VARCHAR(255),          \
                         color VARCHAR(255),         \
@@ -60,12 +61,16 @@ class DatabaseConnector:
             con.commit()
 
 
+
+    #This is auto incrementing correctly, though each run of the program is added a new instance to the db
     def create_booking_table(self):
         con = lite.connect(self._file)
         with con:
             cur = con.cursor()
+            cur.execute("DROP TABLE IF EXISTS Booking")
             cur.execute("CREATE TABLE IF NOT EXISTS Booking (      \
                         booking_id INTEGER PRIMARY KEY AUTOINCREMENT,                              \
+                        booking_location VARCHAR(255),               \
                         scooter_id INT,                              \
                         customer_id INT,                             \
                         start_time DATETIME,                         \
@@ -73,7 +78,6 @@ class DatabaseConnector:
                         cost DECIMAL(10, 2),                         \
                         status VARCHAR(255));")
             con.commit()
-
 
     def create_report_table(self):
         con = lite.connect(self._file)
@@ -100,8 +104,8 @@ class DatabaseConnector:
                         linked_report_id INT);")
             con.commit()
 
-           
 
+           
 
 #Simply adds a new scooter instance to the database, #Does not need to include the ID as that is auto incremented in the database 
     def add_scoooter(self, new_scooter:Scooter):
@@ -151,7 +155,7 @@ class DatabaseConnector:
         con = lite.connect(self._file)
         with con:
             cur = con.cursor()
-            query = "SELECT status, make, color, location, power, cost, id FROM Scooter;"
+            query = "SELECT status, make, color, location, power, cost, scooter_id FROM Scooter;"
             cur.execute(query)
             scooters_data = cur.fetchall()
 
@@ -177,16 +181,31 @@ class DatabaseConnector:
                 return None
 
 #Returns all bookings evermade
+    # Returns all bookings ever made
     def get_all_bookings(self):
         con = lite.connect(self._file)
         with con:
             cur = con.cursor()
-            query = "SELECT * FROM Booking"
+            query = "SELECT booking_location, scooter_id, customer_id, start_time, duration, cost, status, booking_id FROM Booking"
             cur.execute(query)
             booking_data = cur.fetchall()
+            print("------------Showing all existing bookings-----------")
+            for row in booking_data:
+                booking = Booking(*row)
+                print("Location:", booking.location)
+                print("Booking ID:", booking.booking_id)
+                print("Scooter ID:", booking.scooter_id)
+                print("Customer ID:", booking.customer_id)
+                print("Start Time:", booking.start_time)
+                print("Duration:", booking.duration)
+                print("Cost:", booking.cost)
+                print("Status:", booking.status)
+                print("-----------")
+
 
         bookings = [Booking(*row) for row in booking_data]
         return bookings
+
     
 #Takes in a customerID and gets all bookings attached to that customer
     def get_bookings_by_customer_id(self, customer_id):
@@ -201,7 +220,7 @@ class DatabaseConnector:
         return bookings
     
     #Takes in a scooterID and gets all bookings for that scooter
-    def get_bookings_by_scooter_id(self, scooter_id):
+    def fetch_bookings_by_scooter_id(self, scooter_id):
         con = lite.connect(self._file)
         with con:
             cur = con.cursor()
