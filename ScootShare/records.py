@@ -25,6 +25,7 @@ class Scooter():
 
 class History():
     def __init__(self, id, scooter_id) -> None:
+        #Discuss how this will link to the scooter, if we have a scooterID and then get all reports bookings and repairs that relate to that scooter
         self.id = id
         self.scooter_id = scooter_id
         self.bookings = []  
@@ -32,7 +33,7 @@ class History():
         self.repairs = []  
 
 class Booking():
-    def __init__(self, location, booking_id, scooter_id, customer_id, start_time, duration, cost, status) -> None:
+    def __init__(self, location, scooter_id, customer_id, start_time, duration, cost, status, booking_id=None) -> None:
         self.location = location
         self.booking_id = booking_id
         self.scooter_id = scooter_id
@@ -44,7 +45,7 @@ class Booking():
 
 
 class Report():
-    def __init__(self, report_id, scooter_id, description, time_of_report, status) -> None:
+    def __init__(self, scooter_id, description, time_of_report, status, report_id=None) -> None:
         self.scooter_id = scooter_id
         self.id = report_id
         self.description = description
