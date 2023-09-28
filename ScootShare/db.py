@@ -35,7 +35,7 @@ class DatabaseConnector:
                              new_customer.last_name,
                              new_customer.phone_number,
                              new_customer.email_address,
-                             new_customer.password,
+                             hash_password(new_customer.password),
                              new_customer.balance)
             cur.execute(query, customer_data)
             con.commit()
