@@ -9,3 +9,9 @@ class Customer():
         self.email_address = email
         self.password = password
         self.balance = balance
+
+
+class Engineer():
+    def __init__(self, username, password):
+        self.username = username
+        self.password = password
