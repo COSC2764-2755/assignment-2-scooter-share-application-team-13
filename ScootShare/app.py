@@ -57,7 +57,7 @@ class addScooter(Resource):
         )
 
         database_controller = DatabaseConnector() # TODO: Find somewhere better to initialise db
-        database_controller.create_scooter_table()
+        database_controller.create_scooter_table() #TDO: Move to a database init method or something
         database_controller.add_scoooter(scooter)
 
         listOfScooters = database_controller.fetch_scooters_from_db()
@@ -67,8 +67,7 @@ class addScooter(Resource):
             print("Status:", scooter.status)
             print("Make:", scooter.make)
             print("Color:", scooter.color)
-            # You will notice that the id repeats itself, 1,1 i'm not sure what the cause
-            # is, though the database is assigning 1 but not incrementing right
+            # ScooterID will alwaysd be one if the create tables method stays in this class
             print("Scooter ID:", scooter.scooter_id)
             print("-----------") 
 
