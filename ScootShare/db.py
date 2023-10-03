@@ -1,4 +1,6 @@
 import sqlite3 as lite
+import csv
+import pandas as pd
 from records import Customer, Engineer
 from db_utils import hash_password, verify_password
 
@@ -12,8 +14,8 @@ class DatabaseConnector:
         with con:
             cur = con.cursor()
             # Temporary while db is local
-            cur.execute("DROP TABLE IF EXISTS Customer")
-            cur.execute("CREATE TABLE Customer (            \
+            # cur.execute("DROP TABLE IF EXISTS Customer")
+            cur.execute("CREATE TABLE IF NOT EXISTS Customer (            \
                         username VARCHAR(50) PRIMARY KEY,   \
                         first_name VARCHAR(255),            \
                         last_name VARCHAR(255),             \
@@ -24,6 +26,20 @@ class DatabaseConnector:
                         )
             con.commit()
 
+    def create_engineer(self) -> None:
+        con = lite.connect(self._file)
+        with con:
+            cur = con.cursor()
+            # Temporary while db is local
+
+            cur.execute("DROP TABLE IF EXISTS Engineer")
+            cur.execute("CREATE TABLE Engineer (            \
+                        username VARCHAR(50) PRIMARY KEY,   \
+                        password VARCHAR(255));"
+                        )
+            con.commit()
+    
+    
     def add_customer(self, new_customer: Customer) -> None:
         con = lite.connect(self._file)
         with con:
@@ -73,28 +89,43 @@ class DatabaseConnector:
             # Handle any database-related errors here
             print("Database error:", str(e))
             return None
-
-    def create_engineer_table(self):
+        
+    
+    def add_engineer(self):      
+        # con = lite.connect(self._file)
+        # cur = con.cursor()    
+        # with open('engineer_login.csv',"r") as f:
+        #     reader = csv.reader(f)
+        #     next(csv.reader(f), None)
+            
+        #     for entry in reader:
+                
+        #         try:
+        #             print(reader.line_num)
+        #             record = (entry[0],entry[1])
+                    
+        #             stmt = "INSERT INTO Engineer (username, password) VALUES (?, ?)"
+                    
+        #             cur.execute(stmt,record)
+        #         except csv.Error as e:
+        #             print(f'Line:{reader.line_num}, Record:{record}')
+        
         con = lite.connect(self._file)
         with con:
-            cur = con.cursor()
-            cur.execute("DROP TABLE IF EXISTS Engineer")
-            cur.execute("CREATE TABLE Engineer (            \
-                        username VARCHAR(50) PRIMARY KEY,   \
-                        password VARCHAR(255));"
-                        )
-            con.commit()
-
-    def add_engineer(self, new_engineer: Engineer):
-        con = lite.connect(self._file)
-        with con:
-            cur = con.cursor()
-            query = "INSERT INTO Engineer (username, password) VALUES (?, ?)"
-            engineer_data = ('Etest',
-                             hash_password('test'))
-            cur.execute(query, engineer_data)
-            con.commit()
-
+            cur = con.cursor()    
+            with open('engineer_login.csv','r') as fin:
+                reader = csv.reader(fin)
+                next(csv.reader(fin), None)   
+                for entry in reader:
+                    try:
+                        record = (entry[0],hash_password(entry[1]))
+                        query = "INSERT INTO Engineer (username, password) VALUES (?, ?)"
+                        cur.execute(query, record)
+                        con.commit()
+                    except csv.Error as e:
+                        print(f'Line:{reader.line_num}, Record:{record}')
+                    
+                    
     def get_engineer(self, username: str, password: str) -> Engineer:
         # connect to db
         con = lite.connect(self._file)
@@ -102,7 +133,7 @@ class DatabaseConnector:
         try:
             with con:
                 cur = con.cursor()
-                # get customer record by username
+                # get engineer record by username
                 query = "SELECT * FROM Engineer WHERE username = ?;"
                 print("Querying database for username:", username)
                 cur.execute(query, (username,))
@@ -123,7 +154,6 @@ class DatabaseConnector:
                     result[0], result[1])
                 # return customer object
                 return engineer
-
         except lite.Error as e:
             # Handle any database-related errors here
             print("Database error:", str(e))

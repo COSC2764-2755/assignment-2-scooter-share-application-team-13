@@ -1,13 +1,13 @@
 # Flask main
-from flask import Flask, render_template, make_response
+from flask import Flask, render_template, make_response, redirect
 from flask_restful import Api, Resource, reqparse
 from records import Customer
 from db import DatabaseConnector
+from flask_site import site
 
 
 app = Flask(__name__)
 api = Api(app)
-
 
 class Registration(Resource):
     def __init__(self) -> None:
@@ -36,13 +36,12 @@ class Registration(Resource):
         # TODO: Find somewhere better to initialise db
         database_controller = DatabaseConnector()
         database_controller.create_table()
+        database_controller.create_engineer()
 
+        database_controller.add_engineer()
         database_controller.add_customer(customer_object)
-
-        return f"Account with username {customer_object.username} created successfully!"
-
-    def get(self):
-        return make_response(render_template("register.html"))
+        print(f"Account with username {customer_object.username} created successfully!")
+        return redirect('login')
 
 
 class Login(Resource):
@@ -63,26 +62,19 @@ class Login(Resource):
         db_user = database_controller.get_customer(
             args['username'], args['password'])
         if db_user:
-            return f"Successfully signed in as {db_user.username}"
+            print(f"Successfully signed in as {db_user.username}")
+            return redirect('/booking')
+        else :
+            db_engineer = database_controller.get_engineer( 
+                args['username'], args['password'])
+            if db_engineer:
+                print(f"Successfully Signed in as {db_engineer.username}")
+                return redirect('/booking')
 
-    def get(self):
-        return make_response(render_template("login.html"))
-
-
-class Landing(Resource):
-    def get(self):
-        return make_response(render_template("landing.html"))
-
-
-class Booking(Resource):
-    def get(self):
-        return make_response(render_template("booking.html"))
-
-
-api.add_resource(Landing, '/')
 api.add_resource(Registration, '/api/register')
 api.add_resource(Login, '/api/login')
-api.add_resource(Booking, '/booking')
+
+app.register_blueprint(site)
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host = "0.0.0.0", debug=True)

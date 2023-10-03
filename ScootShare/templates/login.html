@@ -26,8 +26,6 @@
             <figure>
               <img src="/static/images/scooter.jpg" alt="sing up image" style="width: 800px; height: 300px;">
             </figure>
-
-            <a href="{{ url_for('registration') }}">Create an account</a>
           </div>
           <div class="signin-form">
             <h2 class="form-title">Log In</h2>
@@ -47,6 +45,7 @@
               <div class="form-group form-button">
                 <input type="submit" name="signin" id="signin" class="form-submit" value="Log in" />
               </div>
+              <a href="{{ url_for('registration') }}">Create an account</a>
             </form>
             <div class="social-login">
               <span class="social-label">Or login with</span>
