@@ -22,3 +22,8 @@ def login_view():
 @site.route('/booking', methods=['GET', 'POST'])
 def booking_view():
     return render_template("booking.html")
+
+@site.route('/dashboard', methods=['GET', 'POST'])
+def dashboard_view():
+    return render_template("dashboard.html")
+

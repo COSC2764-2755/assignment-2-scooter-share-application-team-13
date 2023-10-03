@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Dashboard</title>
+ 
+</head>
+<body>
+    <header>
+        <h1>Customer Dashboard</h1>
+        <nav>
+            <a href="/dashboard">Dashboard</a>
+            <a href="/logout">Logout</a>
+        </nav>
+    </header>
+
+    <main>
+        <h2>Welcome, {{ current_user.username }}</h2>
+        <h3>Your Balance: ${{ current_user.balance }}</h3>
+
+        <form action="/top_up" method="post">
+            <label for="amount">Top Up Amount:</label>
+            <input type="number" name="amount" id="amount" step="0.01" min="0">
+            <button type="submit">Top Up</button>
+        </form>
+
+        <h3>Available Scooters:</h3>
+        <ul>
+            {% for scooter in scooters %}
+            <li>
+                <h4>Scooter ID: {{ scooter.id }}</h4>
+                <p>Details: {{ scooter.details }}</p>
+                <form action="/book/{{ scooter.id }}" method="post">
+                    <button type="submit">Book</button>
+                </form>
+            </li>
+            {% endfor %}
+        </ul>
+
+        <h2>My Bookings</h2>
+        <ul>
+            {% for booking in bookings %}
+            <li>
+                <h4>Booking ID: {{ booking.id }}</h4>
+                <p>Scooter ID: {{ booking.scooter_id }}</p>
+                <form action="/cancel_booking/{{ booking.id }}" method="post">
+                    <button type="submit">Cancel Booking</button>
+                </form>
+            </li>
+            {% endfor %}
+        </ul>
+    </main>
+
+    <footer>
+        <p>............................</p>
+    </footer>
+</body>
+</html>
