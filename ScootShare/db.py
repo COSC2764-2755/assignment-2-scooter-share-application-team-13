@@ -40,6 +40,51 @@ class DatabaseConnector:
             con.commit()
 
 
+    def get_customer_by_id(self, customer_id):
+        """
+        Get a customer by their ID.
+
+        Args:
+            customer_id (int): The ID of the customer to retrieve.
+
+        Returns:
+            Customer or None: A Customer object if found, or None if not found.
+        """
+        con = lite.connect(self._file)
+        with con:
+            cur = con.cursor()
+            query = "SELECT * FROM Customer WHERE id = ?"
+            cur.execute(query, (customer_id,))
+            result = cur.fetchone()
+
+            if result:
+                id, first_name, last_name, phone_number, email_address, username, password, balance = result
+                return Customer(id, first_name, last_name, phone_number, email_address, username, password, balance)
+            else:
+                return None
+
+#Should we add docstrings to our methods?
+    def update_balance(self, customer_id, updated_balance):
+            """
+            Update the balance for a customer.
+
+            Args:
+                customer_id (int): The ID of the customer to update.
+                updated_balance (float): The new balance for the customer.
+            """
+            con = lite.connect(self._file)
+            with con:
+                cur = con.cursor()
+                query = "UPDATE Customer SET balance = ? WHERE id = ?"
+                cur.execute(query, (updated_balance, customer_id))
+                con.commit()
+
+
+
+
+
+
+
 
 #Scooter related database interactions - Bookings, repairs and reports # check if we need to make an individual histroy table
 

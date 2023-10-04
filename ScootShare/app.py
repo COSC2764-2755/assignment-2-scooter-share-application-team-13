@@ -151,12 +151,40 @@ class Make_Repair(Resource):
         return f"You did a repair at: {repair.time_of_repair} to address: {repair.description}"
 
 
+class Top_up_Balanace(Resource):
+    def __init__(self) -> None:
+        super().__init__()
+        self._customer_put_args = reqparse.RequestParser()
+        self._customer_put_args.add_argument("customerid", type=str, help="CustomerID")
+        self._customer_put_args.add_argument("top_up", type=str, help="Amount to add")
+
+    def put(self):
+        args = self._customer_put_args.parse_args()
+        customer_id=args['customer_id']
+        amount=args['top_up']
+                
+            # Validate customer_id and amount # decide if we want error messages here
+        if not isinstance(amount, float) or amount <= 0:
+            return "Invalid input. Please provide a valid customer ID and a positive amount."
+
+        customer = database_controller.get_customer_by_id(customer_id)
+
+        if customer is None:
+            return f"Customer with ID {customer_id} not found."
+
+        # Update the balance
+        customer.balance += amount
+        database_controller.update_balance(customer_id, customer.balance)
+
+        return f"You topped up user {customer_id} with an amount of {amount}. New balance: {customer.balance}"
+
 
 api.add_resource(addScooter, "/add_scooter")
 api.add_resource(Make_Booking, "/add_booking")    
 api.add_resource(Registration, "/register")
 api.add_resource(Make_Report, "/new_report")
 api.add_resource(Make_Repair, "/new_repair")
+api.add_resource(Top_up_Balanace, "/top_up")
 
 if __name__ == "__main__":
     app.run(debug=True)
