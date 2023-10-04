@@ -6,21 +6,44 @@ class DatabaseConnector:
     def __init__(self) -> None:
         self._file = 'ScootShare.db'
 
-    def create_table(self) -> None:
+    def create_customer_table(self) -> None:
         con = lite.connect(self._file)
         with con: 
             cur = con.cursor() 
-            cur.execute("DROP TABLE IF EXISTS Customer") # Temporary while db is local
-            cur.execute("CREATE TABLE Customer (            \
-                        username VARCHAR(50) PRIMARY KEY,   \
-                        first_name VARCHAR(255),            \
-                        last_name VARCHAR(255),             \
-                        phone_number VARCHAR(20),           \
-                        email_address VARCHAR(255),         \
-                        password VARCHAR(255),              \
+            cur.execute("CREATE TABLE IF NOT EXISTS Customer (  \
+                        username VARCHAR(50) PRIMARY KEY,       \
+                        first_name VARCHAR(255),                \
+                        last_name VARCHAR(255),                 \
+                        phone_number VARCHAR(20),               \
+                        email_address VARCHAR(255),             \
+                        password VARCHAR(255),                  \
                         balance DECIMAL(10, 2));"
                         )
             con.commit()
+    
+    def create_staff_table(self) -> None:
+        con = lite.connect(self._file)
+        with con: 
+            cur = con.cursor() 
+            cur.execute("CREATE TABLE IF NOT EXISTS Staff (     \
+                        username VARCHAR(50) PRIMARY KEY,       \
+                        password VARCHAR(255);"
+                        )
+            con.commit()
+
+    def get_staff(self, username: str, password: str):
+        con = lite.connect(self._file)
+        with con:
+            cur = con.cursor()
+            query = "SELECT * FROM Staff WHERE username = ?;"
+            cur.execute(query, (username,))
+            result = cur.fetchone()
+            if result is None:
+                return None
+            stored_password_hash = result[1]
+            if not verify_password(stored_password_hash, password):
+                return None
+        return username
     
     def add_customer(self, new_customer:Customer) -> None:
         con = lite.connect(self._file)
