@@ -43,22 +43,30 @@ class Booking():
         self.cost = cost
         self.status = status
 
+    def __str__(self):
+        return f"Booking ID: {self.booking_id}\nLocation: {self.location}\nScooter ID: {self.scooter_id}\nCustomer ID: {self.customer_id}\nStart Time: {self.start_time}\nDuration: {self.duration}\nCost: {self.cost}\nStatus: {self.status}"
+
+
 
 class Report():
     def __init__(self, scooter_id, description, time_of_report, status, report_id=None) -> None:
-        self.scooter_id = scooter_id
         self.id = report_id
+        self.scooter_id = scooter_id
         self.description = description
         self.time_of_report = time_of_report
         self.status = status
        
 
 class Repair():
-    def __init__(self, repair_id, scooter_id, description, linked_report_id, time_of_repair) -> None:
+    def __init__(self, scooter_id, description, linked_report_id, time_of_repair, repair_id=None) -> None:
         self.scooter_id =scooter_id
         self.repair_id = repair_id
         self.description = description
         self.linked_report_id = linked_report_id
         self.time_of_repair = time_of_repair
+
+    def __str__(self):
+        return f"Repair ID: {self.repair_id}\nScooter ID: {self.scooter_id}\nDescription: {self.description}\nLinked Report ID: {self.linked_report_id}\nTime of Repair: {self.time_of_repair}"
+
 
 
