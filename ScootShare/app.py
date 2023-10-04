@@ -6,6 +6,13 @@ from db import DatabaseConnector
 
 app = Flask(__name__)
 api = Api(app)
+database_controller = DatabaseConnector() # TODO: Find somewhere better to initialise db
+database_controller.create_table()
+database_controller.create_booking_table()
+database_controller.create_report_table()
+database_controller.create_scooter_table()
+database_controller.create_repair_table()
+
 
 class Registration(Resource):
     def __init__(self) -> None:
@@ -27,10 +34,8 @@ class Registration(Resource):
                                    args['email_address'], args['username'], 
                                    args['password'], args['balance'])
         
-        database_controller = DatabaseConnector() # TODO: Find somewhere better to initialise db
-        database_controller.create_table()
+      
         database_controller.add_customer(customer_object)
-
         return f"{customer_object.first_name} has the password {customer_object.password}"
     
 
@@ -55,12 +60,8 @@ class addScooter(Resource):
             power=args['power'],
             cost=args['cost']
         )
-
-        database_controller = DatabaseConnector() # TODO: Find somewhere better to initialise db
-        database_controller.create_scooter_table() #TDO: Move to a database init method or something
         database_controller.add_scoooter(scooter)
-
-        listOfScooters = database_controller.fetch_scooters_from_db()
+        listOfScooters = database_controller.get_scooters_from_db()
 
         # Loop here to test 
         for scooter in listOfScooters:
@@ -98,20 +99,67 @@ class Make_Booking(Resource):
             status=args['status']
         )
         
-        database_controller = DatabaseConnector() # TODO: Find somewhere better to initialise db
-        database_controller.create_booking_table()
-        database_controller.add_booking(booking)
-        print("Booking added to db")
-
-        bookings = database_controller.get_all_bookings()
-        
+        database_controller.add_booking(booking)        
         return f"You have made a booking for {booking.start_time} under the customer id: {booking.customer_id}"
+
+
+class Make_Report(Resource):
+    def __init__(self) -> None:
+        super().__init__()
+        self._report_put_args = reqparse.RequestParser()
+        self._report_put_args.add_argument("scooter_id", type=str, help="Scooter ID")
+        self._report_put_args.add_argument("description", type=str, help="Description of the repair")
+        self._report_put_args.add_argument("linked_report_id", type=str, help="Linked report ID")
+        self._report_put_args.add_argument("time_of_report", type=str, help="Time of report")
+        self._report_put_args.add_argument("status", type=str, help="Report status")
+
+    def put(self):
+        args = self._report_put_args.parse_args()
+        report = Report(
+            scooter_id=args['scooter_id'],
+            description=args['description'],
+            time_of_report=args['time_of_report'],
+            status=args['status']
+        )
+
+        database_controller.add_report(report)
+        print("Booking added to db")
+        return f"You made a report for scooter: {report.scooter_id} to address: {report.description}"
+
+        
+
+class Make_Repair(Resource):
+    def __init__(self) -> None:
+        super().__init__()
+        self._repair_put_args = reqparse.RequestParser()
+        self._repair_put_args.add_argument("scooter_id", type=str, help="Scooter ID")
+        self._repair_put_args.add_argument("description", type=str, help="Description of the repair")
+        self._repair_put_args.add_argument("linked_report_id", type=str, help="Linked report ID")
+        self._repair_put_args.add_argument("time_of_repair", type=str, help="Time of repair")
+        self._repair_put_args.add_argument("status", type=str, help="Repair status")
+
+    def put(self):
+        args = self._repair_put_args.parse_args()
+        repair = Repair(
+            scooter_id=args['scooter_id'],
+            description=args['description'],
+            linked_report_id=args['linked_report_id'],
+            time_of_repair=args['time_of_repair']
+        )
+
+        database_controller.add_repair(repair)
+        return f"You did a repair at: {repair.time_of_repair} to address: {repair.description}"
+
+
 
 api.add_resource(addScooter, "/add_scooter")
 api.add_resource(Make_Booking, "/add_booking")    
 api.add_resource(Registration, "/register")
+api.add_resource(Make_Report, "/new_report")
+api.add_resource(Make_Repair, "/new_repair")
 
 if __name__ == "__main__":
     app.run(debug=True)
+    
     
 
