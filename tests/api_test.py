@@ -89,3 +89,35 @@ endpoint = "add_booking"  # Replace with the appropriate endpoint for adding a b
 response = requests.put(BASE + endpoint, data=json.dumps(booking_data), headers=headers)  # Use json.dumps to convert the payload to JSON
 
 print(response.json())
+
+
+# Define the report data for testing
+report_data = {
+    "scooter_id": "1",
+    "description": "Broken headlight",
+    "time_of_report": "2023-09-28 15:30:00",
+    "status": "Reported"
+}
+
+headers = {"Content-Type": "application/json"}  # Set the Content-Type header
+report_endpoint = "new_report"
+report_response = requests.put(BASE + report_endpoint, data=json.dumps(report_data), headers=headers)
+
+# Handle the responses as needed
+print("Report Response:")
+print(report_response.json())
+
+# Define the repair data for testing
+repair_data = {
+    "scooter_id": "1",
+    "description": "Replace brake pads",
+    "linked_report_id": "1",
+    "time_of_repair": "2023-09-29 10:00:00"
+}
+
+headers = {"Content-Type": "application/json"}  # Set the Content-Type header
+repair_endpoint = "new_repair"
+repair_response = requests.put(BASE + repair_endpoint, data=json.dumps(repair_data), headers=headers)
+
+print("Repair Response:")
+print(repair_response.json())
