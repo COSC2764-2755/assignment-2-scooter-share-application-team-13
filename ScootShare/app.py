@@ -43,10 +43,21 @@ class Login(Resource):
 
     def post(self):
             args = self._cust_login_args.parse_args()
-            database_controller = DatabaseConnector() # TODO: Find somewhere better to initialise db
-            db_user = database_controller.get_customer(args['username'], args['password'])
-            if db_user:
-                 return f"Successfully signed in as {db_user.username}"
+            username = args['username']
+            password = args['password']
+            #if username starts with ~ or _ then user is a staff member
+            # ~ prefix is for admins, _ prefix is for engineers
+            if username[0] == '~' or username[0] == '_':
+                db_user = database_controller.get_staff(username, password)
+                if db_user:
+                    return f"Successfully signed in as {db_user.username}"
+                else:
+                    return "Invalid username or password"
+            # else user is a customer  
+            else: 
+                db_user = database_controller.get_customer(args['username'], args['password'])
+                if db_user:
+                    return f"Successfully signed in as {db_user.username}"
 
 api.add_resource(Registration, "/api/register")
 api.add_resource(Login, '/api/login')
