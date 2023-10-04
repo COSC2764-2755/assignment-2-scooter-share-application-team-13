@@ -85,27 +85,29 @@ class DatabaseConnector:
             cur = con.cursor()
             cur.execute("CREATE TABLE IF NOT EXISTS Report (      \
                         report_id INTEGER PRIMARY KEY AUTOINCREMENT,  \
-                        time_of_report DATETIME,                    \
                         scooter_id INT,                             \
-                        start_time DATETIME,                         \
+                        description TEXT,                          \
+                        time_of_report DATETIME,                    \
                         status VARCHAR(255));")
             con.commit()
 
-
-    def create_rapair_table(self):
+    def create_repair_table(self):
         con = lite.connect(self._file)
         with con:
             cur = con.cursor()
             cur.execute("CREATE TABLE IF NOT EXISTS Repair (      \
                         repair_id INTEGER PRIMARY KEY AUTOINCREMENT,  \
-                        time_of_repair DATETIME,                    \
                         scooter_id INT,                             \
-                        start_time DATETIME,                         \
-                        linked_report_id INT);")
+                        description TEXT,                          \
+                        linked_report_id INT,                      \
+                        time_of_repair DATETIME,    \
+                        status VARCHAR(255));")
+            
             con.commit()
 
 
-           
+
+     #Scooteer related methods      
 
 #Simply adds a new scooter instance to the database, #Does not need to include the ID as that is auto incremented in the database 
     def add_scoooter(self, new_scooter:Scooter):
@@ -151,7 +153,7 @@ class DatabaseConnector:
                 return None
             
 #Gets all scooters in the db
-    def fetch_scooters_from_db(self):
+    def get_scooters_from_db(self):
         con = lite.connect(self._file)
         with con:
             cur = con.cursor()
@@ -163,8 +165,10 @@ class DatabaseConnector:
 
         return scooters
             
-#Booking related methods
 
+
+
+#Booking related methods
 #Takes in a single id and retrives the booking, tho assumes the id is unique 
     def get_booking_by_id(self, booking_id):
         con = lite.connect(self._file)
@@ -180,9 +184,9 @@ class DatabaseConnector:
             else:
                 return None
 
-#Returns all bookings evermade
+
     # Returns all bookings ever made
-    def get_all_bookings(self):
+    def get_all_bookings_orignal(self):
         con = lite.connect(self._file)
         with con:
             cur = con.cursor()
@@ -202,11 +206,31 @@ class DatabaseConnector:
                 print("Status:", booking.status)
                 print("-----------")
 
-
         bookings = [Booking(*row) for row in booking_data]
         return bookings
 
     
+
+    def get_all_bookings(self):
+        con = lite.connect(self._file)
+        with con:
+            cur = con.cursor()
+            query = "SELECT * FROM Booking"
+            cur.execute(query)
+            results = cur.fetchall()
+            
+            bookings = []
+            for result in results:
+                booking_location, scooter_id, customer_id, start_time, duration, cost, status, booking_id = result
+                booking = Booking(booking_location, scooter_id, customer_id, start_time, duration, cost, status, booking_id)
+                print(booking)
+                bookings.append(booking)
+
+            return bookings
+
+
+
+
 #Takes in a customerID and gets all bookings attached to that customer
     def get_bookings_by_customer_id(self, customer_id):
         con = lite.connect(self._file)
@@ -219,8 +243,9 @@ class DatabaseConnector:
         bookings = [Booking(*row) for row in booking_data]
         return bookings
     
+
     #Takes in a scooterID and gets all bookings for that scooter
-    def fetch_bookings_by_scooter_id(self, scooter_id):
+    def get_bookings_by_scooter_id(self, scooter_id):
         con = lite.connect(self._file)
         with con:
             cur = con.cursor()
@@ -230,7 +255,6 @@ class DatabaseConnector:
 
         bookings = [Booking(*row) for row in booking_data]
         return bookings
-
 
 
 #Takes in a booking instance and sends it to the database, id is left out as it is assinged in the db
@@ -249,10 +273,17 @@ class DatabaseConnector:
             cur.execute(query, booking_data)
             con.commit()
 
+    def set_booking_status(self, new_status, booking_id):
+            con = lite.connect(self._file)
+            with con:
+                cur = con.cursor()
+                query = "UPDATE Booking SET status = ? WHERE booking_id = ?"
+                cur.execute(query, (new_status, booking_id))
+                con.commit()
 
 
-#Repair methods #For this to work to create instance as with for bookings and scooters the order of the valuea access needs to be inline with
-#the constructer for each class, otherwise you might make wrong assignments 
+
+# Repair methods
 
     def get_repairs_by_scooter_id(self, scooter_id):
             con = lite.connect(self._file)
@@ -265,7 +296,69 @@ class DatabaseConnector:
             repairs = [Repair(*row) for row in repair_data]
             return repairs
 
+
+    def add_repair(self, new_repair: Repair):
+        con = lite.connect(self._file)
+        with con:
+            cur = con.cursor()
+            query = "INSERT INTO Repair (scooter_id, description, linked_report_id, time_of_repair) VALUES (?, ?, ?, ?)"
+            repair_data = (new_repair.scooter_id, new_repair.description, new_repair.linked_report_id, new_repair.time_of_repair)
+            cur.execute(query, repair_data)
+            con.commit()
+
+
+
+
+
 #Report methods
+    def add_report(self, new_report: Report):
+        con = lite.connect(self._file)
+        with con:
+            cur = con.cursor()
+            query = "INSERT INTO Report (scooter_id, description, time_of_report, status) VALUES (?, ?, ?, ?)"
+            report_data = (new_report.scooter_id, new_report.description, new_report.time_of_report, new_report.status)
+            cur.execute(query, report_data)
+            con.commit()
+
+    def set_report_status(self, report_id, new_status):
+        con = lite.connect(self._file)
+        with con:
+            cur = con.cursor()
+            query = "UPDATE Report SET status = ? WHERE id = ?"
+            cur.execute(query, (new_status, report_id))
+            con.commit()
+
+
+#returns a report based on a reportID
+    def get_report(self, report_id):
+        con = lite.connect(self._file)
+        with con:
+            cur = con.cursor()
+            query = "SELECT * FROM Report WHERE id = ?"
+            cur.execute(query, (report_id,))
+            result = cur.fetchone()
+            if result:
+                report_id, scooter_id, description, time_of_report, status = result
+                return Report(report_id, scooter_id, description, time_of_report, status)
+            else:
+                return None
+
+    def get_all_reports(self):
+        con = lite.connect(self._file)
+        with con:
+            cur = con.cursor()
+            query = "SELECT * FROM Report"
+            cur.execute(query)
+            results = cur.fetchall()
+            
+            reports = []
+            for result in results:
+                report_id, scooter_id, description, time_of_report, status = result
+                report = Report(report_id, scooter_id, description, time_of_report, status)
+                reports.append(report)
+
+            return reports
+
 
     def get_reports_by_scooter_id(self, scooter_id):
                 con = lite.connect(self._file)
@@ -277,3 +370,4 @@ class DatabaseConnector:
 
                 reports = [Report(*row) for row in report_data]
                 return reports
+
