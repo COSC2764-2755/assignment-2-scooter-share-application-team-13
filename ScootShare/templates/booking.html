@@ -29,16 +29,16 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Home</a>
+                    <a class="nav-link" href="{{ url_for('site.landing_view') }}">Home</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Login</a>
+                    <a class="nav-link" href="{{ url_for('site.login_view') }}">Login</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Register</a>
+                    <a class="nav-link" href="{{ url_for('site.register_view') }}">Register</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Booking</a>
+                    <a class="nav-link" href="#">Contact Us</a>
                 </li>
             </ul>
         </div>
@@ -166,6 +166,12 @@
     padding-top: 50px;  
     }
 
+    footer {
+        text-align: center;
+        padding: 1rem 0;
+        background-color: #6d6363;
+        color: #fff;
+    }
 </style>
     
     <div class="container">
@@ -242,7 +248,9 @@
         </div>
     </div>
     
-
+    <footer>
+        <p>........ScootShare......</p>
+    </footer>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

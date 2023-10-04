@@ -27,3 +27,16 @@ def booking_view():
 def dashboard_view():
     return render_template("dashboard.html")
 
+@site.route('/report_issue')
+def report_issue():
+    return render_template('report_issue.html')
+
+@site.route('/submit_issue', methods=['POST'])
+def submit_issue():
+   # scooter_id = request.form['scooter_id']
+   # issue_description = request.form['issue_description']
+    
+    # Save the reported issue to your database or handle as needed
+    # ...
+
+    return redirect(url_for('dashboard'))  # Redirect back to the dashboard after submitting
