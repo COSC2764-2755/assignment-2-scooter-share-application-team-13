@@ -27,7 +27,7 @@ class DatabaseConnector:
             cur = con.cursor() 
             cur.execute("CREATE TABLE IF NOT EXISTS Staff (     \
                         username VARCHAR(50) PRIMARY KEY,       \
-                        password VARCHAR(255);"
+                        password VARCHAR(255));"
                         )
             con.commit()
 
