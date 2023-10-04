@@ -6,6 +6,9 @@ from db import DatabaseConnector
 
 app = Flask(__name__)
 api = Api(app)
+database_controller = DatabaseConnector() 
+database_controller.create_table()
+
 
 class Registration(Resource):
     def __init__(self) -> None:
@@ -24,9 +27,6 @@ class Registration(Resource):
         customer_object = Customer(args['username'], args['first_name'], args['last_name'], 
                                    args['phone_number'], args['email_address'], 
                                    args['password'], args['balance'])
-        
-        database_controller = DatabaseConnector() # TODO: Find somewhere better to initialise db
-        database_controller.create_table()
         
         database_controller.add_customer(customer_object)
 
