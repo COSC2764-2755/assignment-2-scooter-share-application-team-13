@@ -92,3 +92,19 @@ class DatabaseConnector:
             # Handle any database-related errors here
             print("Database error:", str(e))
             return None
+
+    def populate_staff(self):
+        con = lite.connect(self._file)
+        with con: 
+            cur = con.cursor() 
+            cur.execute("SELECT COUNT(*) FROM Staff")
+            count = cur.fetchone()[0]
+            if count == 0:
+                query = "INSERT INTO Staff (username, password) VALUES (?, ?)"
+                staff_data = [
+                    ('~admin', hash_password('admin')),
+                    ('_engineer', hash_password('engineer'))
+                ]
+                cur.executemany(query, staff_data)                
+                con.commit()
+
