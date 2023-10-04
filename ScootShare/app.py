@@ -7,7 +7,10 @@ from db import DatabaseConnector
 app = Flask(__name__)
 api = Api(app)
 database_controller = DatabaseConnector() 
-database_controller.create_table()
+# Temp methods while db is local
+database_controller.create_customer_table() 
+database_controller.create_staff_table()
+database_controller.populate_staff() # Populate staff table with dummy accounts
 
 
 class Registration(Resource):
@@ -32,8 +35,6 @@ class Registration(Resource):
 
         return f"Account with username {customer_object.username} created successfully!"
         
-    
-    
 class Login(Resource):
     def __init__(self) -> None:
         super().__init__()
