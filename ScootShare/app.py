@@ -39,6 +39,59 @@ class Registration(Resource):
         return f"{customer_object.first_name} has the password {customer_object.password}"
     
 
+class editCustomer(Resource):
+    def __init__(self) -> None:
+            super().__init__()
+            self._cust_put_args = reqparse.RequestParser()
+            self._cust_put_args.add_argument("current_id", type=int, help="CustomerID")
+            self._cust_put_args.add_argument("id", type=int, help="New CustomerID")
+            self._cust_put_args.add_argument("first_name", type=str, help="Customer fName")
+            self._cust_put_args.add_argument("last_name", type=str, help="Customer lName")
+            self._cust_put_args.add_argument("phone_number", type=str, help="phone num")
+            self._cust_put_args.add_argument("email_address", type=str, help="email")
+            self._cust_put_args.add_argument("username", type=str, help="username")
+            self._cust_put_args.add_argument("password", type=str, help="password")
+            self._cust_put_args.add_argument("balance", type=float, help="balance")
+
+    def put(self):
+        args = self._cust_put_args.parse_args()
+        updated_customer_object = Customer(
+            args['id'], args['first_name'], args['last_name'],
+            args['phone_number'], args['email_address'],
+            args['username'], args['password'], args['balance']
+        )
+
+        # Get the original information of this customer
+        original_customer_data = database_controller.get_customer_by_id(args['current_id'])
+
+         # Perform validation to see what changes were made to any of the attributes
+        changes = {}
+        if updated_customer_object.first_name != original_customer_data.first_name:
+            changes['first_name'] = updated_customer_object.first_name
+        if updated_customer_object.last_name != original_customer_data.last_name:
+            changes['last_name'] = updated_customer_object.last_name
+        if updated_customer_object.phone_number != original_customer_data.phone_number:
+            changes['phone_number'] = updated_customer_object.phone_number
+        if updated_customer_object.email_address != original_customer_data.email_address:
+            changes['email_address'] = updated_customer_object.email_address
+        if updated_customer_object.username != original_customer_data.username:
+            # Check if the new username is available
+            if database_controller.get_customer_by_id(updated_customer_object.username) is None:
+                changes['username'] = updated_customer_object.username
+            else:
+                return "Username is already in use, please choose a different one.", 400  # Return an error response
+
+        # Update the customer's profile based on the changes dictionary
+        if changes:
+            # Apply the changes to the customer profile in the database
+            database_controller.update_customer_profile(args['current_id'], changes)
+            return "You have successfully updated your profile.", 200
+        else:
+            return "You have made no changes for this user"
+
+
+
+
 class addScooter(Resource):
     def __init__(self) -> None:
         super().__init__()
@@ -79,6 +132,7 @@ class Make_Booking(Resource):
     def __init__(self) -> None:
         super().__init__()
         self._booking_put_args = reqparse.RequestParser()
+        #First interation 
         self._booking_put_args.add_argument("location", type=str, help="Booking location")
         self._booking_put_args.add_argument("scooter_id", type=int, help="Scooter ID")
         self._booking_put_args.add_argument("customer_id", type=int, help="Customer ID")
@@ -86,6 +140,16 @@ class Make_Booking(Resource):
         self._booking_put_args.add_argument("duration", type=int, help="Duration")
         self._booking_put_args.add_argument("cost", type=float, help="Booking cost")
         self._booking_put_args.add_argument("status", type=str, help="Booking status")
+
+        #Second iteration- changing so that a booking lasts a whole day //scootId, customerId, booking date, booking state, 
+        self._booking_put_args.add_argument("location", type=str, help="Booking location")
+        self._booking_put_args.add_argument("scooter_id", type=int, help="Scooter ID")
+        self._booking_put_args.add_argument("customer_id", type=int, help="Customer ID")
+        self._booking_put_args.add_argument("start_time", type=str, help="Start time")
+        self._booking_put_args.add_argument("duration", type=int, help="Duration")
+        self._booking_put_args.add_argument("cost", type=float, help="Booking cost")
+        self._booking_put_args.add_argument("status", type=str, help="Booking status")
+
 
     def put(self):
         args = self._booking_put_args.parse_args()
@@ -150,7 +214,7 @@ class Make_Repair(Resource):
         database_controller.add_repair(repair)
         return f"You did a repair at: {repair.time_of_repair} to address: {repair.description}"
 
-
+#This will be needed to top up the balance, though it is editing account details it is seperate from the editcustomer class
 class Top_up_Balanace(Resource):
     def __init__(self) -> None:
         super().__init__()
