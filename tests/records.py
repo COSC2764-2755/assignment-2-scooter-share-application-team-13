@@ -55,6 +55,9 @@ class Report():
         self.description = description
         self.time_of_report = time_of_report
         self.status = status
+    
+    def __str__(self):
+        return f"Report ID: {self.id}\nScooter ID: {self.scooter_id}\nDescription: {self.description}\nTime of Report: {self.time_of_report}\nStatus: {self.status}"
        
 
 class Repair():

@@ -62,7 +62,7 @@ booking_data = {
     "start_time": "2023-09-28 14:00:00",  
     "duration": 45,  # 
     #The cost of a booking will be durtion (in mins) * scootercostPerMin
-    "cost": 5.0,  
+    "cost": 1.0,  
     "status": "Upcoming"
 }
 headers = {"Content-Type": "application/json"}  # Set the Content-Type header
@@ -104,9 +104,49 @@ headers = {"Content-Type": "application/json"}  # Set the Content-Type header
 report_endpoint = "new_report"
 report_response = requests.put(BASE + report_endpoint, data=json.dumps(report_data), headers=headers)
 
+print("----------------------------report sent--------------")
+
+print(report_response.json())
+
+
+print("----------------------------Calling all reports--------------")
+
+report_endpoint = "all_reports"
+report_response = requests.get(BASE + report_endpoint)
+
+print('...............................')
+print(report_response.json())  # Print the response content, which contains all reports
+
+# Assuming reports_data is a list of dictionaries containing report information
+reports_data = report_response.json()
+reports = []
+
+for data in reports_data:
+    report = Report(
+        scooter_id=data['scooter_id'],
+        description=data['description'],
+        time_of_report=data['time_of_report'],
+        status=data['status'],
+        report_id=data['report_id']
+    )
+    reports.append(report)
+
+# Now, the 'reports' list contains instances of the Report class
+# This code will extract the JSON data from report_response and iterate through it, creating instances of the Report class for each report entry in the JSON data. The resulting reports list will contain these instances.
+
+print('-----------------------')
+for report in reports:
+    print(report.__str__())
+
+print('-----------------------')
+
+
 # Handle the responses as needed
 print("Report Response:")
 print(report_response.json())
+
+
+print("----------------------------Sending a repair job- for the place report-------------")
 
 # Define the repair data for testing
 repair_data = {
@@ -123,14 +163,12 @@ repair_response = requests.put(BASE + repair_endpoint, data=json.dumps(repair_da
 print("Repair Response:")
 print(repair_response.json())
 
-
-
 #This gets a list of all repairs, this is a good starting example of how to get data from the api
 repair_endpoint = "all_repairs"
 repair_response = requests.get(BASE + repair_endpoint)
 
 
-
+print("----------------------------Getting all repair jobs--------------")
 
 
 print('...............................')
@@ -162,3 +200,33 @@ for repair in repairs:
 print('-----------------------')
 
 
+print("----------------------------Getting all reports-------------")
+
+report_endpoint = "all_reports"
+report_response = requests.get(BASE + report_endpoint)
+
+print('...............................')
+print(report_response.json())  # Print the response content, which contains all reports
+
+# Assuming reports_data is a list of dictionaries containing report information
+reports_data = report_response.json()
+reports = []
+
+for data in reports_data:
+    report = Report(
+        scooter_id=data['scooter_id'],
+        description=data['description'],
+        time_of_report=data['time_of_report'],
+        status=data['status'],
+        report_id=data['report_id']
+    )
+    reports.append(report)
+
+# Now, the 'reports' list contains instances of the Report class
+# This code will extract the JSON data from report_response and iterate through it, creating instances of the Report class for each report entry in the JSON data. The resulting reports list will contain these instances.
+
+print('-----------------------')
+for report in reports:
+    print(report.__str__())
+
+print('-----------------------')

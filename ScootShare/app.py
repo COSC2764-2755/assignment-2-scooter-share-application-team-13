@@ -297,9 +297,7 @@ class Make_Report(Resource):
             time_of_report=args['time_of_report'],
             status=args['status']
         )
-
         database_controller.add_report(report)
-        print("Booking added to db")
         return f"You made a report for scooter: {report.scooter_id} to address: {report.description}"
 
         
@@ -323,7 +321,7 @@ class Make_Repair(Resource):
             linked_report_id=args['linked_report_id'],
             time_of_repair=args['time_of_repair']
         )
-
+        print('repair')
         database_controller.add_repair(repair)
         database_controller.set_report_status(repair.linked_report_id, "addressed") # may not want this hardcoded here
         return f"You did a repair at: {repair.time_of_repair} to address: {repair.description}"
@@ -357,6 +355,51 @@ class Top_up_Balanace(Resource):
         return f"You topped up user {customer_id} with an amount of {amount}. New balance: {customer.balance}"
 
 
+
+
+class GetCompleteHistroy(Resource):
+     def __init__(self) -> None:
+        super().__init__()
+
+
+class GetAllRepairs(Resource):
+    def __init__(self) -> None:
+        super().__init__()
+
+    def get(self):
+         # Retrieve all repair instances from the database
+        repairs = database_controller.get_all_repairs()
+        print('-----------------------')
+        for repair in repairs:
+            print(repair.__str__())
+
+        print('-----------------------')
+        # Format the repairs data as needed
+        formatted_repairs = [{"repair_id": repair.repair_id, "scooter_id": repair.scooter_id, "description": repair.description, "linked_report_id": repair.linked_report_id, "time_of_repair": repair.time_of_repair} for repair in repairs]
+        return formatted_repairs
+
+
+class GetAllReports(Resource):
+    def __init__(self) -> None:
+        super().__init__()
+
+    def get(self):
+        # Retrieve all report instances from the database
+        reports = database_controller.get_all_reports()
+        print('-----------------------')
+        for report in reports:
+            print(report.__str__())
+
+        print('-----------------------')
+        # Format the reports data as needed
+        formatted_reports = [{"report_id": report.id, "scooter_id": report.scooter_id, "description": report.description, "time_of_report": report.time_of_report, "status": report.status} for report in reports]
+        return formatted_reports
+
+#Retreives 
+api.add_resource(GetAllRepairs, "/all_repairs")
+api.add_resource(GetAllReports, "/all_reports")
+
+# Actions
 api.add_resource(addScooter, "/add_scooter")
 api.add_resource(Make_Booking, "/add_booking")    
 api.add_resource(Registration, "/register")

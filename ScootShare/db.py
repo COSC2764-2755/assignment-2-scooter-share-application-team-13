@@ -196,8 +196,7 @@ class DatabaseConnector:
                         scooter_id INT,                             \
                         description TEXT,                          \
                         linked_report_id INT,                      \
-                        time_of_repair DATETIME,    \
-                        status VARCHAR(255));")
+                        time_of_repair DATETIME);")
             
             con.commit()
 
@@ -270,7 +269,7 @@ class DatabaseConnector:
         con = lite.connect(self._file)
         with con:
             cur = con.cursor()
-            query = "SELECT * FROM Scooter WHERE id = ?"
+            query = "SELECT * FROM Scooter WHERE scooter_id = ?"
             cur.execute(query, (scooter_id,))
             row = cur.fetchone()
 
@@ -425,6 +424,27 @@ class DatabaseConnector:
 
             repairs = [Repair(*row) for row in repair_data]
             return repairs
+    
+    def get_all_repairs(self):
+        con = lite.connect(self._file)
+        with con:
+            cur = con.cursor()
+            #query = "SELECT * FROM Repair"
+            query = "SELECT scooter_id, description, linked_report_id, time_of_repair, repair_id FROM Repair"
+
+            cur.execute(query)
+            results = cur.fetchall()
+            
+            repairs = []
+            for result in results:
+                scooter_id, description, linked_report_id, time_of_repair, repair_id = result
+                repair = Repair(scooter_id, description, linked_report_id, time_of_repair, repair_id)
+                print('++++++++++++++++++++++++++=')
+                print(repair.__str__())
+                repairs.append(repair)
+
+            return repairs
+
 
 
     def add_repair(self, new_repair: Repair):
@@ -442,6 +462,9 @@ class DatabaseConnector:
 
 #Report methods
     def add_report(self, new_report: Report):
+
+        print('inside add report method------------------')
+        print(new_report.__str__())
         con = lite.connect(self._file)
         with con:
             cur = con.cursor()
@@ -450,41 +473,53 @@ class DatabaseConnector:
             cur.execute(query, report_data)
             con.commit()
 
-    def set_report_status(self, report_id, new_status):
-        con = lite.connect(self._file)
-        with con:
-            cur = con.cursor()
-            query = "UPDATE Report SET status = ? WHERE id = ?"
-            cur.execute(query, (new_status, report_id))
-            con.commit()
-
-
+    
 #returns a report based on a reportID
     def get_report(self, report_id):
         con = lite.connect(self._file)
         with con:
             cur = con.cursor()
-            query = "SELECT * FROM Report WHERE id = ?"
+            query = "SELECT scooter_id, description, time_of_report, status, report_id FROM Report WHERE id = ?"
             cur.execute(query, (report_id,))
             result = cur.fetchone()
             if result:
-                report_id, scooter_id, description, time_of_report, status = result
-                return Report(report_id, scooter_id, description, time_of_report, status)
+                scooter_id, description, time_of_report, status,report_id = result
+               # return Report(report_id, scooter_id, description, time_of_report, status)
+                return Report(scooter_id, description, time_of_report, status, report_id) #Spent ages trying to figure this out, was assinging the values incorrectly
             else:
                 return None
+
+
+    def set_report_status(self, report_id, new_status):
+        con = lite.connect(self._file)
+        with con:
+            cur = con.cursor()
+            query = "UPDATE Report SET status = ? WHERE report_id = ?"
+            cur.execute(query, (new_status, report_id))
+            con.commit()
+
+    def change_report_status(self, report_id, new_status):
+            con = lite.connect(self._file)
+            with con:
+                cur = con.cursor()
+                query = "UPDATE Report SET status = ? WHERE id = ?"
+                cur.execute(query, (new_status, report_id))
+                con.commit()
+
 
     def get_all_reports(self):
         con = lite.connect(self._file)
         with con:
             cur = con.cursor()
-            query = "SELECT * FROM Report"
+            #query = "SELECT * FROM Report" #This does not gureentee order
+            query = "SELECT scooter_id, description, time_of_report, status, report_id FROM Report"
             cur.execute(query)
             results = cur.fetchall()
             
             reports = []
             for result in results:
-                report_id, scooter_id, description, time_of_report, status = result
-                report = Report(report_id, scooter_id, description, time_of_report, status)
+                scooter_id, description, time_of_report, status, report_id = result
+                report = Report(scooter_id, description, time_of_report, status,report_id)
                 reports.append(report)
 
             return reports
