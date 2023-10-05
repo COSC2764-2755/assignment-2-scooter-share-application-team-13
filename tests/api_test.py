@@ -57,7 +57,7 @@ print(response.json())
 booking_data = {
     "location": "Location C",
     "scooter_id": 1,  
-    "customer_id": 3,  
+    "customer_id": 1,  
     "start_time": "2023-09-28 14:00:00",  
     "duration": 45,  # 
     #The cost of a booking will be durtion (in mins) * scootercostPerMin

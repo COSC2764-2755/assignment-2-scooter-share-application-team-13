@@ -111,8 +111,8 @@ class DatabaseConnector:
                 cur.execute(query, tuple(values))
                 con.commit()
                 #return True  # Update successful
-            except lite.Error as thrownE:
-                print(f"Error updating customer profile: {thrownE}")
+            except lite.Error as thrown_E:
+                print(f"Error updating customer profile: {thrown_E}")
                 #return False  # Update failed
 
 
@@ -166,7 +166,7 @@ class DatabaseConnector:
             cur.execute("DROP TABLE IF EXISTS Booking")
             cur.execute("CREATE TABLE IF NOT EXISTS Booking (      \
                         booking_id INTEGER PRIMARY KEY AUTOINCREMENT,                              \
-                        booking_location VARCHAR(255),               \
+                        location VARCHAR(255),               \
                         scooter_id INT,                              \
                         customer_id INT,                             \
                         start_time DATETIME,                         \
@@ -222,6 +222,39 @@ class DatabaseConnector:
             con.commit()
 
     
+
+    def update_scooter_data(self, scooter_id, changes):
+        """
+        Update a scooter's data in the database with the provided changes.
+
+        Args:
+            scooter_id (int): The ID of the scooter to update.
+            changes (dict): A dictionary of changes to apply to the scooter's profile. Made up of the attribute to change and the new data itself
+        """
+        con = lite.connect(self._file)
+        with con:
+            cur = con.cursor()
+
+            # Create SQL query to update the scooter's profile
+            set_values = ', '.join([f"{key} = ?" for key in changes.keys()])
+            query = f"UPDATE Scooter SET {set_values} WHERE id = ?"
+
+            # Add values to update and the scooter ID
+            values = list(changes.values())
+            values.append(scooter_id)
+
+            try:
+                # Execute the update query with parameters
+                cur.execute(query, tuple(values))
+                con.commit()
+                # return True  # Update successful
+            except lite.Error as thrown_E:
+                print(f"Error updating scooter profile: {thrown_E}")
+                # return False  # Update failed
+
+
+        
+
 #Takes in an id and updates the status of that scooter 
     def change_scooter_status(self, scooter_id, new_status):
         con = lite.connect(self._file)
@@ -261,6 +294,7 @@ class DatabaseConnector:
 
         return scooters
             
+
 
 
 
