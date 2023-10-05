@@ -11,7 +11,7 @@ class Customer():
         self.password = password
         self.balance = balance
 
-
+#"SELECT status, make, color, location, power, cost, scooter_id FROM Scooter;"
 class Scooter():
     def __init__(self, status, make, color, location, power, cost,id=None) -> None:
         self.scooter_id = id

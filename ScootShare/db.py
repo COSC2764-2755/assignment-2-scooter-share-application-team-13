@@ -413,7 +413,6 @@ class DatabaseConnector:
 
 
 # Repair methods
-
     def get_repairs_by_scooter_id(self, scooter_id):
             con = lite.connect(self._file)
             with con:
@@ -429,7 +428,6 @@ class DatabaseConnector:
         con = lite.connect(self._file)
         with con:
             cur = con.cursor()
-            #query = "SELECT * FROM Repair"
             query = "SELECT scooter_id, description, linked_report_id, time_of_repair, repair_id FROM Repair"
 
             cur.execute(query)
@@ -439,7 +437,7 @@ class DatabaseConnector:
             for result in results:
                 scooter_id, description, linked_report_id, time_of_repair, repair_id = result
                 repair = Repair(scooter_id, description, linked_report_id, time_of_repair, repair_id)
-                print('++++++++++++++++++++++++++=')
+                print('--------------ALL REPAIRS-------')
                 print(repair.__str__())
                 repairs.append(repair)
 
@@ -462,8 +460,6 @@ class DatabaseConnector:
 
 #Report methods
     def add_report(self, new_report: Report):
-
-        print('inside add report method------------------')
         print(new_report.__str__())
         con = lite.connect(self._file)
         with con:

@@ -369,10 +369,9 @@ class GetAllRepairs(Resource):
     def get(self):
          # Retrieve all repair instances from the database
         repairs = database_controller.get_all_repairs()
-        print('-----------------------')
+        print('--------All repairs prepairing to send---------------')
         for repair in repairs:
             print(repair.__str__())
-
         print('-----------------------')
         # Format the repairs data as needed
         formatted_repairs = [{"repair_id": repair.repair_id, "scooter_id": repair.scooter_id, "description": repair.description, "linked_report_id": repair.linked_report_id, "time_of_repair": repair.time_of_repair} for repair in repairs]
@@ -386,10 +385,9 @@ class GetAllReports(Resource):
     def get(self):
         # Retrieve all report instances from the database
         reports = database_controller.get_all_reports()
-        print('-----------------------')
+        print('---------ALL REPORTS prepairing to send--------------')
         for report in reports:
             print(report.__str__())
-
         print('-----------------------')
         # Format the reports data as needed
         formatted_reports = [{"report_id": report.id, "scooter_id": report.scooter_id, "description": report.description, "time_of_report": report.time_of_report, "status": report.status} for report in reports]
