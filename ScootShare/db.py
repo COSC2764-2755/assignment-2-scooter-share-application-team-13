@@ -63,7 +63,7 @@ class DatabaseConnector:
             else:
                 return None
 
-#Should we add docstrings to our methods?
+#Should we add docstrings to our methods? #This may not be needed if i can do it all in the update_customer_prfile method
     def update_balance(self, customer_id, updated_balance):
             """
             Update the balance for a customer.
@@ -79,7 +79,58 @@ class DatabaseConnector:
                 cur.execute(query, (updated_balance, customer_id))
                 con.commit()
 
+#Takes in a dic of changes and a customerID to make the changes to
+    def update_customer_profile(self, customer_id, changes):
+        """
+        Update a customer's profile in the database with the provided changes.
 
+        Args:
+            customer_id (int): The ID of the customer to update.
+            changes (dict): A dictionary of changes to apply to the customer's profile.
+        """
+        con = lite.connect(self._file)
+        with con:
+            cur = con.cursor()
+
+            # Create SQL query to update the customer's profile, #changes is a dictionary, get all keys amd get all values for each key then seperate by a comma 
+            set_values = ', '.join([f"{key} = ?" for key in changes.keys()]) 
+            query = f"UPDATE Customer SET {set_values} WHERE id = ?"
+            #Lets say a dic was put in changes = {  "first_name": "NewFirstName",    "last_name": "NewLastName",  "email_address": "newemail@example.com"
+            #The query would end up like this #UPDATE Customer SET first_name = ?, last_name = ?, email_address = ? WHERE id = ?
+
+
+
+            # Add values to update and the customer# Values will "contain id = newid, last_name = newlastname, email_address = newemail@example.com" 
+            values = list(changes.values())
+            #append to last to match up with the WHERE id = ?" being last
+            values.append(customer_id)
+
+            #At the moment under a try catch but may just take out
+            try:
+                # Execute the update query with parameters
+                cur.execute(query, tuple(values))
+                con.commit()
+                #return True  # Update successful
+            except lite.Error as thrownE:
+                print(f"Error updating customer profile: {thrownE}")
+                #return False  # Update failed
+
+
+    def get_all_customers(self):
+            con = lite.connect(self._file)
+            with con:
+                cur = con.cursor()
+                query = "SELECT * FROM Customer"
+                cur.execute(query)
+                results = cur.fetchall()
+
+                customers = []
+                for result in results:
+                    customer_id, f_name, l_name, ph_num, email, username, password, balance = result
+                    customer = Customer(customer_id, f_name, l_name, ph_num, email, username, password, balance)
+                    customers.append(customer)
+
+                return customers
 
 
 
