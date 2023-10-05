@@ -1,4 +1,5 @@
 import requests, json
+from records import *
 
 BASE = "http://127.0.0.1:5000/"
 
@@ -121,3 +122,43 @@ repair_response = requests.put(BASE + repair_endpoint, data=json.dumps(repair_da
 
 print("Repair Response:")
 print(repair_response.json())
+
+
+
+#This gets a list of all repairs, this is a good starting example of how to get data from the api
+repair_endpoint = "all_repairs"
+repair_response = requests.get(BASE + repair_endpoint)
+
+
+
+
+
+print('...............................')
+print(repair_response.json())  # Print the response content, which contains all repairs 
+#This is returned: [{'repair_id': 1, 'scooter_id': 1, 'description': 'Replace brake pads', 'linked_report_id': 1, 'time_of_repair': '2023-09-29 10:00:00'}]
+
+repairs_data =repair_response.json()
+# Assuming repairs_data is a list of dictionaries containing repair information
+repairs = []
+
+for data in repairs_data:
+    repair = Repair(
+        scooter_id=data['scooter_id'],
+        description=data['description'],
+        linked_report_id=data['linked_report_id'],
+        time_of_repair=data['time_of_repair'],
+        repair_id=data['repair_id']
+    )
+    repairs.append(repair)
+
+# Now, the 'repairs' list contains instances of the Repair class
+#This code will extract the JSON data from repair_response and iterate through it, creating instances of the Repair class for each repair entry in the JSON data. The resulting repairs list will contain these instances.
+
+
+print('-----------------------')
+for repair in repairs:
+    print(repair.__str__())
+
+print('-----------------------')
+
+
