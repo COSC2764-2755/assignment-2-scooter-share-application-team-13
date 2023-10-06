@@ -39,3 +39,13 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         print("Awaiting next scooter connection...")
 
     print("Server shutting down...")
+
+
+
+
+
+#Assumably this acts as a component of the main pi, taking messages from the AP.
+
+#login validation 
+#Booking validation # Get bookings that are both for a user and scooter id (figure out which booking the person is trying to start)
+#Scooter and booking stage managment from AP to MP and through to API 
