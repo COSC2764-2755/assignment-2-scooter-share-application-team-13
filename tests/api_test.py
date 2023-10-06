@@ -172,14 +172,14 @@ def get_all_repairs():
 
 
 def get_all_reports():
-    report_endpoint = "all_reports"
-    report_response = requests.get(BASE + report_endpoint)
+    reports_endpoint = "all_reports"
+    reports_response = requests.get(BASE + reports_endpoint)
 
     print("----------------------------Getting all reports from json-------------")
-    print(report_response.json())  # Print the response content, which contains all reports
+    print(reports_response.json())  # Print the response content, which contains all reports
 
     # Assuming reports_data is a list of dictionaries containing report information
-    reports_data = report_response.json()
+    reports_data = reports_response.json()
     reports = []
 
     for data in reports_data:
@@ -201,6 +201,46 @@ def get_all_reports():
     print('-----------------------')
 
 
+
+#Need to test
+def get_all_customers():
+    customers_endpoint = "all_customers"
+    customers_response = requests.get(BASE+ customers_endpoint)
+    print("----------------------------Getting all reports from json-------------")
+    print(customers_response.json())  # Print the response content, which contains all customers
+
+    customers_data = customers_response.json()
+    customers = []
+
+    for data in customers_data:
+        customer = Customer(
+            id=data['customer_id'],
+            f_name=data['first_name'],
+            l_name=data['last_name'],
+            ph_num=data['phone_number'],
+            email=data['email_address'],
+            username=data['username'],
+            password=data['password'],
+            balance=data['balance']
+        )
+        customers.append(customer)
+
+    # Now, the 'customers' list contains instances of the Customer class
+    # This code will extract the JSON data from customers_response and iterate through it, creating instances of the Customer class for each customer entry in the JSON data. The resulting customers list will contain these instances.
+
+    print('---------All customers from Customer objects--------------')
+    for customer in customers:
+        print(customer.__str__())
+    print('-----------------------')
+    
+
+def get_single_customer():
+    customer_endpoint = "get_customer"
+    customers_response = requests.get(BASE+ customer_endpoint, data=json.dumps(customer_data))
+
+    customer_data = {
+        "id": 1
+    }
 
 
 

@@ -470,6 +470,35 @@ class GetAllCustomers(Resource):
         return formatted_customers
 
 
+class GetSingleCustomerByID(Resource):
+    def __init__(self) -> None:
+        super().__init__()
+        self._cust_put_args = reqparse.RequestParser()
+        self._cust_put_args.add_argument("current_id", type=int, help="CustomerID")
+
+    def get(self):
+        args = self._cust_put_args.parse_args()
+        customer_to_find_id = args["current_id"]
+        customer_object = database_controller.get_customer_by_id(customer_to_find_id)
+
+        if customer_object:
+            formatted_customer = {
+                "customer_id": customer_object.customer_id,
+                "first_name": customer_object.first_name,
+                "last_name": customer_object.last_name,
+                "phone_number": customer_object.phone_number,
+                "email_address": customer_object.email_address,
+                "username": customer_object.username,
+                "password": customer_object.password,
+                "balance": customer_object.balance
+            }
+            return formatted_customer
+        else:
+            return {"message": "Customer not found"}#, 404
+
+
+
+
 
 #Retreives 
 api.add_resource(GetAllRepairs, "/all_repairs")
