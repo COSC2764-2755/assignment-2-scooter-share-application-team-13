@@ -269,10 +269,10 @@ class Make_Booking(Resource):
             purposed_start_time = purposed_booking.start_time
             purposed_end_time = purposed_start_time + timedelta(minutes=purposed_booking.duration)
 
-            # Check if the proposed booking overlaps with any existing booking, # btw \ is a line continuater
+            # Check if the proposed booking overlaps with any existing booking, # btw \ is a line continuater       #Check if the proposed booking starts while the existing booking is still ongoing.
             if (existing_start_time <= purposed_start_time < existing_end_time) or \
-            (existing_start_time < purposed_end_time <= existing_end_time):
-                return "Booking time conflicts with an existing booking."#, 400
+            (existing_start_time < purposed_end_time <= existing_end_time):                             #check if the proposed booking ends while the existing booking is still ongoing.
+                return "Booking time conflicts with an existing booking."#, 400             Do this for every booking for a the choosen scooter, if no conflics then it is avalable
 
 
         database_controller.add_booking(purposed_booking)        
