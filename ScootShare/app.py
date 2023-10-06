@@ -507,6 +507,9 @@ api.add_resource(GetAllBookings,"/all_bookings")
 api.add_resource(GetAllScooters, "/all_scooters")
 api.add_resource(GetAllCustomers, "/all_customers")
 
+#Need to check this one is done right 
+api.add_resource(GetSingleCustomerByID, "get_customer")
+
 # Actions
 api.add_resource(addScooter, "/add_scooter")
 api.add_resource(Make_Booking, "/add_booking")    

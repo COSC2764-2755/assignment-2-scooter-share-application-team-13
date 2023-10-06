@@ -236,13 +236,11 @@ def get_all_customers():
 
 def get_single_customer():
     customer_endpoint = "get_customer"
-    customers_response = requests.get(BASE+ customer_endpoint, data=json.dumps(customer_data))
-
     customer_data = {
         "id": 1
     }
-
-
+    customers_response = requests.get(BASE+ customer_endpoint, data=json.dumps(customer_data))
+    
 
 def main():
     #Creates users,scooters,bookings and reports on api call
