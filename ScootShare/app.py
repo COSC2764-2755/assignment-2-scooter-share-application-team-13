@@ -393,9 +393,90 @@ class GetAllReports(Resource):
         formatted_reports = [{"report_id": report.id, "scooter_id": report.scooter_id, "description": report.description, "time_of_report": report.time_of_report, "status": report.status} for report in reports]
         return formatted_reports
 
+
+class GetAllBookings(Resource):
+    def __init__(self) -> None:
+        super().__init__()
+
+    def get(self):
+        bookings = database_controller.get_all_bookings()
+        print('--------All booki gs to be sent to API requester-------')
+        for booking in bookings:
+            print(booking.__str__())
+        print('-----------------------')
+        formatted_bookings = [
+            {
+                "location": booking.location,
+                "scooter_id": booking.scooter_id,
+                "customer_id": booking.customer_id,
+                "start_time": booking.start_time,
+                "duration": booking.duration,
+                "cost": booking.cost,
+                "status": booking.status,
+                "booking_id": booking.booking_id
+            }
+            for booking in bookings
+            ]        
+        return formatted_bookings
+        
+class GetAllScooters(Resource):
+    def __init__(self) -> None:
+        super().__init__()
+
+    def get(self):
+        scooters = database_controller.get_scooters_from_db()
+        print('--------All scooters to be sent to API requester-------')
+        for scooter in scooters:
+            print(scooter.__str__())
+        print('-----------------------')
+        formatted_scooters = [
+            {
+                "status": scooter.status,
+                "make": scooter.make,
+                "color": scooter.color,
+                "location": scooter.location,
+                "power": scooter.power,
+                "cost": scooter.cost,
+                "scooter_id": scooter.scooter_id
+            }
+            for scooter in scooters
+        ]
+        return formatted_scooters  #Double check this can be sent of if we need to use json.dump()
+
+
+class GetAllCustomers(Resource):
+    def __init__(self) -> None:
+        super().__init__()
+
+    def get(self):
+        customers = database_controller.get_all_customers()
+        print('--------All customers to be sent to API requester-------')
+        for customer in customers:
+            print(customer.__str__())
+        print('-----------------------')
+        formatted_customers = [
+            {
+                "customer_id": customer.customer_id,
+                "first_name": customer.first_name,
+                "last_name": customer.last_name,
+                "phone_number": customer.phone_number,
+                "email_address": customer.email_address,
+                "username": customer.username,
+                "password": customer.password,
+                "balance": customer.balance
+            }
+            for customer in customers
+        ]
+        return formatted_customers
+
+
+
 #Retreives 
 api.add_resource(GetAllRepairs, "/all_repairs")
 api.add_resource(GetAllReports, "/all_reports")
+api.add_resource(GetAllBookings,"/all_bookings")
+api.add_resource(GetAllScooters, "/all_scooters")
+api.add_resource(GetAllCustomers, "/all_customers")
 
 # Actions
 api.add_resource(addScooter, "/add_scooter")
