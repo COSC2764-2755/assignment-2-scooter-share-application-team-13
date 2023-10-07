@@ -19,20 +19,8 @@ db.create_scooter_table()
 db.create_repair_table()
 db.create_table()
 db.create_staff_table()
+db.populate_staff()
 db.add_staff()
-
-# Read data from the staff CSV file and store it in staff_csv_data
-staff_csv_data = []
-
-# Assuming your staff CSV file is named "staff.csv" and is located in the same directory
-with open('staff_login.csv', 'r') as csvfile:
-    csvreader = csv.DictReader(csvfile)
-    for row in csvreader:
-        # Assuming 'username' is the column header in your CSV
-        staff_csv_data.append(row['username'])
-
-# Now staff_csv_data contains a list of usernames from the staff CSV file
-
 
 def parse_datetime(value: str):
     try:
