@@ -564,28 +564,33 @@ class GetSingleCustomerByID(Resource):
 
 
 class Login(Resource):
+    def __init__(self) -> None:
+        super().__init__()
+        self._cust_login_args = reqparse.RequestParser()
+        self._cust_login_args.add_argument("username", type=str, help="username")
+        self._cust_login_args.add_argument("password", type=str, help="password")
+
     def post(self):
-        args = request.form
+        args = self._cust_login_args.parse_args()
         username = args['username']
         password = args['password']
         # Check if the username exists in the staff CSV file
-        if username in staff_csv_data:
-            staff = db.get_staff(username, password)
-            if username.startswith('~'):
-                # The username starts with ~, indicating an admin
-                if staff:
-                    print(f"Successfully signed in as admin: {staff.username}")
-                    response_data = {'user_type': 'admin',
-                                     'username': staff.username}
-                    return jsonify(response_data)
-            elif username.startswith('_'):
-                # The username starts with _, indicating an engineer
-                if staff:
-                    print(
-                        f"Successfully signed in as engineer: {staff.username}")
-                    response_data = {'user_type': 'engineer',
-                                     'username': staff.username}
-                    return jsonify(response_data)
+        staff = db.get_staff(username, password)
+        if username.startswith('~'):
+            # The username starts with ~, indicating an admin
+            if staff:
+                print(f"Successfully signed in as admin: {staff.username}")
+                response_data = {'user_type': 'admin',
+                                    'username': staff.username}
+                return jsonify(response_data)
+        elif username.startswith('_'):
+            # The username starts with _, indicating an engineer
+            if staff:
+                print(
+                    f"Successfully signed in as engineer: {staff.username}")
+                response_data = {'user_type': 'engineer',
+                                    'username': staff.username}
+                return jsonify(response_data)
         else:
             # Check if the username exists among regular customers
             customer = db.get_customer(username, password)
