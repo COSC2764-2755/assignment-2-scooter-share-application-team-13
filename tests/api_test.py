@@ -1,21 +1,20 @@
 import requests, json
 from records import *
 
-BASE = "http://127.0.0.1:5000/"
-
+BASE = "http://127.0.0.1:5000/api/"
+TESTUSERNAME = "Gazza"
+TESTPASSWORD = "Howie123"
 
 
 
 def create_user():
     # Test create user
-    test_username = "Garry"
-    payload = {"id": 1,
+    payload = {"username": TESTUSERNAME,
             "first_name": "Garry",
             "last_name": "Howitzer",
             "phone_number": "1122334455",
             "email_address": "test@example.com",
-            "username": "Gazza",
-            "password": "Howie123",
+            "password": TESTPASSWORD,
             "balance": 69.96}
     headers = {"Content-Type": "application/json"}  # Set the Content-Type header
     endpoint = "register"
@@ -23,6 +22,17 @@ def create_user():
 
     print(response.json())
 
+
+
+def login_user():
+    payload = {
+        "username": TESTUSERNAME,
+        "password": TESTPASSWORD
+    }
+    headers = {"Content-Type": "application/json"}  # Set the Content-Type header
+    endpoint = "login"
+    response = requests.post(BASE + endpoint, data=json.dumps(payload), headers=headers)
+    print(response.json())
 
 def create_scooters():
 
@@ -255,6 +265,9 @@ def main():
     get_all_reports() #will show a addressed report
     get_all_repairs() #This is the repair done
     
+    create_user()
+    login_user()
 
 if __name__ == "__main__":
     main()
+

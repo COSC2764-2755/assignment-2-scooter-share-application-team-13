@@ -1,15 +1,14 @@
 # Store classes
 
 class Customer():
-    def __init__(self, id, f_name, l_name, ph_num, email, username, password, balance) -> None:
-        self.customer_id = id
+    def __init__(self, username, f_name, l_name, ph_num, email, password, balance) -> None:
+        self.username = username
         self.first_name = f_name
         self.last_name = l_name
         self.phone_number = ph_num
         self.email_address = email
-        self.username = username
         self.password = password
-        self.balance = balance
+
 
 #"SELECT status, make, color, location, power, cost, scooter_id FROM Scooter;"
 class Scooter():
@@ -70,6 +69,7 @@ class Repair():
 
     def __str__(self):
         return f"Repair ID: {self.repair_id}\nScooter ID: {self.scooter_id}\nDescription: {self.description}\nLinked Report ID: {self.linked_report_id}\nTime of Repair: {self.time_of_repair}"
+
 
 
 

@@ -1,2 +1,5 @@
 ScootShare/__pycache__/*
 ScootShare/ScootShare.db
+.vscode/settings.json
+ScootShare.db
+ScootShare/ScootShare.db

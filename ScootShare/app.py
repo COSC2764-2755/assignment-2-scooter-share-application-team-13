@@ -5,16 +5,18 @@ from flask import Flask
 from flask_restful import Api, Resource, reqparse
 from records import *
 
-
-
 app = Flask(__name__)
 api = Api(app)
+
 database_controller = DatabaseConnector() # TODO: Find somewhere better to initialise db
-database_controller.create_table()
 database_controller.create_booking_table()
 database_controller.create_report_table()
 database_controller.create_scooter_table()
 database_controller.create_repair_table()
+
+database_controller.create_customer_table() 
+database_controller.create_staff_table()
+database_controller.populate_staff() # Populate staff table with dummy accounts
 
 def parse_datetime(value: str):
         try:
@@ -28,28 +30,34 @@ def parse_datetime(value: str):
 class Registration(Resource):
     def __init__(self) -> None:
         super().__init__()
-        self._cust_put_args = reqparse.RequestParser()
-        self._cust_put_args.add_argument("id", type=int, help="CustomerID")
-        self._cust_put_args.add_argument("first_name", type=str, help="Customer fName")
-        self._cust_put_args.add_argument("last_name", type=str, help="Customer lName")
-        self._cust_put_args.add_argument("phone_number", type=str, help="phone num")
-        self._cust_put_args.add_argument("email_address", type=str, help="email")
-        self._cust_put_args.add_argument("username", type=str, help="username")
-        self._cust_put_args.add_argument("password", type=str, help="password")
-        self._cust_put_args.add_argument("balance", type=float, help="balance")
+        self._cust_reg_args = reqparse.RequestParser()
+        self._cust_reg_args.add_argument("username", type=str, help="username")
+        self._cust_reg_args.add_argument("first_name", type=str, help="Customer fName")
+        self._cust_reg_args.add_argument("last_name", type=str, help="Customer lName")
+        self._cust_reg_args.add_argument("phone_number", type=str, help="phone num")
+        self._cust_reg_args.add_argument("email_address", type=str, help="email")
+        self._cust_reg_args.add_argument("password", type=str, help="password")
+        self._cust_reg_args.add_argument("balance", type=float, help="balance")
 
-    def put(self):
-        args = self._cust_put_args.parse_args()
-        customer_object = Customer(args['id'], args['first_name'], 
-                                   args['last_name'], args['phone_number'], 
-                                   args['email_address'], args['username'], 
+    def post(self):
+        args = self._cust_reg_args.parse_args()
+        customer_object = Customer(args['username'], args['first_name'], args['last_name'], 
+                                   args['phone_number'], args['email_address'], 
                                    args['password'], args['balance'])
         
-        # check if we want to do the validation here to check if the customer id already exists, this is already done in the edit customer class so it would be easy to move accross
-        database_controller.add_customer(customer_object)
-        #Shows the unhashed pw
-        return f"{customer_object.first_name} has the password {customer_object.password}"
-    
+        # check if we want to do the validation here to check if the customer id already exists, 
+        # this is already done in the edit customer class so it would be easy to move accross
+        
+        try:
+            database_controller.add_customer(customer_object)
+            message = f"Account with username {customer_object.username} created successfully!"
+        except Exception as e:
+    # Handle the exception, and provide an error message
+            message = "An error occurred while creating the account. Please try again later."
+            print(message, e)
+
+   
+
 
 class editCustomer(Resource):
     def __init__(self) -> None:
@@ -497,6 +505,32 @@ class GetSingleCustomerByID(Resource):
             return {"message": "Customer not found"}#, 404
 
 
+        
+class Login(Resource):
+    def __init__(self) -> None:
+        super().__init__()
+        self._cust_login_args = reqparse.RequestParser()
+        self._cust_login_args.add_argument("username", type=str, help="username")
+        self._cust_login_args.add_argument("password", type=str, help="password")
+
+    def post(self):
+            args = self._cust_login_args.parse_args()
+            username = args['username']
+            password = args['password']
+            #if username starts with ~ or _ then user is a staff member
+            # ~ prefix is for admins, _ prefix is for engineers
+            if username[0] == '~' or username[0] == '_':
+                db_user = database_controller.get_staff(username, password)
+                if db_user:
+                    return f"Successfully signed in as {db_user.username}"
+                else:
+                    return "Invalid username or password"
+            # else user is a customer  
+            else: 
+                db_user = database_controller.get_customer(args['username'], args['password'])
+                if db_user:
+                    return f"Successfully signed in as {db_user.username}"
+
 
 
 
@@ -520,6 +554,9 @@ api.add_resource(Top_up_Balanace, "/top_up")
 api.add_resource(editScooter, "/edit_scooter")
 api.add_resource(editCustomer, "/edit_customer")
 api.add_resource(cancelBooking, "/cancel_booking")
+
+api.add_resource(Registration, "/api/register")
+api.add_resource(Login, '/api/login')
 
 if __name__ == "__main__":
     app.run(debug=True)
