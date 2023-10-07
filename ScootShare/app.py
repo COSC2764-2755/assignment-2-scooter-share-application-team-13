@@ -71,23 +71,23 @@ class Registration(Resource):
 class editCustomer(Resource):
     def __init__(self) -> None:
         super().__init__()
-        self._cust_put_args = reqparse.RequestParser()
+        self._cust_post_args = reqparse.RequestParser()
 
-        self._cust_put_args.add_argument(
+        self._cust_post_args.add_argument(
             "current_id", type=int, help="CustomerID")
-        self._cust_put_args.add_argument(
+        self._cust_post_args.add_argument(
             "first_name", type=str, help="Customer fName")
-        self._cust_put_args.add_argument(
+        self._cust_post_args.add_argument(
             "last_name", type=str, help="Customer lName")
-        self._cust_put_args.add_argument(
+        self._cust_post_args.add_argument(
             "phone_number", type=str, help="phone num")
-        self._cust_put_args.add_argument(
+        self._cust_post_args.add_argument(
             "email_address", type=str, help="email")
-        self._cust_put_args.add_argument("password", type=str, help="password")
-        self._cust_put_args.add_argument("balance", type=float, help="balance")
+        self._cust_post_args.add_argument("password", type=str, help="password")
+        self._cust_post_args.add_argument("balance", type=float, help="balance")
 
-    def put(self):
-        args = self._cust_put_args.parse_args()
+    def post(self):
+        args = self._cust_post_args.parse_args()
         updated_customer_object = Customer(
             args['current_id'], args['first_name'], args['last_name'],
             args['phone_number'], args['email_address'],
@@ -130,26 +130,26 @@ class editCustomer(Resource):
 class editScooter(Resource):
     def __init__(self) -> None:
         super().__init__()
-        self._scooter_put_args = reqparse.RequestParser()
-        self._scooter_put_args.add_argument(
+        self._scooter_post_args = reqparse.RequestParser()
+        self._scooter_post_args.add_argument(
             "scooter_id", type=str, help="Scooter id")  # At minimum
 
         # It may be better practise to get the scooter id and get the most recent data
-        self._scooter_put_args.add_argument(
+        self._scooter_post_args.add_argument(
             "status", type=str, help="Scooter status")
-        self._scooter_put_args.add_argument(
+        self._scooter_post_args.add_argument(
             "make", type=str, help="Scooter make")
-        self._scooter_put_args.add_argument(
+        self._scooter_post_args.add_argument(
             "color", type=str, help="Scooter color")
-        self._scooter_put_args.add_argument(
+        self._scooter_post_args.add_argument(
             "location", type=str, help="Scooter location")
-        self._scooter_put_args.add_argument(
+        self._scooter_post_args.add_argument(
             "power", type=float, help="Power remaining")
-        self._scooter_put_args.add_argument(
+        self._scooter_post_args.add_argument(
             "cost", type=float, help="Cost per min")
 
-    def put(self):
-        args = self._scooter_put_args.parse_args()
+    def post(self):
+        args = self._scooter_post_args.parse_args()
         updated_scooter_object = Scooter(
             status=args['status'],
             make=args['make'],
@@ -190,22 +190,22 @@ class editScooter(Resource):
 class addScooter(Resource):
     def __init__(self) -> None:
         super().__init__()
-        self._scooter_put_args = reqparse.RequestParser()
-        self._scooter_put_args.add_argument(
+        self._scooter_post_args = reqparse.RequestParser()
+        self._scooter_post_args.add_argument(
             "status", type=str, help="Scooter status")
-        self._scooter_put_args.add_argument(
+        self._scooter_post_args.add_argument(
             "make", type=str, help="Scooter make")
-        self._scooter_put_args.add_argument(
+        self._scooter_post_args.add_argument(
             "color", type=str, help="Scooter color")
-        self._scooter_put_args.add_argument(
+        self._scooter_post_args.add_argument(
             "location", type=str, help="Scooter location")
-        self._scooter_put_args.add_argument(
+        self._scooter_post_args.add_argument(
             "power", type=float, help="Power remaining")
-        self._scooter_put_args.add_argument(
+        self._scooter_post_args.add_argument(
             "cost", type=float, help="Cost per min")
 
-    def put(self):
-        args = self._scooter_put_args.parse_args()
+    def post(self):
+        args = self._scooter_post_args.parse_args()
         scooter = Scooter(
             status=args['status'],
             make=args['make'],
@@ -235,14 +235,14 @@ class addScooter(Resource):
 class cancelBooking(Resource):
     def __init__(self) -> None:
         super().__init__()
-        self._booking_put_args = reqparse.RequestParser()
-        # self._booking_put_args.add_argument("customer_id", type=int, help="Customer ID")
+        self._booking_post_args = reqparse.RequestParser()
+        # self._booking_post_args.add_argument("customer_id", type=int, help="Customer ID")
         # Double check but all we should need to cancle a booking is the id
-        self._booking_put_args.add_argument(
+        self._booking_post_args.add_argument(
             "booking_id", type=int, help="booking ID")
 
-    def put(self):
-        args = self._booking_put_args.parse_args()
+    def post(self):
+        args = self._booking_post_args.parse_args()
         booking_to_cancel_id = args['booking_id']
         db.set_booking_status(
             'canceled', booking_to_cancel_id)  # Change the status to cancled
@@ -253,27 +253,27 @@ class cancelBooking(Resource):
 class Make_Booking(Resource):
     def __init__(self) -> None:
         super().__init__()
-        self._booking_put_args = reqparse.RequestParser()
+        self._booking_post_args = reqparse.RequestParser()
         # First interation
-        self._booking_put_args.add_argument(
+        self._booking_post_args.add_argument(
             "location", type=str, help="Booking location")
-        self._booking_put_args.add_argument(
+        self._booking_post_args.add_argument(
             "scooter_id", type=int, help="Scooter ID")
-        self._booking_put_args.add_argument(
+        self._booking_post_args.add_argument(
             "customer_id", type=int, help="Customer ID")
         # parse the time here so we can do operations to do with the starttime and checking if it conflicts with other bookings# assuming we get the data as a string
         # We should recive a string like this, "2023-10-05 14:30:00". Double check that we we recive data from the api call it will be a
-        self._booking_put_args.add_argument(
+        self._booking_post_args.add_argument(
             "start_time", type=parse_datetime, help="Start time")
-        self._booking_put_args.add_argument(
+        self._booking_post_args.add_argument(
             "duration", type=int, help="Duration")
-        self._booking_put_args.add_argument(
+        self._booking_post_args.add_argument(
             "cost", type=float, help="Booking cost per min")
-        self._booking_put_args.add_argument(
+        self._booking_post_args.add_argument(
             "status", type=str, help="Booking status")
 
-    def put(self):
-        args = self._booking_put_args.parse_args()
+    def post(self):
+        args = self._booking_post_args.parse_args()
         purposed_booking = Booking(
             location=args['location'],
             scooter_id=args['scooter_id'],
@@ -330,20 +330,20 @@ class Make_Booking(Resource):
 class Make_Report(Resource):
     def __init__(self) -> None:
         super().__init__()
-        self._report_put_args = reqparse.RequestParser()
-        self._report_put_args.add_argument(
+        self._report_post_args = reqparse.RequestParser()
+        self._report_post_args.add_argument(
             "scooter_id", type=str, help="Scooter ID")
-        self._report_put_args.add_argument(
+        self._report_post_args.add_argument(
             "description", type=str, help="Description of the repair")
-        self._report_put_args.add_argument(
+        self._report_post_args.add_argument(
             "linked_report_id", type=str, help="Linked report ID")
-        self._report_put_args.add_argument(
+        self._report_post_args.add_argument(
             "time_of_report", type=str, help="Time of report")
-        self._report_put_args.add_argument(
+        self._report_post_args.add_argument(
             "status", type=str, help="Report status")
 
-    def put(self):
-        args = self._report_put_args.parse_args()
+    def post(self):
+        args = self._report_post_args.parse_args()
         report = Report(
             scooter_id=args['scooter_id'],
             description=args['description'],
@@ -357,21 +357,21 @@ class Make_Report(Resource):
 class Make_Repair(Resource):
     def __init__(self) -> None:
         super().__init__()
-        self._repair_put_args = reqparse.RequestParser()
-        self._repair_put_args.add_argument(
+        self._repair_post_args = reqparse.RequestParser()
+        self._repair_post_args.add_argument(
             "scooter_id", type=str, help="Scooter ID")
-        self._repair_put_args.add_argument(
+        self._repair_post_args.add_argument(
             "description", type=str, help="Description of the repair")
-        self._repair_put_args.add_argument(
+        self._repair_post_args.add_argument(
             "linked_report_id", type=str, help="Linked report ID")
-        self._repair_put_args.add_argument(
+        self._repair_post_args.add_argument(
             "time_of_repair", type=str, help="Time of repair")
         # Either get this passed in or set it here as 'unaddressed' since that is what it will always be
-        self._repair_put_args.add_argument(
+        self._repair_post_args.add_argument(
             "status", type=str, help="Repair status")
 
-    def put(self):
-        args = self._repair_put_args.parse_args()
+    def post(self):
+        args = self._repair_post_args.parse_args()
         repair = Repair(
             scooter_id=args['scooter_id'],
             description=args['description'],
@@ -390,14 +390,14 @@ class Make_Repair(Resource):
 class Top_up_Balanace(Resource):
     def __init__(self) -> None:
         super().__init__()
-        self._customer_put_args = reqparse.RequestParser()
-        self._customer_put_args.add_argument(
+        self._customer_post_args = reqparse.RequestParser()
+        self._customer_post_args.add_argument(
             "customerid", type=str, help="CustomerID")
-        self._customer_put_args.add_argument(
+        self._customer_post_args.add_argument(
             "top_up", type=str, help="Amount to add")
 
-    def put(self):
-        args = self._customer_put_args.parse_args()
+    def post(self):
+        args = self._customer_post_args.parse_args()
         customer_id = args['customer_id']
         amount = args['top_up']
 
@@ -537,12 +537,12 @@ class GetAllCustomers(Resource):
 class GetSingleCustomerByID(Resource):
     def __init__(self) -> None:
         super().__init__()
-        self._cust_put_args = reqparse.RequestParser()
-        self._cust_put_args.add_argument(
+        self._cust_post_args = reqparse.RequestParser()
+        self._cust_post_args.add_argument(
             "current_id", type=int, help="CustomerID")
 
     def get(self):
-        args = self._cust_put_args.parse_args()
+        args = self._cust_post_args.parse_args()
         customer_to_find_id = args["current_id"]
         customer_object = db.get_customer_by_id(
             customer_to_find_id)
@@ -612,16 +612,16 @@ api.add_resource(GetAllCustomers, "/api/all_customers")
 api.add_resource(GetSingleCustomerByID, "/api/get_customer")
 
 # Actions
-api.add_resource(addScooter, '/api/add_scooter', methods=['PUT'])
+api.add_resource(addScooter, '/api/add_scooter', methods=['POST'])
 api.add_resource(Make_Booking, "/api/add_booking")
 api.add_resource(Make_Report, "/api/new_report")
 api.add_resource(Make_Repair, "/api/new_repair")
 api.add_resource(Top_up_Balanace, "/api/top_up")
-api.add_resource(editScooter, '/api/edit_scooter', methods=['PUT'])
+api.add_resource(editScooter, '/api/edit_scooter', methods=['POST'])
 api.add_resource(editCustomer, "/api/edit_customer")
 api.add_resource(cancelBooking, "/api/cancel_booking")
 
-api.add_resource(Registration, '/api/register', methods=['PUT'])
+api.add_resource(Registration, '/api/register', methods=['POST'])
 api.add_resource(Login, '/api/login', methods=['GET', 'POST'])
 
 app.register_blueprint(site)
