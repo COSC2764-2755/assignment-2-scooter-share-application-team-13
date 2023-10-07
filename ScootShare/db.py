@@ -104,7 +104,7 @@ class DatabaseConnector:
             staff = Staff(username, password)
             return staff
 
-    def get_customer(self, username):
+    def get_customer_object_by_username(self, username):
         """
         Get a customer by their username.
 

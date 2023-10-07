@@ -97,7 +97,7 @@ class editCustomer(Resource):
         )
 
         # Get the original information of this customer
-        original_customer_data = db.get_customer(
+        original_customer_data = db.get_customer_object_by_username(
             args['username'])
 
         # Perform validation to see what changes were made to any of the attributes
@@ -287,7 +287,7 @@ class Make_Booking(Resource):
         )
 
         # Check if the user has enough balance in their account  #The amount is taken only when the booking is initiated
-        booking_customer = db.get_customer(
+        booking_customer = db.get_customer_object_by_username(
             args['username'])
         booking_cost = args['duration'] * args['cost']
         if booking_customer.balance - booking_cost < 0:
