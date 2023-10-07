@@ -692,5 +692,5 @@ api.add_resource(Login, '/api/login', methods=['GET', 'POST'])
 app.register_blueprint(site)
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", debug=True)
+    #app.run(host="0.0.0.0", debug=True)
     app.run(debug=True)
