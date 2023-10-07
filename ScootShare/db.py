@@ -604,7 +604,7 @@ class DatabaseConnector:
 
     # Double check where the we are getting username and password from
 
-    def populate_staff(self, username, password):
+    def populate_staff(self):
         con = lite.connect(self._file)
         with con:
             cur = con.cursor()
