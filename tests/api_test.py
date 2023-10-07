@@ -18,7 +18,7 @@ def create_user():
             "balance": 69.96}
     headers = {"Content-Type": "application/json"}  # Set the Content-Type header
     endpoint = "register"
-    response = requests.put(BASE + endpoint, data=json.dumps(payload), headers=headers)  # Use json.dumps to convert the payload to JSON
+    response = requests.post(BASE + endpoint, data=json.dumps(payload), headers=headers)  # Use json.dumps to convert the payload to JSON
 
     print(response.json())
 
@@ -48,7 +48,7 @@ def create_scooters():
             }
     headers = {"Content-Type": "application/json"}  # Set the Content-Type header
     endpoint = "add_scooter"
-    response = requests.put(BASE + endpoint, data=json.dumps(scooter_data), headers=headers)  # Use json.dumps to convert the payload to JSON
+    response = requests.post(BASE + endpoint, data=json.dumps(scooter_data), headers=headers)  # Use json.dumps to convert the payload to JSON
 
     print(response.json())
 
@@ -64,7 +64,7 @@ def create_scooters():
             }
     headers = {"Content-Type": "application/json"}  # Set the Content-Type header
     endpoint = "add_scooter"
-    response = requests.put(BASE + endpoint, data=json.dumps(scooter_data), headers=headers)  # Use json.dumps to convert the payload to JSON
+    response = requests.post(BASE + endpoint, data=json.dumps(scooter_data), headers=headers)  # Use json.dumps to convert the payload to JSON
 
     print(response.json())   
 
@@ -88,7 +88,7 @@ def create_bookings():
     }
     headers = {"Content-Type": "application/json"}  # Set the Content-Type header
     endpoint = "add_booking"  # Replace with the appropriate endpoint for adding a booking
-    response = requests.put(BASE + endpoint, data=json.dumps(booking_data), headers=headers)  # Use json.dumps to convert the payload to JSON
+    response = requests.post(BASE + endpoint, data=json.dumps(booking_data), headers=headers)  # Use json.dumps to convert the payload to JSON
 
     print(response.json())
 
@@ -108,7 +108,7 @@ def create_bookings():
     }
     headers = {"Content-Type": "application/json"}  # Set the Content-Type header
     endpoint = "add_booking"  # Replace with the appropriate endpoint for adding a booking
-    response = requests.put(BASE + endpoint, data=json.dumps(booking_data), headers=headers)  # Use json.dumps to convert the payload to JSON
+    response = requests.post(BASE + endpoint, data=json.dumps(booking_data), headers=headers)  # Use json.dumps to convert the payload to JSON
 
     print(response.json())
 
@@ -123,7 +123,7 @@ def create_report():
 
     headers = {"Content-Type": "application/json"}  # Set the Content-Type header
     report_endpoint = "new_report"
-    report_response = requests.put(BASE + report_endpoint, data=json.dumps(report_data), headers=headers)
+    report_response = requests.post(BASE + report_endpoint, data=json.dumps(report_data), headers=headers)
 
     print("----------------------------report sent-----reponse:---------")
     print(report_response.json())
@@ -145,7 +145,7 @@ def create_repair_job():
     }
     headers = {"Content-Type": "application/json"}  # Set the Content-Type header
     repair_endpoint = "new_repair"
-    repair_response = requests.put(BASE + repair_endpoint, data=json.dumps(repair_data), headers=headers)
+    repair_response = requests.post(BASE + repair_endpoint, data=json.dumps(repair_data), headers=headers)
 
     print("Repair Response:")
     print(repair_response.json())
@@ -224,12 +224,11 @@ def get_all_customers():
 
     for data in customers_data:
         customer = Customer(
-            id=data['customer_id'],
+            username=data['username'],
             f_name=data['first_name'],
             l_name=data['last_name'],
             ph_num=data['phone_number'],
             email=data['email_address'],
-            username=data['username'],
             password=data['password'],
             balance=data['balance']
         )
