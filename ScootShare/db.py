@@ -86,22 +86,6 @@ class DatabaseConnector:
             print("Database error:", str(e))
             return None
 
-    def add_staff(self):
-        con = lite.connect(self._file)
-        with con:
-            cur = con.cursor()
-            with open('staff_login.csv', 'r') as fin:
-                reader = csv.reader(fin)
-                next(csv.reader(fin), None)
-                for entry in reader:
-                    try:
-                        record = (entry[0], hash_password(entry[1]))
-                        query = "INSERT INTO Staff (username, password) VALUES (?, ?)"
-                        cur.execute(query, record)
-                        con.commit()
-                    except csv.Error as e:
-                        print(f'Line:{reader.line_num}, Record:{record}')
-
     def get_staff(self, username: str, password: str):
         con = lite.connect(self._file)
         with con:
