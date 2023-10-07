@@ -59,8 +59,14 @@
       const url = "/api/login";
       const formData = new FormData(this);
 
+      const formDataObject = {};
+      formData.forEach((value, key) => {
+        formDataObject[key] = value;
+      });
+
+
       // Log the formData to check its contents
-      console.log(formData);
+      console.log(formDataObject);
 
       // Check if the username starts with '~' or '_'
       const username = formData.get("username");
@@ -71,12 +77,16 @@
 
       fetch(url, {
         method: "POST",
-        body: formData,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formDataObject),
       })
         .then(async (response) => {
           if (response.status === 200) {
-            const user_data = await response.json();
+            const user_data = await response.json(); // Assuming the response contains JSON data
             sessionStorage.setItem("username", user_data["username"]);
+            sessionStorage.setItem("user_type", user_data["user_type"]);
             console.log("Success");
             // Check if the user_type is 'admin_or_engineer' and redirect to the dashboard
             if (formData.get("user_type") === "admin_or_engineer") {

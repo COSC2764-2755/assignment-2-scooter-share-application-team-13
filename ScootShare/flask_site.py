@@ -18,7 +18,7 @@ def landing_view():
     return render_template("landing.html")
 
 
-@site.route('/register', methods=["GET", "PUT"])
+@site.route('/register', methods=["GET", "POST"])
 def register_view():
     if request.method == "GET":
         return render_template("register.html")
@@ -38,7 +38,6 @@ def login_view():
 def booking_view():
     # Fetch all scooters from the database
     all_scooters = db.get_scooters_from_db()
-
     # Filter the scooters to only include those with status 'available' (case-insensitive)
     available_scooters = [
         scooter for scooter in all_scooters if scooter.status.lower() == 'available']

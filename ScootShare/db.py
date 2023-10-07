@@ -122,7 +122,7 @@ class DatabaseConnector:
             result = cur.fetchone()
             print(result)
             if result:
-                username,first_name, last_name, phone_number, email_address, password, balance = result
+                username, first_name, last_name, phone_number, email_address, password, balance = result
                 return Customer(username, first_name, last_name, phone_number, email_address, password, balance)
             else:
                 return None
@@ -204,8 +204,7 @@ class DatabaseConnector:
         con = lite.connect(self._file)
         with con:
             cur = con.cursor()
-            cur.execute("DROP TABLE IF EXISTS Scooter")
-            cur.execute("CREATE TABLE IF NOT EXISTS Scooter (      \
+            cur.execute("CREATE TABLE IF NOT EXISTS Scooter (  \
                         scooter_id INTEGER PRIMARY KEY AUTOINCREMENT,         \
                         status VARCHAR(255),          \
                         make VARCHAR(255),          \
@@ -221,8 +220,7 @@ class DatabaseConnector:
         con = lite.connect(self._file)
         with con:
             cur = con.cursor()
-            cur.execute("DROP TABLE IF EXISTS Booking")
-            cur.execute("CREATE TABLE IF NOT EXISTS Booking (      \
+            cur.execute("CREATE TABLE IF NOT EXISTS Booking (  \
                         booking_id INTEGER PRIMARY KEY AUTOINCREMENT,                              \
                         location VARCHAR(255),               \
                         scooter_id INT,                              \
@@ -325,6 +323,7 @@ class DatabaseConnector:
         with con:
             cur = con.cursor()
             query = "SELECT * FROM Scooter WHERE scooter_id = ?"
+            print(scooter_id)
             cur.execute(query, (scooter_id,))
             row = cur.fetchone()
 
@@ -446,10 +445,10 @@ class DatabaseConnector:
         con = lite.connect(self._file)
         with con:
             cur = con.cursor()
-            query = "INSERT INTO Booking (booking_location, scooter_id, customer_id, start_time, duration, cost, status) VALUES (?, ?, ?, ?, ?, ?, ?)"
+            query = "INSERT INTO Booking (location, scooter_id, username, start_time, duration, cost, status) VALUES (?, ?, ?, ?, ?, ?, ?)"
             booking_data = (new_booking.location,
                             new_booking.scooter_id,
-                            new_booking.customer_id,
+                            new_booking.customer,
                             new_booking.start_time,
                             new_booking.duration,
                             new_booking.cost,

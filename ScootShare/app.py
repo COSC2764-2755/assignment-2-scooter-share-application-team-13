@@ -20,6 +20,7 @@ db.create_table()
 db.create_staff_table()
 db.populate_staff()
 
+
 def parse_datetime(value: str):
     try:
         # Parse the input string as a datetime object # takes in something like this: "2023-10-05 14:30:00"
@@ -56,7 +57,8 @@ class Registration(Resource):
                                    args['phone_number'], args['email_address'],
                                    args['password'], args['balance'])
         print("Debug: ", customer_object.username, customer_object.first_name,)
-        print(args["username"], args["first_name"], args["last_name"], args["phone_number"])
+        print(args["username"], args["first_name"],
+              args["last_name"], args["phone_number"])
         # check if we want to do the validation here to check if the customer id already exists,
         # this is already done in the edit customer class so it would be easy to move accross
         # TODO Check if user uses prefixes for admin/engineer
@@ -85,8 +87,10 @@ class editCustomer(Resource):
             "phone_number", type=str, help="phone num")
         self._cust_post_args.add_argument(
             "email_address", type=str, help="email")
-        self._cust_post_args.add_argument("password", type=str, help="password")
-        self._cust_post_args.add_argument("balance", type=float, help="balance")
+        self._cust_post_args.add_argument(
+            "password", type=str, help="password")
+        self._cust_post_args.add_argument(
+            "balance", type=float, help="balance")
 
     def post(self):
         args = self._cust_post_args.parse_args()
@@ -287,7 +291,7 @@ class Make_Booking(Resource):
         )
         print(args['username'])
         # Check if the user has enough balance in their account  #The amount is taken only when the booking is initiated
-        #Problem assigning 
+        # Problem assigning
         booking_customer = db.get_customer_object_by_username(
             args['username'])
 
@@ -302,7 +306,7 @@ class Make_Booking(Resource):
         scooter_to_book = db.get_scooter_by_id(
             purposed_booking.scooter_id)
 
-        if scooter_to_book.status != 'Avalable':
+        if scooter_to_book.make != 'Available':
             return f"sorry, your choosen scooter is {scooter_to_book.status}"
 
         # Purposed booking time cannot conflicts with with booking times of other bookings, meaning the start and end time cannot overlap
@@ -571,8 +575,10 @@ class Login(Resource):
     def __init__(self) -> None:
         super().__init__()
         self._cust_login_args = reqparse.RequestParser()
-        self._cust_login_args.add_argument("username", type=str, help="username")
-        self._cust_login_args.add_argument("password", type=str, help="password")
+        self._cust_login_args.add_argument(
+            "username", type=str, help="username")
+        self._cust_login_args.add_argument(
+            "password", type=str, help="password")
 
     def post(self):
         args = self._cust_login_args.parse_args()
@@ -580,20 +586,19 @@ class Login(Resource):
         password = args['password']
         # Check if the username exists in the staff CSV file
         staff = db.get_staff(username, password)
-        if username.startswith('~'):
-            # The username starts with ~, indicating an admin
-            if staff:
+        if staff:
+            if username.startswith('~'):
+                # The username starts with ~, indicating an admin
                 print(f"Successfully signed in as admin: {staff.username}")
                 response_data = {'user_type': 'admin',
-                                    'username': staff.username}
+                                 'username': staff.username}
                 return jsonify(response_data)
-        elif username.startswith('_'):
-            # The username starts with _, indicating an engineer
-            if staff:
+            elif username.startswith('_'):
+                # The username starts with _, indicating an engineer
                 print(
                     f"Successfully signed in as engineer: {staff.username}")
                 response_data = {'user_type': 'engineer',
-                                    'username': staff.username}
+                                 'username': staff.username}
                 return jsonify(response_data)
         else:
             # Check if the username exists among regular customers
@@ -623,13 +628,13 @@ api.add_resource(GetSingleCustomerByID, "/api/get_customer")
 
 # Actions
 api.add_resource(addScooter, '/api/add_scooter', methods=['POST'])
-api.add_resource(Make_Booking, "/api/add_booking")
-api.add_resource(Make_Report, "/api/new_report")
-api.add_resource(Make_Repair, "/api/new_repair")
-api.add_resource(Top_up_Balanace, "/api/top_up")
+api.add_resource(Make_Booking, "/api/add_booking", methods=['POST'])
+api.add_resource(Make_Report, "/api/new_report", methods=['POST'])
+api.add_resource(Make_Repair, "/api/new_repair", methods=['POST'])
+api.add_resource(Top_up_Balanace, "/api/top_up", methods=['POST'])
 api.add_resource(editScooter, '/api/edit_scooter', methods=['POST'])
-api.add_resource(editCustomer, "/api/edit_customer")
-api.add_resource(cancelBooking, "/api/cancel_booking")
+api.add_resource(editCustomer, "/api/edit_customer", methods=['POST'])
+api.add_resource(cancelBooking, "/api/cancel_booking", methods=['POST'])
 
 api.add_resource(Registration, '/api/register', methods=['POST'])
 api.add_resource(Login, '/api/login', methods=['GET', 'POST'])
