@@ -56,16 +56,9 @@ class Registration(Resource):
                                    args['phone_number'], args['email_address'],
                                    args['password'], args['balance'])
 
-        # TODO: Find somewhere better to initialise db
-
-        db.add_engineer()
-        db.add_customer(customer_object)
-        print(
-            f"Account with username {customer_object.username} created successfully!")
-
         # check if we want to do the validation here to check if the customer id already exists,
         # this is already done in the edit customer class so it would be easy to move accross
-
+        # TODO Check if user uses prefixes for admin/engineer
         try:
             db.add_customer(customer_object)
             message = f"Account with username {customer_object.username} created successfully!"
