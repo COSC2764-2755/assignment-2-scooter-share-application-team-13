@@ -8,6 +8,7 @@ class Customer():
         self.phone_number = ph_num
         self.email_address = email
         self.password = password
+        self.balance = balance
 
 
 #"SELECT status, make, color, location, power, cost, scooter_id FROM Scooter;"
