@@ -21,7 +21,7 @@ class TestUserMethods(unittest.TestCase):
         endpoint = "register"
         response = requests.post(BASE + endpoint, data=json.dumps(payload), headers=headers)  # Use json.dumps to convert the payload to JSON
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), {"message": "Account with username Gazza created successfully!"})
+        self.assertEqual(response.json(), "Account with username Gazza created successfully!")
 
     def test_login_user(self):
         payload = {
