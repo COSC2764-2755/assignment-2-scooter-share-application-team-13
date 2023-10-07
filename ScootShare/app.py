@@ -10,7 +10,6 @@ import os
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
-app.register_blueprint(site)
 api = Api(app)
 db = DatabaseConnector()
 db.create_booking_table()
@@ -20,7 +19,6 @@ db.create_repair_table()
 db.create_table()
 db.create_staff_table()
 db.populate_staff()
-db.add_staff()
 
 def parse_datetime(value: str):
     try:
