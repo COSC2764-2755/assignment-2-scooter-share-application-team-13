@@ -97,7 +97,7 @@ class editCustomer(Resource):
         )
 
         # Get the original information of this customer
-        original_customer_data = db.get_customer(
+        original_customer_data = db.get_customer_object_by_username(
             args['username'])
 
         # Perform validation to see what changes were made to any of the attributes
@@ -287,7 +287,7 @@ class Make_Booking(Resource):
         )
 
         # Check if the user has enough balance in their account  #The amount is taken only when the booking is initiated
-        booking_customer = db.get_customer(
+        booking_customer = db.get_customer_object_by_username(
             args['username'])
         booking_cost = args['duration'] * args['cost']
         if booking_customer.balance - booking_cost < 0:
@@ -407,7 +407,7 @@ class Top_up_Balanace(Resource):
         if not isinstance(amount, float) or amount <= 0:
             return "Invalid input. Please provide a valid customer ID and a positive amount."
 
-        customer = db.get_customer(username)
+        customer = db.get_customer_object_by_username(username)
 
         if customer is None:
             return f"Customer with ID {username} not found."
@@ -545,7 +545,7 @@ class GetSingleCustomerByID(Resource):
     def get(self):
         args = self._cust_post_args.parse_args()
         customer_to_find_id = args["current_id"]
-        customer_object = db.get_customer_by_id(
+        customer_object = db.get_customer_object_by_username(
             customer_to_find_id)
 
         if customer_object:

@@ -104,7 +104,7 @@ class DatabaseConnector:
             staff = Staff(username, password)
             return staff
 
-    def get_customer(self, username):
+    def get_customer_object_by_username(self, username):
         """
         Get a customer by their username.
 
@@ -383,7 +383,7 @@ class DatabaseConnector:
                 print("Location:", booking.location)
                 print("Booking ID:", booking.booking_id)
                 print("Scooter ID:", booking.scooter_id)
-                print("Customer ID:", booking.customer_id)
+                print("Customer ID:", booking.customer)
                 print("Start Time:", booking.start_time)
                 print("Duration:", booking.duration)
                 print("Cost:", booking.cost)
