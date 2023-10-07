@@ -62,6 +62,7 @@ class Registration(Resource):
         try:
             db.add_customer(customer_object)
             message = f"Account with username {customer_object.username} created successfully!"
+            return message
         except Exception as e:
             # Handle the exception, and provide an error message
             message = "An error occurred while creating the account. Please try again later."
