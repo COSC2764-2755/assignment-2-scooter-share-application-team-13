@@ -5,24 +5,33 @@ HOST = input("Enter IP address of server: ")
 PORT = 65000
 ADDRESS = (HOST, PORT)
 
-scooter_id = input("Enter scooter ID: ")
-password = input("Enter scooter password: ")
+
+
+
+
+
+username = input("Enter Username : ")
+password = input("Enter password: ")
+scooter_id = input("Enter the scooter ID for your booked scooter: ")
 
 hashed_password = sha256_crypt.hash(password)
 
 print("Attempting to connect to the server...")
-
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.connect(ADDRESS)
     print("Connected to the server.")
 
-    # Send scooter_id and hashed password to server
-    s.sendall(f"{scooter_id}:{hashed_password}".encode())
+    # Send cusotmer_id and hashed password to server
+    s.sendall(f"{username}:{hashed_password}".encode())
     response = s.recv(4096).decode()
     print(response)
 
     print("Disconnecting from server.")
 print("Connection closed.")
+
+
+
+
 
 
 
