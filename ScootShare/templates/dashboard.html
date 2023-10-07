@@ -4,89 +4,202 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Customer Dashboard</title>
+    <title> Dashboard</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-        }
+     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+<style>
 
-        .navbar, footer {
-            background-color: #585f66;
-        }
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
 
-        .navbar .nav-link:hover {
-            color: #f4f4f4;
-        }
+.navbar, footer {
+    background-color: #585f66;
+    }
 
-        main {
-            max-width: 800px;
-            margin: 2rem auto;
-            padding: 1rem;
-            background-color: #fff;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
+.navbar .nav-link:hover {
+    color: #f4f4f4;
+    }
 
-        form {
-            margin-bottom: 1rem;
-        }
+main {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 1rem;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
 
-        label, input, button {
-            margin-bottom: 0.5rem;
-        }
+form {
+    margin-bottom: 1rem;
+    }
 
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
+label, input, button {
+    margin-bottom: 0.5rem;
+    }
 
-        li {
-            padding: 1rem;
-            border: 1px solid #e0e0e0;
-            margin-bottom: 1rem;
-            border-radius: 5px;
-        }
+ul {
+    list-style-type: none;
+    padding: 0;
+}
 
-        button {
-            padding: 0.5rem 1rem;
-            border: none;
-            border-radius: 5px;
-            background-color: #007BFF;
-            color: #fff;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
+li {
+    padding: 1rem;
+    border: 1px solid #e0e0e0;
+    margin-bottom: 1rem;
+    border-radius: 5px;
+}
 
-        button:hover {
-            background-color: #0056b3;
-        }
+button {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 5px;
+    background-color: #007BFF;
+    color: #fff;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
 
-        /* Additional Functionalities Card Style */
-        .functionality-card {
-            display: inline-block;
-            width: 150px;
-            height: 150px;
-            margin: 10px;
-            padding: 20px;
-            text-align: center;
-            border: 1px solid #e0e0e0;
-            border-radius: 10px;
-            transition: transform 0.3s;
-        }
+button:hover {
+    background-color: #0056b3;
+}
 
-        .functionality-card:hover {
-            transform: scale(1.05);
-        }
+       
+.functionality-card {
+    display: inline-block;
+    width: 150px;
+    height: 150px;
+    margin: 10px;
+    padding: 20px;
+    text-align: center;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    transition: transform 0.3s;
+}
 
-        .functionality-card i {
-            font-size: 2rem;
-            margin-bottom: 10px;
-        }
+.functionality-card:hover {
+    transform: scale(1.05);
+    }
+
+.functionality-card i {
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+     
+.dashboard-container {
+    display: flex;
+    height: 100vh;
+}
+
+.sidebar {
+    width: 20%;
+    background-color: #0E7C86;
+    color: white;
+    padding-top: 20px;
+}
+
+.sidebar a {
+    display: block;
+    padding: 20px 30px;
+    color: white;
+    text-decoration: none;
+    transition: background-color 0.3s;
+}
+
+.sidebar a:hover {
+    background-color: #0a5a62;
+}
+
+.main-content {
+    width: 80%;
+    background-color: #E9F0F4;
+    padding: 20px;
+}
+
+.main-content h2 {
+    margin-bottom: 20px;
+}
+
+.widget {
+    background-color: #FFFFFF;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.statistics {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.stat-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.table-responsive {
+    margin-top: 20px;
+}
+
+.stat-icon {
+    font-size: 2em;
+    margin-right: 20px;
+}
+
+.stat-card {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+}
+
+.stat-card:not(:last-child) {
+    margin-right: 20px;
+}
+
+.widget {
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.widget {
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.functionality-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.functionality-item {
+    margin: 10px 0;
+    text-align: center;
+}
+
+.functionality-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+    justify-content: center;
+}
     </style>
 </head>
 
@@ -96,26 +209,46 @@
             <img src="/static/images/logo.jpg" alt="ScootShare Logo" class="img-fluid" style="height: 50px;">
             ScootShare
         </h3>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Login</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Register</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Booking</a>
-                </li>
-            </ul>
+        <a href="/unlock_scooter"><i class="fas fa-unlock"></i>Unlock a Scooter</a>       
+        <a href="/report_issue"><i class="fas fa-exclamation-triangle"></i>Report Scooter Issues</a>    
+        <a href="/return_scooter"><i class="fas fa-lock"></i>Return/Lock a Scooter</a>   
+        <a href="/logout"><i class="fas fa-sign-out-alt"></i>Logout</a>
+   
+    </div>
+   
+    <div class="main-content">
+        <h2>Dashboard</h2>
+
+   
+       <div class="statistics">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-dollar-sign"></i>
+            </div>
+            <div>
+                <h3>Balance</h3>
+                <p>$2500.00</p>
+            </div>
         </div>
-    </nav>
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-bicycle"></i>
+            </div>
+            <div>
+                <h3>Total Trips</h3>
+                <p>2208</p>
+            </div>
+        </div>
+        <div class="stat-card">
+          
+        </div>
+    </div>
+
+   
+    <div class="widget">
+        <h3>Order ID</h3>
+       
+    </div>
 
     <main>
         <h2 class="text-center mb-4">Dashboard</h2>

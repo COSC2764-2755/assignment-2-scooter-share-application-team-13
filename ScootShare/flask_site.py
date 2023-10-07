@@ -50,6 +50,9 @@ def booking_view():
 def dashboard_view():
     return render_template("dashboard.html")
 
+@site.route('/engineer_dashboard', methods=['GET', 'POST'])
+def engineer_dashboard_view():
+    return render_template("engineer_dashboard.html")
 
 @site.route('/report_issue')
 def report_issue():
@@ -58,11 +61,5 @@ def report_issue():
 
 @site.route('/submit_issue', methods=['POST'])
 def submit_issue():
-   # scooter_id = request.form['scooter_id']
-   # issue_description = request.form['issue_description']
-
-    # Save the reported issue to your database or handle as needed
-    # ...
-
-    # Redirect back to the dashboard after submitting
-    return redirect(url_for('dashboard'))
+    
+    return redirect(url_for('dashboard'))  

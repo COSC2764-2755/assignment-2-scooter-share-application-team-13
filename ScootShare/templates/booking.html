@@ -5,7 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Scooter Booking</title>
+    <link rel="stylesheet" href="/static/css/engineer.css">
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <style>
         .scooter-image {
             width: 100%;
@@ -16,9 +19,14 @@
 </head>
 
 <body>
+<<<<<<< Updated upstream
 
 
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+=======
+    
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+>>>>>>> Stashed changes
         <h3 class="float-md-start mb-0">
             <img src="/static/images/logo.jpg" alt="ScootShare Logo" class="img-fluid" style="height: 50px;">
             ScootShare
@@ -30,7 +38,7 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('site.landing_view') }}">Home</a>
+                    <a class="nav-link" href="/">Home</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('site.login_view') }}">Login</a>
@@ -47,8 +55,16 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('site.submit_issue') }}">Report Issue</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/logout">Logout</a>
+                </li>
             </ul>
         </div>
+<<<<<<< Updated upstream
+=======
+    </nav>
+    
+>>>>>>> Stashed changes
 
         <div class="card-body">
             <h5 style="color: white;" class="card-title">Welcome, <span id="username"></span></h5>
@@ -164,13 +180,76 @@
         }
     </script>
 
-    <!-- Search for ride -->
-    <style>
-        .step-container {
-            border: 1px solid #e0e0e0;
-            padding: 15px;
-            border-radius: 5px;
-        }
+<!-- Search for ride -->
+<style>
+    .step-container {
+        border: 1px solid #e0e0e0;
+        padding: 15px;
+        border-radius: 5px;
+    }
+    
+    .step-image img {
+        max-width: 100%;
+        height: auto;
+    }
+    
+    .step-content {
+        flex-grow: 1;
+       
+    }
+
+    .padded-container {
+    padding-top: 50px;  
+    }
+
+    footer {
+        text-align: center;
+        padding: 1rem 0;
+        background-color: #2c3e50;
+        color: #fff;
+    }
+</style>
+    
+<div class="container mt-5">
+   
+    <!-- Step 1: Search for ride -->
+    <div class="step-container">
+        <div class="row">
+            <div class="col-md-2">
+                <img src="/static/images/searchweb.webp" alt="Search for ride" width="100">
+            </div>
+            <div class="col-md-10">
+                <h5>1. Search for ride</h5>
+                <p>The user signs in to the app using their credentials and searches for nearby rides.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step 2: Scan code -->
+    <div class="step-container">
+        <div class="row">
+            <div class="col-md-2">
+                <img src="/static/images/scancode.webp" alt="Scan code" width="100">
+            </div>
+            <div class="col-md-10">
+                <h5>2. Scan code</h5>
+                <p>The user scans the barcode of the bike to unlock the ride.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step 3: Make payment -->
+    <div class="step-container">
+        <div class="row">
+            <div class="col-md-2">
+                <img src="/static/images/makepayment.webp" alt="Make payment" width="100">
+            </div>
+            <div class="col-md-10">
+                <h5>3. Make payment</h5>
+                <p>The user needs to select the preferred payment method and make an initial deposit payment.</p>
+            </div>
+        </div>
+    </div>
 
         .step-image img {
             max-width: 100%;
@@ -195,6 +274,7 @@
     </style>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 
