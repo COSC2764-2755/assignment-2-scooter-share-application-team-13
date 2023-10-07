@@ -15,7 +15,16 @@ print("Server Ready. Awaiting connections.")
 
 def validate_login(received_username, received_hash):
     endpoint = "login" #We need to ensure this matches the function
-    response = request.ge
+    customer_data = {
+        "customer": received_username,
+        "password": received_hash
+    }
+    response = requests.get(BASE+ endpoint, data=json.dumps(customer_data))
+    response_data = response.json()
+
+    #Logic coming to decode the response
+    return True
+
 
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
