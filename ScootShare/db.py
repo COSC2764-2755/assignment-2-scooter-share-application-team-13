@@ -619,7 +619,9 @@ class DatabaseConnector:
                 cur.executemany(query, staff_data)
                 con.commit()
 
+    def get_engineer(self, username: str, password: str) -> Engineer:
         try:
+            con = lite.connect(self._file)
             with con:
                 cur = con.cursor()
                 # get engineer record by username
