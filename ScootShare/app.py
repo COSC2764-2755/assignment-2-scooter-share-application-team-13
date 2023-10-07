@@ -36,26 +36,27 @@ class Registration(Resource):
         super().__init__()
         self._cust_reg_args = reqparse.RequestParser()
         self._cust_reg_args.add_argument(
-            "username", type=str, help="username", location='form')
+            "username", type=str, help="username")
         self._cust_reg_args.add_argument(
-            "first_name", type=str, help="Customer fName", location='form')
+            "first_name", type=str, help="Customer fName")
         self._cust_reg_args.add_argument(
-            "last_name", type=str, help="Customer lName", location='form')
+            "last_name", type=str, help="Customer lName")
         self._cust_reg_args.add_argument(
-            "phone_number", type=str, help="phone num", location='form')
+            "phone_number", type=str, help="phone num")
         self._cust_reg_args.add_argument(
-            "email_address", type=str, help="email", location='form')
+            "email_address", type=str, help="email")
         self._cust_reg_args.add_argument(
-            "password", type=str, help="password", location='form')
+            "password", type=str, help="password")
         self._cust_reg_args.add_argument(
-            "balance", type=float, help="balance", location='form')
+            "balance", type=float, help="balance")
 
     def post(self):
         args = self._cust_reg_args.parse_args()
         customer_object = Customer(args['username'], args['first_name'], args['last_name'],
                                    args['phone_number'], args['email_address'],
                                    args['password'], args['balance'])
-
+        print("Debug: ", customer_object.username, customer_object.first_name,)
+        print(args["username"], args["first_name"], args["last_name"], args["phone_number"])
         # check if we want to do the validation here to check if the customer id already exists,
         # this is already done in the edit customer class so it would be easy to move accross
         # TODO Check if user uses prefixes for admin/engineer
