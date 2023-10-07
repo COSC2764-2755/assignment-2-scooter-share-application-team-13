@@ -120,9 +120,9 @@ class DatabaseConnector:
             query = "SELECT * FROM Customer WHERE username = ?"
             cur.execute(query, (username,))
             result = cur.fetchone()
-
+            print(result)
             if result:
-                first_name, last_name, phone_number, email_address, password, balance = result
+                username,first_name, last_name, phone_number, email_address, password, balance = result
                 return Customer(username, first_name, last_name, phone_number, email_address, password, balance)
             else:
                 return None
