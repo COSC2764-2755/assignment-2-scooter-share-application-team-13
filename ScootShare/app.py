@@ -52,24 +52,26 @@ class Registration(Resource):
             "balance", type=float, help="balance")
 
     def post(self):
-        args = self._cust_reg_args.parse_args()
-        customer_object = Customer(args['username'], args['first_name'], args['last_name'],
-                                   args['phone_number'], args['email_address'],
-                                   args['password'], args['balance'])
-        print("Debug: ", customer_object.username, customer_object.first_name,)
-        print(args["username"], args["first_name"],
-              args["last_name"], args["phone_number"])
-        # check if we want to do the validation here to check if the customer id already exists,
-        # this is already done in the edit customer class so it would be easy to move accross
-        # TODO Check if user uses prefixes for admin/engineer
         try:
+            args = self._cust_reg_args.parse_args()
+            customer_object = Customer(args['username'], args['first_name'], args['last_name'],
+                                    args['phone_number'], args['email_address'],
+                                    args['password'], args['balance'])
+            print("Debug: ", customer_object.username, customer_object.first_name,)
+            print(args["username"], args["first_name"],
+                args["last_name"], args["phone_number"])
+            # check if we want to do the validation here to check if the customer id already exists,
+            # this is already done in the edit customer class so it would be easy to move accross
+            # TODO Check if user uses prefixes for admin/engineer
+        
             db.add_customer(customer_object)
             message = f"Account with username {customer_object.username} created successfully!"
             return message
         except Exception as e:
             # Handle the exception, and provide an error message
-            message = "An error occurred while creating the account. Please try again later."
-            print(message, e)
+            message = "An error occurred while creating the account. Please try again later.\n" + str(e)
+            print(message)
+            return message
 
 
 class editCustomer(Resource):
@@ -93,44 +95,47 @@ class editCustomer(Resource):
             "balance", type=float, help="balance")
 
     def post(self):
-        args = self._cust_post_args.parse_args()
-        updated_customer_object = Customer(
-            args['username'], args['first_name'], args['last_name'],
-            args['phone_number'], args['email_address'],
-            args['password'], args['balance']
-        )
+        try:
+            args = self._cust_post_args.parse_args()
+            updated_customer_object = Customer(
+                args['username'], args['first_name'], args['last_name'],
+                args['phone_number'], args['email_address'],
+                args['password'], args['balance']
+            )
 
-        # Get the original information of this customer
-        original_customer_data = db.get_customer_object_by_username(
-            args['username'])
+            # Get the original information of this customer
+            original_customer_data = db.get_customer_object_by_username(
+                args['username'])
 
-        # Perform validation to see what changes were made to any of the attributes
-        # add balance,
-        changes = {}
-        if updated_customer_object.first_name != original_customer_data.first_name:
-            changes['first_name'] = updated_customer_object.first_name
-        if updated_customer_object.last_name != original_customer_data.last_name:
-            changes['last_name'] = updated_customer_object.last_name
-        if updated_customer_object.phone_number != original_customer_data.phone_number:
-            changes['phone_number'] = updated_customer_object.phone_number
-        if updated_customer_object.email_address != original_customer_data.email_address:
-            changes['email_address'] = updated_customer_object.email_address
-        # if updated_customer_object.username != original_customer_data.username: #Removed as we do not want to change a priamy key,
-        # otherwise we'd need to chnage all linked reports ect
-            # Check if the new username is available
-            # if db.get_customer_by_id(updated_customer_object.username) is None:
-            # changes['id'] = updated_customer_object.username
-            # else:
-            # return "Username is already in use, please choose a different one." #, 400  # Return an error response, don't tink we need this, double check
+            # Perform validation to see what changes were made to any of the attributes
+            # add balance,
+            changes = {}
+            if updated_customer_object.first_name != original_customer_data.first_name:
+                changes['first_name'] = updated_customer_object.first_name
+            if updated_customer_object.last_name != original_customer_data.last_name:
+                changes['last_name'] = updated_customer_object.last_name
+            if updated_customer_object.phone_number != original_customer_data.phone_number:
+                changes['phone_number'] = updated_customer_object.phone_number
+            if updated_customer_object.email_address != original_customer_data.email_address:
+                changes['email_address'] = updated_customer_object.email_address
+            # if updated_customer_object.username != original_customer_data.username: #Removed as we do not want to change a priamy key,
+            # otherwise we'd need to chnage all linked reports ect
+                # Check if the new username is available
+                # if db.get_customer_by_id(updated_customer_object.username) is None:
+                # changes['id'] = updated_customer_object.username
+                # else:
+                # return "Username is already in use, please choose a different one." #, 400  # Return an error response, don't tink we need this, double check
 
-        # Update the customer's profile based on the changes dictionary
-        if changes:
-            # Apply the changes to the customer profile in the database
-            db.update_customer_profile(
-                args['current_id'], changes)
-            return "You have successfully updated your profile."  # , #200
+            # Update the customer's profile based on the changes dictionary
+            if changes:
+                # Apply the changes to the customer profile in the database
+                db.update_customer_profile(
+                    args['current_id'], changes)
+                return "You have successfully updated your profile."  # , #200
 
-        return f"(You have made no changes for this user: {original_customer_data.username})"
+            return f"(You have made no changes for this user: {original_customer_data.username})"
+        except Exception as e: 
+            return "An error occurred while updating the profile.\n" + str(e)
 
 
 class editScooter(Resource):
@@ -155,42 +160,45 @@ class editScooter(Resource):
             "cost", type=float, help="Cost per min")
 
     def post(self):
-        args = self._scooter_post_args.parse_args()
-        updated_scooter_object = Scooter(
-            status=args['status'],
-            make=args['make'],
-            color=args['color'],
-            location=args['location'],
-            power=args['power'],
-            cost=args['cost']
-        )
-        original_scooter_data = db.get_scooter_by_id(
-            args['scooter_id'])  # check this is all good
-        # Perform validation to see what changes were made to any of the attributes
+        try:
+            args = self._scooter_post_args.parse_args()
+            updated_scooter_object = Scooter(
+                status=args['status'],
+                make=args['make'],
+                color=args['color'],
+                location=args['location'],
+                power=args['power'],
+                cost=args['cost']
+            )
+            original_scooter_data = db.get_scooter_by_id(
+                args['scooter_id'])  # check this is all good
+            # Perform validation to see what changes were made to any of the attributes
 
-        # Note that it is important that these match the tables of the database
-        changes = {}
-        if updated_scooter_object.status != original_scooter_data.status:
-            changes['status'] = updated_scooter_object.status
-        if updated_scooter_object.make != original_scooter_data.make:
-            changes['make'] = updated_scooter_object.make
-        if updated_scooter_object.color != original_scooter_data.color:
-            changes['color'] = updated_scooter_object.color
-        if updated_scooter_object.location != original_scooter_data.location:
-            changes['location'] = updated_scooter_object.location
-        if updated_scooter_object.power != original_scooter_data.power:
-            changes['power'] = updated_scooter_object.power
-        if updated_scooter_object.cost != original_scooter_data.cost:
-            changes['cost'] = updated_scooter_object.cost
+            # Note that it is important that these match the tables of the database
+            changes = {}
+            if updated_scooter_object.status != original_scooter_data.status:
+                changes['status'] = updated_scooter_object.status
+            if updated_scooter_object.make != original_scooter_data.make:
+                changes['make'] = updated_scooter_object.make
+            if updated_scooter_object.color != original_scooter_data.color:
+                changes['color'] = updated_scooter_object.color
+            if updated_scooter_object.location != original_scooter_data.location:
+                changes['location'] = updated_scooter_object.location
+            if updated_scooter_object.power != original_scooter_data.power:
+                changes['power'] = updated_scooter_object.power
+            if updated_scooter_object.cost != original_scooter_data.cost:
+                changes['cost'] = updated_scooter_object.cost
 
-        # Update the scooter's profile based on the changes dictionary
-        if changes:
-            # Apply the changes to the scooter profile in the database
-            db.update_scooter_data(
-                args['current_id'], changes)
-            return "You have successfully updated the scooter profile."  # , 200
-        else:
-            return "You have made no changes for this scooter."
+            # Update the scooter's profile based on the changes dictionary
+            if changes:
+                # Apply the changes to the scooter profile in the database
+                db.update_scooter_data(
+                    args['current_id'], changes)
+                return "You have successfully updated the scooter profile."  # , 200
+            else:
+                return "You have made no changes for this scooter."
+        except Exception as e:
+            return "An error occurred while updating the scooter profile.\n" + str(e)
 
 
 class addScooter(Resource):
@@ -211,29 +219,31 @@ class addScooter(Resource):
             "cost", type=float, help="Cost per min")
 
     def post(self):
-        args = self._scooter_post_args.parse_args()
-        scooter = Scooter(
-            status=args['status'],
-            make=args['make'],
-            color=args['color'],
-            location=args['location'],
-            power=args['power'],
-            cost=args['cost']
-        )
-        db.add_scoooter(scooter)
-        listOfScooters = db.get_scooters_from_db()
+        try:
+            args = self._scooter_post_args.parse_args()
+            scooter = Scooter(
+                status=args['status'],
+                make=args['make'],
+                color=args['color'],
+                location=args['location'],
+                power=args['power'],
+                cost=args['cost']
+            )
+            db.add_scoooter(scooter)
+            listOfScooters = db.get_scooters_from_db()
 
-        # Loop here to test
-        for scooter in listOfScooters:
-            print("Status:", scooter.status)
-            print("Make:", scooter.make)
-            print("Color:", scooter.color)
-            # ScooterID will alwaysd be one if the create tables method stays in this class
-            print("Scooter ID:", scooter.scooter_id)
-            print("-----------")
+            # Loop here to test
+            for scooter in listOfScooters:
+                print("Status:", scooter.status)
+                print("Make:", scooter.make)
+                print("Color:", scooter.color)
+                # ScooterID will alwaysd be one if the create tables method stays in this class
+                print("Scooter ID:", scooter.scooter_id)
+                print("-----------")
 
-        return f"You added a new scooter to the db colored {scooter.color} and with a charge of {scooter.power}"
-
+            return f"You added a new scooter to the db colored {scooter.color} and with a charge of {scooter.power}"
+        except Exception as e:
+            return "An error occurred while adding the scooter.\n" + str(e)
   # No validation yet, this would come in the form of making sure an in progress booking cannot be cancled and a completed booking cannot be cancled
   # Though a way to assit this before it gets to this point is to only allow the user to select bookings to cancle that are valid
 
@@ -248,12 +258,15 @@ class cancelBooking(Resource):
             "booking_id", type=int, help="booking ID")
 
     def post(self):
-        args = self._booking_post_args.parse_args()
-        booking_to_cancel_id = args['booking_id']
-        db.set_booking_status(
-            'canceled', booking_to_cancel_id)  # Change the status to cancled
+        try:
+            args = self._booking_post_args.parse_args()
+            booking_to_cancel_id = args['booking_id']
+            db.set_booking_status(
+                'canceled', booking_to_cancel_id)  # Change the status to cancled
 
-        return f"You canceled a booking of id: {booking_to_cancel_id}"
+            return f"You canceled a booking of id: {booking_to_cancel_id}"
+        except Exception as e:
+            return "An error occurred while canceling the booking.\n" + str(e)
 
 
 class Make_Booking(Resource):
@@ -279,61 +292,63 @@ class Make_Booking(Resource):
             "status", type=str, help="Booking status")
 
     def post(self):
-        args = self._booking_post_args.parse_args()
-        purposed_booking = Booking(
-            location=args['location'],
-            scooter_id=args['scooter_id'],
-            customer=args['username'],
-            start_time=args['start_time'],
-            duration=args['duration'],
-            cost=args['cost'],
-            status=args['status']
-        )
-        print(args['username'])
-        # Check if the user has enough balance in their account  #The amount is taken only when the booking is initiated
-        # Problem assigning
-        booking_customer = db.get_customer_object_by_username(
-            args['username'])
+        try:
+            args = self._booking_post_args.parse_args()
+            purposed_booking = Booking(
+                location=args['location'],
+                scooter_id=args['scooter_id'],
+                customer=args['username'],
+                start_time=args['start_time'],
+                duration=args['duration'],
+                cost=args['cost'],
+                status=args['status']
+            )
+            print(args['username'])
+            # Check if the user has enough balance in their account  #The amount is taken only when the booking is initiated
+            # Problem assigning
+            booking_customer = db.get_customer_object_by_username(
+                args['username'])
 
-        print(booking_customer.__str__)
+            print(booking_customer.__str__)
 
-        booking_cost = args['duration'] * args['cost']
-        if booking_customer.balance - booking_cost < 0:
-            # , 400  # Return an error response
-            return "Insufficient funds to make the booking."
+            booking_cost = args['duration'] * args['cost']
+            if booking_customer.balance - booking_cost < 0:
+                # , 400  # Return an error response
+                return "Insufficient funds to make the booking."
 
-        # Check if scooter is avalable
-        scooter_to_book = db.get_scooter_by_id(
-            purposed_booking.scooter_id)
+            # Check if scooter is avalable
+            scooter_to_book = db.get_scooter_by_id(
+                purposed_booking.scooter_id)
 
-        if scooter_to_book.make != 'Available':
-            return f"sorry, your choosen scooter is {scooter_to_book.status}"
+            if scooter_to_book.make != 'Available':
+                return f"sorry, your choosen scooter is {scooter_to_book.status}"
 
-        # Purposed booking time cannot conflicts with with booking times of other bookings, meaning the start and end time cannot overlap
-        # Addionally a scooter can only be booked if it has the status avalable , it might be under repair or in use
+            # Purposed booking time cannot conflicts with with booking times of other bookings, meaning the start and end time cannot overlap
+            # Addionally a scooter can only be booked if it has the status avalable , it might be under repair or in use
 
-        bookings_for_scooter = db.get_bookings_by_scooter_id(
-            args['scooter_id'])
+            bookings_for_scooter = db.get_bookings_by_scooter_id(
+                args['scooter_id'])
 
-        for existing_booking in bookings_for_scooter:
-            # This should be the correct type thanks to the parse datetime method
-            existing_start_time = existing_booking.start_time
-            existing_end_time = existing_start_time + \
-                timedelta(minutes=existing_booking.duration)
+            for existing_booking in bookings_for_scooter:
+                # This should be the correct type thanks to the parse datetime method
+                existing_start_time = existing_booking.start_time
+                existing_end_time = existing_start_time + \
+                    timedelta(minutes=existing_booking.duration)
 
-            purposed_start_time = purposed_booking.start_time
-            purposed_end_time = purposed_start_time + \
-                timedelta(minutes=purposed_booking.duration)
+                purposed_start_time = purposed_booking.start_time
+                purposed_end_time = purposed_start_time + \
+                    timedelta(minutes=purposed_booking.duration)
 
-            # Check if the proposed booking overlaps with any existing booking, # btw \ is a line continuater       #Check if the proposed booking starts while the existing booking is still ongoing.
-            if (existing_start_time <= purposed_start_time < existing_end_time) or \
-                    (existing_start_time < purposed_end_time <= existing_end_time):  # check if the proposed booking ends while the existing booking is still ongoing.
-                # , 400             Do this for every booking for a the choosen scooter, if no conflics then it is avalable
-                return "Booking time conflicts with an existing booking."
+                # Check if the proposed booking overlaps with any existing booking, # btw \ is a line continuater       #Check if the proposed booking starts while the existing booking is still ongoing.
+                if (existing_start_time <= purposed_start_time < existing_end_time) or \
+                        (existing_start_time < purposed_end_time <= existing_end_time):  # check if the proposed booking ends while the existing booking is still ongoing.
+                    # , 400             Do this for every booking for a the choosen scooter, if no conflics then it is avalable
+                    return "Booking time conflicts with an existing booking."
 
-        db.add_booking(purposed_booking)
-        return f"You have made a booking for {purposed_booking.start_time} under the customer id: {purposed_booking.customer}"
-
+            db.add_booking(purposed_booking)
+            return f"You have made a booking for {purposed_booking.start_time} under the customer id: {purposed_booking.customer}"
+        except Exception as e:
+            return "An error occurred while making the booking.\n" + str(e)
 # Double check if we want a made report to have any impact on scooter avalbility
 
 
@@ -353,15 +368,18 @@ class Make_Report(Resource):
             "status", type=str, help="Report status")
 
     def post(self):
-        args = self._report_post_args.parse_args()
-        report = Report(
-            scooter_id=args['scooter_id'],
-            description=args['description'],
-            time_of_report=args['time_of_report'],
-            status=args['status']
-        )
-        db.add_report(report)
-        return f"You made a report for scooter: {report.scooter_id} to address: {report.description}"
+        try:
+            args = self._report_post_args.parse_args()
+            report = Report(
+                scooter_id=args['scooter_id'],
+                description=args['description'],
+                time_of_report=args['time_of_report'],
+                status=args['status']
+            )
+            db.add_report(report)
+            return f"You made a report for scooter: {report.scooter_id} to address: {report.description}"
+        except Exception as e:
+            return "An error occurred while making the report.\n" + str(e)
 
 
 class Make_Repair(Resource):
@@ -381,18 +399,21 @@ class Make_Repair(Resource):
             "status", type=str, help="Repair status")
 
     def post(self):
-        args = self._repair_post_args.parse_args()
-        repair = Repair(
-            scooter_id=args['scooter_id'],
-            description=args['description'],
-            linked_report_id=args['linked_report_id'],
-            time_of_repair=args['time_of_repair']
-        )
-        print('repair')
-        db.add_repair(repair)
-        db.set_report_status(
-            repair.linked_report_id, "addressed")  # may not want this hardcoded here
-        return f"You did a repair at: {repair.time_of_repair} to address: {repair.description}"
+        try:
+            args = self._repair_post_args.parse_args()
+            repair = Repair(
+                scooter_id=args['scooter_id'],
+                description=args['description'],
+                linked_report_id=args['linked_report_id'],
+                time_of_repair=args['time_of_repair']
+            )
+            print('repair')
+            db.add_repair(repair)
+            db.set_report_status(
+                repair.linked_report_id, "addressed")  # may not want this hardcoded here
+            return f"You did a repair at: {repair.time_of_repair} to address: {repair.description}"
+        except Exception as e:
+            return "An error occurred while making the repair.\n" + str(e)
 
 # This will be needed to top up the balance, though it is editing account details it is seperate from the editcustomer class
 
@@ -407,25 +428,27 @@ class Top_up_Balanace(Resource):
             "top_up", type=str, help="Amount to add")
 
     def post(self):
-        args = self._customer_post_args.parse_args()
-        username = args['username']
-        amount = args['top_up']
+        try:
+            args = self._customer_post_args.parse_args()
+            username = args['username']
+            amount = args['top_up']
 
-        # Validate username and amount # decide if we want error messages here
-        if not isinstance(amount, float) or amount <= 0:
-            return "Invalid input. Please provide a valid customer ID and a positive amount."
+            # Validate username and amount # decide if we want error messages here
+            if not isinstance(amount, float) or amount <= 0:
+                return "Invalid input. Please provide a valid customer ID and a positive amount."
 
-        customer = db.get_customer_object_by_username(username)
+            customer = db.get_customer_object_by_username(username)
 
-        if customer is None:
-            return f"Customer with ID {username} not found."
+            if customer is None:
+                return f"Customer with ID {username} not found."
 
-        # Update the balance
-        customer.balance += amount
-        db.update_balance(username, customer.balance)
+            # Update the balance
+            customer.balance += amount
+            db.update_balance(username, customer.balance)
 
-        return f"You topped up user {username} with an amount of {amount}. New balance: {customer.balance}"
-
+            return f"You topped up user {username} with an amount of {amount}. New balance: {customer.balance}"
+        except Exception as e:
+            return "An error occurred while topping up the balance.\n" + str(e)
 
 class GetCompleteHistroy(Resource):
     def __init__(self) -> None:
@@ -437,16 +460,19 @@ class GetAllRepairs(Resource):
         super().__init__()
 
     def get(self):
-        # Retrieve all repair instances from the database
-        repairs = db.get_all_repairs()
-        print('--------All repairs prepairing to send---------------')
-        for repair in repairs:
-            print(repair.__str__())
-        print('-----------------------')
-        # Format the repairs data as needed
-        formatted_repairs = [{"repair_id": repair.repair_id, "scooter_id": repair.scooter_id, "description": repair.description,
-                              "linked_report_id": repair.linked_report_id, "time_of_repair": repair.time_of_repair} for repair in repairs]
-        return formatted_repairs
+        try:
+            # Retrieve all repair instances from the database
+            repairs = db.get_all_repairs()
+            print('--------All repairs prepairing to send---------------')
+            for repair in repairs:
+                print(repair.__str__())
+            print('-----------------------')
+            # Format the repairs data as needed
+            formatted_repairs = [{"repair_id": repair.repair_id, "scooter_id": repair.scooter_id, "description": repair.description,
+                                "linked_report_id": repair.linked_report_id, "time_of_repair": repair.time_of_repair} for repair in repairs]
+            return formatted_repairs
+        except Exception as e:
+            return "An error occurred while getting all repairs.\n" + str(e)
 
 
 class GetAllReports(Resource):
@@ -454,16 +480,19 @@ class GetAllReports(Resource):
         super().__init__()
 
     def get(self):
-        # Retrieve all report instances from the database
-        reports = db.get_all_reports()
-        print('---------ALL REPORTS prepairing to send--------------')
-        for report in reports:
-            print(report.__str__())
-        print('-----------------------')
-        # Format the reports data as needed
-        formatted_reports = [{"report_id": report.id, "scooter_id": report.scooter_id, "description": report.description,
-                              "time_of_report": report.time_of_report, "status": report.status} for report in reports]
-        return formatted_reports
+        try:
+            # Retrieve all report instances from the database
+            reports = db.get_all_reports()
+            print('---------ALL REPORTS prepairing to send--------------')
+            for report in reports:
+                print(report.__str__())
+            print('-----------------------')
+            # Format the reports data as needed
+            formatted_reports = [{"report_id": report.id, "scooter_id": report.scooter_id, "description": report.description,
+                                "time_of_report": report.time_of_report, "status": report.status} for report in reports]
+            return formatted_reports
+        except Exception as e:
+            return "An error occurred while getting all reports.\n" + str(e)
 
 
 class GetAllBookings(Resource):
@@ -471,25 +500,28 @@ class GetAllBookings(Resource):
         super().__init__()
 
     def get(self):
-        bookings = db.get_all_bookings()
-        print('--------All booki gs to be sent to API requester-------')
-        for booking in bookings:
-            print(booking.__str__())
-        print('-----------------------')
-        formatted_bookings = [
-            {
-                "location": booking.location,
-                "scooter_id": booking.scooter_id,
-                "username": booking.username,
-                "start_time": booking.start_time,
-                "duration": booking.duration,
-                "cost": booking.cost,
-                "status": booking.status,
-                "booking_id": booking.booking_id
-            }
-            for booking in bookings
-        ]
-        return formatted_bookings
+        try:
+            bookings = db.get_all_bookings()
+            print('--------All booki gs to be sent to API requester-------')
+            for booking in bookings:
+                print(booking.__str__())
+            print('-----------------------')
+            formatted_bookings = [
+                {
+                    "location": booking.location,
+                    "scooter_id": booking.scooter_id,
+                    "username": booking.username,
+                    "start_time": booking.start_time,
+                    "duration": booking.duration,
+                    "cost": booking.cost,
+                    "status": booking.status,
+                    "booking_id": booking.booking_id
+                }
+                for booking in bookings
+            ]
+            return formatted_bookings
+        except Exception as e:
+            return "An error occurred while getting all bookings.\n" + str(e)
 
 
 class GetAllScooters(Resource):
@@ -497,25 +529,28 @@ class GetAllScooters(Resource):
         super().__init__()
 
     def get(self):
-        scooters = db.get_scooters_from_db()
-        print('--------All scooters to be sent to API requester-------')
-        for scooter in scooters:
-            print(scooter.__str__())
-        print('-----------------------')
-        formatted_scooters = [
-            {
-                "status": scooter.status,
-                "make": scooter.make,
-                "color": scooter.color,
-                "location": scooter.location,
-                "power": scooter.power,
-                "cost": scooter.cost,
-                "scooter_id": scooter.scooter_id
-            }
-            for scooter in scooters
-        ]
-        # Double check this can be sent of if we need to use json.dump()
-        return formatted_scooters
+        try:
+            scooters = db.get_scooters_from_db()
+            print('--------All scooters to be sent to API requester-------')
+            for scooter in scooters:
+                print(scooter.__str__())
+            print('-----------------------')
+            formatted_scooters = [
+                {
+                    "status": scooter.status,
+                    "make": scooter.make,
+                    "color": scooter.color,
+                    "location": scooter.location,
+                    "power": scooter.power,
+                    "cost": scooter.cost,
+                    "scooter_id": scooter.scooter_id
+                }
+                for scooter in scooters
+            ]
+            # Double check this can be sent of if we need to use json.dump()
+            return formatted_scooters
+        except Exception as e:
+            return "An error occurred while getting all scooters.\n" + str(e)
 
 
 class GetAllCustomers(Resource):
@@ -523,24 +558,27 @@ class GetAllCustomers(Resource):
         super().__init__()
 
     def get(self):
-        customers = db.get_all_customers()
-        print('--------All customers to be sent to API requester-------')
-        for customer in customers:
-            print(customer.__str__())
-        print('-----------------------')
-        formatted_customers = [
-            {
-                "username": customer.username,
-                "first_name": customer.first_name,
-                "last_name": customer.last_name,
-                "phone_number": customer.phone_number,
-                "email_address": customer.email_address,
-                "password": customer.password,
-                "balance": customer.balance
-            }
-            for customer in customers
-        ]
-        return formatted_customers
+        try:
+            customers = db.get_all_customers()
+            print('--------All customers to be sent to API requester-------')
+            for customer in customers:
+                print(customer.__str__())
+            print('-----------------------')
+            formatted_customers = [
+                {
+                    "username": customer.username,
+                    "first_name": customer.first_name,
+                    "last_name": customer.last_name,
+                    "phone_number": customer.phone_number,
+                    "email_address": customer.email_address,
+                    "password": customer.password,
+                    "balance": customer.balance
+                }
+                for customer in customers
+            ]
+            return formatted_customers
+        except Exception as e:
+            return "An error occurred while getting all customers.\n" + str(e)
 
 
 class GetSingleCustomerByID(Resource):
@@ -551,24 +589,27 @@ class GetSingleCustomerByID(Resource):
             "username", type=int, help="CustomerID")
 
     def get(self):
-        args = self._cust_post_args.parse_args()
-        customer_to_find_id = args["current_id"]
-        customer_object = db.get_customer_object_by_username(
-            customer_to_find_id)
+        try:
+            args = self._cust_post_args.parse_args()
+            customer_to_find_id = args["current_id"]
+            customer_object = db.get_customer_object_by_username(
+                customer_to_find_id)
 
-        if customer_object:
-            formatted_customer = {
-                "username": customer_object.username,
-                "first_name": customer_object.first_name,
-                "last_name": customer_object.last_name,
-                "phone_number": customer_object.phone_number,
-                "email_address": customer_object.email_address,
-                "password": customer_object.password,
-                "balance": customer_object.balance
-            }
-            return formatted_customer
-        else:
-            return {"message": "Customer not found"}  # , 404
+            if customer_object:
+                formatted_customer = {
+                    "username": customer_object.username,
+                    "first_name": customer_object.first_name,
+                    "last_name": customer_object.last_name,
+                    "phone_number": customer_object.phone_number,
+                    "email_address": customer_object.email_address,
+                    "password": customer_object.password,
+                    "balance": customer_object.balance
+                }
+                return formatted_customer
+            else:
+                return {"message": "Customer not found"}  # , 404
+        except Exception as e:
+            return "An error occurred while getting the customer.\n" + str(e)
 
 
 class Login(Resource):
@@ -581,38 +622,41 @@ class Login(Resource):
             "password", type=str, help="password")
 
     def post(self):
-        args = self._cust_login_args.parse_args()
-        username = args['username']
-        password = args['password']
-        # Check if the username exists in the staff CSV file
-        staff = db.get_staff(username, password)
-        if staff:
-            if username.startswith('~'):
-                # The username starts with ~, indicating an admin
-                print(f"Successfully signed in as admin: {staff.username}")
-                response_data = {'user_type': 'admin',
-                                 'username': staff.username}
-                return jsonify(response_data)
-            elif username.startswith('_'):
-                # The username starts with _, indicating an engineer
-                print(
-                    f"Successfully signed in as engineer: {staff.username}")
-                response_data = {'user_type': 'engineer',
-                                 'username': staff.username}
-                return jsonify(response_data)
-        else:
-            # Check if the username exists among regular customers
-            customer = db.get_customer(username, password)
-            if customer:
-                print(
-                    f"Successfully signed in as customer: {customer.username}")
-                response_data = {'user_type': 'customer',
-                                 'username': customer.username}
-                return jsonify(response_data)
+        try:
+            args = self._cust_login_args.parse_args()
+            username = args['username']
+            password = args['password']
+            # Check if the username exists in the staff CSV file
+            staff = db.get_staff(username, password)
+            if staff:
+                if username.startswith('~'):
+                    # The username starts with ~, indicating an admin
+                    print(f"Successfully signed in as admin: {staff.username}")
+                    response_data = {'user_type': 'admin',
+                                    'username': staff.username}
+                    return jsonify(response_data)
+                elif username.startswith('_'):
+                    # The username starts with _, indicating an engineer
+                    print(
+                        f"Successfully signed in as engineer: {staff.username}")
+                    response_data = {'user_type': 'engineer',
+                                    'username': staff.username}
+                    return jsonify(response_data)
+            else:
+                # Check if the username exists among regular customers
+                customer = db.get_customer(username, password)
+                if customer:
+                    print(
+                        f"Successfully signed in as customer: {customer.username}")
+                    response_data = {'user_type': 'customer',
+                                    'username': customer.username}
+                    return jsonify(response_data)
 
-            # If the user is not found in any category, return an error response
-            error_response = {'error': 'Invalid credentials'}
-            return jsonify(error_response), 401
+                # If the user is not found in any category, return an error response
+                error_response = {'error': 'Invalid credentials'}
+                return jsonify(error_response), 401
+        except Exception as e:
+            return "An error occurred while logging in.\n" + str(e)
 
 
 # Make /api
