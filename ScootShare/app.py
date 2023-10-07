@@ -68,8 +68,9 @@ class Registration(Resource):
             return message
         except Exception as e:
             # Handle the exception, and provide an error message
-            message = "An error occurred while creating the account. Please try again later."
-            print(message, e)
+            message = "An error occurred while creating the account. Please try again later.\n" + str(e)
+            print(message)
+            return message
 
 
 class editCustomer(Resource):
