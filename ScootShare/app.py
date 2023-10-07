@@ -55,21 +55,23 @@ class Registration(Resource):
         try:
             args = self._cust_reg_args.parse_args()
             customer_object = Customer(args['username'], args['first_name'], args['last_name'],
-                                    args['phone_number'], args['email_address'],
-                                    args['password'], args['balance'])
-            print("Debug: ", customer_object.username, customer_object.first_name,)
+                                       args['phone_number'], args['email_address'],
+                                       args['password'], args['balance'])
+            print("Debug: ", customer_object.username,
+                  customer_object.first_name,)
             print(args["username"], args["first_name"],
-                args["last_name"], args["phone_number"])
+                  args["last_name"], args["phone_number"])
             # check if we want to do the validation here to check if the customer id already exists,
             # this is already done in the edit customer class so it would be easy to move accross
             # TODO Check if user uses prefixes for admin/engineer
-        
+
             db.add_customer(customer_object)
             message = f"Account with username {customer_object.username} created successfully!"
             return message
         except Exception as e:
             # Handle the exception, and provide an error message
-            message = "An error occurred while creating the account. Please try again later.\n" + str(e)
+            message = "An error occurred while creating the account. Please try again later.\n" + \
+                str(e)
             print(message)
             return message
 
@@ -134,7 +136,7 @@ class editCustomer(Resource):
                 return "You have successfully updated your profile."  # , #200
 
             return f"(You have made no changes for this user: {original_customer_data.username})"
-        except Exception as e: 
+        except Exception as e:
             return "An error occurred while updating the profile.\n" + str(e)
 
 
@@ -193,7 +195,7 @@ class editScooter(Resource):
             if changes:
                 # Apply the changes to the scooter profile in the database
                 db.update_scooter_data(
-                    args['current_id'], changes)
+                    args['scooter_id'], changes)
                 return "You have successfully updated the scooter profile."  # , 200
             else:
                 return "You have made no changes for this scooter."
@@ -450,6 +452,7 @@ class Top_up_Balanace(Resource):
         except Exception as e:
             return "An error occurred while topping up the balance.\n" + str(e)
 
+
 class GetCompleteHistroy(Resource):
     def __init__(self) -> None:
         super().__init__()
@@ -469,7 +472,7 @@ class GetAllRepairs(Resource):
             print('-----------------------')
             # Format the repairs data as needed
             formatted_repairs = [{"repair_id": repair.repair_id, "scooter_id": repair.scooter_id, "description": repair.description,
-                                "linked_report_id": repair.linked_report_id, "time_of_repair": repair.time_of_repair} for repair in repairs]
+                                  "linked_report_id": repair.linked_report_id, "time_of_repair": repair.time_of_repair} for repair in repairs]
             return formatted_repairs
         except Exception as e:
             return "An error occurred while getting all repairs.\n" + str(e)
@@ -489,7 +492,7 @@ class GetAllReports(Resource):
             print('-----------------------')
             # Format the reports data as needed
             formatted_reports = [{"report_id": report.id, "scooter_id": report.scooter_id, "description": report.description,
-                                "time_of_report": report.time_of_report, "status": report.status} for report in reports]
+                                  "time_of_report": report.time_of_report, "status": report.status} for report in reports]
             return formatted_reports
         except Exception as e:
             return "An error occurred while getting all reports.\n" + str(e)
@@ -501,7 +504,7 @@ class GetAllBookings(Resource):
 
     def get(self):
         try:
-            bookings = db.get_all_bookings()
+            bookings = db.get_bookings_from_db()
             print('--------All booki gs to be sent to API requester-------')
             for booking in bookings:
                 print(booking.__str__())
@@ -510,7 +513,7 @@ class GetAllBookings(Resource):
                 {
                     "location": booking.location,
                     "scooter_id": booking.scooter_id,
-                    "username": booking.username,
+                    "customer": booking.customer,
                     "start_time": booking.start_time,
                     "duration": booking.duration,
                     "cost": booking.cost,
@@ -518,6 +521,7 @@ class GetAllBookings(Resource):
                     "booking_id": booking.booking_id
                 }
                 for booking in bookings
+
             ]
             return formatted_bookings
         except Exception as e:
@@ -559,24 +563,26 @@ class GetAllCustomers(Resource):
 
     def get(self):
         try:
-            customers = db.get_all_customers()
+            customers = db.get_customers_from_db()
             print('--------All customers to be sent to API requester-------')
             for customer in customers:
                 print(customer.__str__())
             print('-----------------------')
-            formatted_customers = [
-                {
+
+            formatted_customers = []
+            for customer in customers:
+                # Convert any binary data to a serializable format, such as strings
+                formatted_customer = {
                     "username": customer.username,
                     "first_name": customer.first_name,
                     "last_name": customer.last_name,
                     "phone_number": customer.phone_number,
                     "email_address": customer.email_address,
-                    "password": customer.password,
+                    "password": "test",
                     "balance": customer.balance
                 }
-                for customer in customers
-            ]
-            return formatted_customers
+                formatted_customers.append(formatted_customer)
+            return jsonify(formatted_customers)
         except Exception as e:
             return "An error occurred while getting all customers.\n" + str(e)
 
@@ -633,14 +639,14 @@ class Login(Resource):
                     # The username starts with ~, indicating an admin
                     print(f"Successfully signed in as admin: {staff.username}")
                     response_data = {'user_type': 'admin',
-                                    'username': staff.username}
+                                     'username': staff.username}
                     return jsonify(response_data)
                 elif username.startswith('_'):
                     # The username starts with _, indicating an engineer
                     print(
                         f"Successfully signed in as engineer: {staff.username}")
                     response_data = {'user_type': 'engineer',
-                                    'username': staff.username}
+                                     'username': staff.username}
                     return jsonify(response_data)
             else:
                 # Check if the username exists among regular customers
@@ -649,7 +655,7 @@ class Login(Resource):
                     print(
                         f"Successfully signed in as customer: {customer.username}")
                     response_data = {'user_type': 'customer',
-                                    'username': customer.username}
+                                     'username': customer.username}
                     return jsonify(response_data)
 
                 # If the user is not found in any category, return an error response

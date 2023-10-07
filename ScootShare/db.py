@@ -200,6 +200,7 @@ class DatabaseConnector:
 # Discuss if we will merge all the create table methods
 # Also this seems to be incrementing incorrectly
 
+
     def create_scooter_table(self):
         con = lite.connect(self._file)
         with con:
@@ -307,6 +308,7 @@ class DatabaseConnector:
 
 # Takes in an id and updates the status of that scooter
 
+
     def change_scooter_status(self, scooter_id, new_status):
         con = lite.connect(self._file)
         with con:
@@ -317,6 +319,7 @@ class DatabaseConnector:
 
 
 # Get a specfic scooter by ID
+
 
     def get_scooter_by_id(self, scooter_id):
         con = lite.connect(self._file)
@@ -347,10 +350,37 @@ class DatabaseConnector:
         scooters = [Scooter(*row) for row in scooters_data]
 
         return scooters
+# Gets all scooters in the db
+
+    def get_bookings_from_db(self):
+        con = lite.connect(self._file)
+        with con:
+            cur = con.cursor()
+            query = "SELECT * FROM Booking;"
+            cur.execute(query)
+            booking_data = cur.fetchall()
+
+        bookings = [Booking(*row) for row in booking_data]
+
+        return bookings
+# Gets all scooters in the db
+
+    def get_customers_from_db(self):
+        con = lite.connect(self._file)
+        with con:
+            cur = con.cursor()
+            query = "SELECT username, first_name, last_name, phone_number, email_address, password, balance FROM Customer;"
+            cur.execute(query)
+            customers_data = cur.fetchall()
+
+        customers = [Customer(*row) for row in customers_data]
+
+        return customers
 
 
 # Booking related methods
 # Takes in a single id and retrives the booking, tho assumes the id is unique
+
 
     def get_booking_by_id(self, booking_id):
         con = lite.connect(self._file)
@@ -413,6 +443,7 @@ class DatabaseConnector:
 
 # Takes in a customerID and gets all bookings attached to that customer
 
+
     def get_bookings_by_customer_id(self, customer_id):
         con = lite.connect(self._file)
         with con:
@@ -440,7 +471,6 @@ class DatabaseConnector:
 
 # Takes in a booking instance and sends it to the database, id is left out as it is assinged in the db
 
-
     def add_booking(self, new_booking: Booking):
         con = lite.connect(self._file)
         with con:
@@ -466,6 +496,7 @@ class DatabaseConnector:
 
 
 # Repair methods
+
 
     def get_repairs_by_scooter_id(self, scooter_id):
         con = lite.connect(self._file)
@@ -511,6 +542,7 @@ class DatabaseConnector:
 
 # Report methods
 
+
     def add_report(self, new_report: Report):
         print(new_report.__str__())
         con = lite.connect(self._file)
@@ -524,6 +556,7 @@ class DatabaseConnector:
 
 
 # returns a report based on a reportID
+
 
     def get_report(self, report_id):
         con = lite.connect(self._file)

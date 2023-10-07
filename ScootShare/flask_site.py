@@ -49,9 +49,11 @@ def booking_view():
 def dashboard_view():
     return render_template("dashboard.html")
 
+
 @site.route('/engineer_dashboard', methods=['GET', 'POST'])
 def engineer_dashboard_view():
     return render_template("engineer_dashboard.html")
+
 
 @site.route('/report_issue')
 def report_issue():
@@ -60,5 +62,5 @@ def report_issue():
 
 @site.route('/submit_issue', methods=['POST'])
 def submit_issue():
-    
-    return redirect(url_for('dashboard'))  
+
+    return redirect(url_for('dashboard'))
