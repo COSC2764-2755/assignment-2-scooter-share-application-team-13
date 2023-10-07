@@ -548,7 +548,7 @@ class Login(Resource):
             print(f"Successfully signed in as {db_user.username}")
             return redirect('/booking')
         else :
-            db_engineer = database_controller.get_engineer(
+            db_engineer = database_controller.get_staff(
                 args['username'], args['password'])
             if db_engineer:
                 print(f"Successfully Signed in as {db_engineer.username}")

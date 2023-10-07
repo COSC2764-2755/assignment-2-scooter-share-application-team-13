@@ -126,10 +126,10 @@ class DatabaseConnector:
                         print(f'Line:{reader.line_num}, Record:{record}')
                     
                     
-    def get_engineer(self, username: str, password: str) -> Engineer:
-        # connect to db
-        print (username)
-
+ #   def get_engineer(self, username: str, password: str) -> Engineer:
+    #    # connect to db
+   #     print (username)
+    #    return 
 
 
     def get_customer_by_id(self, customer_id):
@@ -626,35 +626,37 @@ class DatabaseConnector:
 
 
     #Double check where the we are getting username and password from  
+
+
+    def get_staff(self, username: str, password: str):
+        con = lite.connect(self._file)
+        with con:
+            cur = con.cursor()
+            query = "SELECT * FROM Staff WHERE username = ?;"
+            cur.execute(query, (username,))
+            result = cur.fetchone()
+            if result is None:
+                return None
+            stored_password_hash = result[1]
+            if not verify_password(stored_password_hash, password):
+                return None
+        return username
+
+
+
     def populate_staff(self):
         con = lite.connect(self._file)
+        with con:
+            cur = con.cursor()
+            cur.execute("SELECT COUNT(*) FROM Staff")
+            count = cur.fetchone()[0]
+            if count == 0:
+                query = "INSERT INTO Staff (username, password) VALUES (?, ?)"
+                staff_data = [
+                    ('~admin', hash_password('admin')),
+                    ('_engineer', hash_password('engineer'))
+                ]
+                cur.executemany(query, staff_data)
+                con.commit()
 
-        try:
-            with con:
-                cur = con.cursor()
-                # get engineer record by username
-                query = "SELECT * FROM Engineer WHERE username = ?;"
-                print("Querying database for username:", username)
-                cur.execute(query, (username,))
-                result = cur.fetchone()
-                if result is None:
-                    # Handle the case where the user is not found
-                    return None
-
-                # Check if the password matches
-                # Get stored password from db result
-                stored_password = result[1]
-                if not verify_password(stored_password, password):
-                    # Password does not match
-                    return None
-
-                # create engineer object from db
-                engineer = Engineer(
-                    result[0], result[1])
-                # return customer object
-                return engineer
-        except lite.Error as e:
-            # Handle any database-related errors here
-            print("Database error:", str(e))
-            return None
 
