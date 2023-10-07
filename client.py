@@ -1,7 +1,7 @@
 import socket
 from passlib.hash import sha256_crypt
 
-HOST = input("Enter IP address of server: ")
+HOST = input("Enter IP address of server: ") # Defaults to listen on all Ip's
 PORT = 65000
 ADDRESS = (HOST, PORT)
 
@@ -23,8 +23,9 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 
     # Send cusotmer_id and hashed password to server
     s.sendall(f"{username}:{hashed_password}".encode())
-    response = s.recv(4096).decode()
-    print(response)
+    print("Username and password sent")
+    #response = s.recv(4096).decode()
+    #print(response)
 
     print("Disconnecting from server.")
 print("Connection closed.")

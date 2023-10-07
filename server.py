@@ -19,12 +19,18 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         print("Listening on {}...".format(ADDRESS))
         conn, addr = s.accept()
         with conn:
-            scooter_id = addr[0]  
-            print("Scooter [{}] connected.".format(scooter_id))
-
+            IP = addr[0]
+            socket_addr = addr[1]
+            print(f"IP address: {IP} Socket address {socket_addr}")
+          
             # Receive username and hashed password from client
             data = conn.recv(4096).decode()
             received_username, received_hash = data.split(":")
+
+            print(f"IP address: {received_username} Something else {received_hash}")
+
+
+        USERNAME = 'Joshua'
 
             # Checking the received username and hash match the stored values
             if received_username == USERNAME and sha256_crypt.verify("pass123", received_hash):
