@@ -77,3 +77,9 @@ class Staff():
     def __init__(self, username, password):
         self.username = username
         self.password = password
+
+
+class Engineer():
+    def __init__(self, username, password):
+        self.username = username
+        self.password = password
