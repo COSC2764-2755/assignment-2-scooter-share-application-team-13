@@ -1,43 +1,48 @@
-# Flask main
-
-from flask import Flask, render_template, make_response, redirect
+import csv
+from flask import Flask, render_template, make_response, redirect, request, jsonify, session
 from flask_restful import Api, Resource, reqparse
 from db import DatabaseConnector
 from flask_site import site
 from datetime import datetime, timedelta
 from flask_restful import Api, Resource, reqparse
 from records import *
+import os
 
 app = Flask(__name__)
+app.secret_key = os.urandom(24)
+app.register_blueprint(site)
 api = Api(app)
+db = DatabaseConnector()
+db.create_booking_table()
+db.create_report_table()
+db.create_scooter_table()
+db.create_repair_table()
+db.create_table()
+db.create_staff_table()
+db.add_staff()
 
+# Read data from the staff CSV file and store it in staff_csv_data
+staff_csv_data = []
 
+# Assuming your staff CSV file is named "staff.csv" and is located in the same directory
+with open('staff_login.csv', 'r') as csvfile:
+    csvreader = csv.DictReader(csvfile)
+    for row in csvreader:
+        # Assuming 'username' is the column header in your CSV
+        staff_csv_data.append(row['username'])
 
+# Now staff_csv_data contains a list of usernames from the staff CSV file
 
-
-database_controller = DatabaseConnector() # TODO: Find somewhere better to initialise db
-database_controller.create_booking_table()
-database_controller.create_report_table()
-database_controller.create_scooter_table()
-database_controller.create_repair_table()
-
-
-
-database_controller.create_table()
-database_controller.create_engineer()
-
-#database_controller.create_customer_table() 
-#database_controller.create_staff_table()
-database_controller.populate_staff() # Populate staff table with dummy accounts
 
 def parse_datetime(value: str):
-        try:
-            # Parse the input string as a datetime object # takes in something like this: "2023-10-05 14:30:00"
-            return datetime.strptime(value, "%Y-%m-%d %H:%M:%S")  # Adjust the format as needed
-        # if you attempt to parse a string as a datetime, and the string does not match the expected format, this exception will be raised
-        except Exception as thrown_exception: #bad practise to catch general exceptions but for the moment helps in debugging
-            print(f"Error: {thrown_exception}")
-
+    try:
+        # Parse the input string as a datetime object # takes in something like this: "2023-10-05 14:30:00"
+        # Adjust the format as needed
+        return datetime.strptime(value, "%Y-%m-%d %H:%M:%S")
+    # if you attempt to parse a string as a datetime, and the string does not match the expected format, this exception will be raised
+    # bad practise to catch general exceptions but for the moment helps in debugging
+    except Exception as thrown_exception:
+        print(f"Error: {thrown_exception}")
 
 
 class Registration(Resource):
@@ -66,37 +71,41 @@ class Registration(Resource):
                                    args['password'], args['balance'])
 
         # TODO: Find somewhere better to initialise db
-        
-        database_controller.add_engineer()
-        database_controller.add_customer(customer_object)
-        print(f"Account with username {customer_object.username} created successfully!")
 
-        # check if we want to do the validation here to check if the customer id already exists, 
+        db.add_engineer()
+        db.add_customer(customer_object)
+        print(
+            f"Account with username {customer_object.username} created successfully!")
+
+        # check if we want to do the validation here to check if the customer id already exists,
         # this is already done in the edit customer class so it would be easy to move accross
-        
+
         try:
-            database_controller.add_customer(customer_object)
+            db.add_customer(customer_object)
             message = f"Account with username {customer_object.username} created successfully!"
         except Exception as e:
-    # Handle the exception, and provide an error message
+            # Handle the exception, and provide an error message
             message = "An error occurred while creating the account. Please try again later."
             print(message, e)
-
-   
 
 
 class editCustomer(Resource):
     def __init__(self) -> None:
-            super().__init__()
-            self._cust_put_args = reqparse.RequestParser()
+        super().__init__()
+        self._cust_put_args = reqparse.RequestParser()
 
-            self._cust_put_args.add_argument("current_id", type=int, help="CustomerID")
-            self._cust_put_args.add_argument("first_name", type=str, help="Customer fName")
-            self._cust_put_args.add_argument("last_name", type=str, help="Customer lName")
-            self._cust_put_args.add_argument("phone_number", type=str, help="phone num")
-            self._cust_put_args.add_argument("email_address", type=str, help="email")
-            self._cust_put_args.add_argument("password", type=str, help="password")
-            self._cust_put_args.add_argument("balance", type=float, help="balance")
+        self._cust_put_args.add_argument(
+            "current_id", type=int, help="CustomerID")
+        self._cust_put_args.add_argument(
+            "first_name", type=str, help="Customer fName")
+        self._cust_put_args.add_argument(
+            "last_name", type=str, help="Customer lName")
+        self._cust_put_args.add_argument(
+            "phone_number", type=str, help="phone num")
+        self._cust_put_args.add_argument(
+            "email_address", type=str, help="email")
+        self._cust_put_args.add_argument("password", type=str, help="password")
+        self._cust_put_args.add_argument("balance", type=float, help="balance")
 
     def put(self):
         args = self._cust_put_args.parse_args()
@@ -107,10 +116,11 @@ class editCustomer(Resource):
         )
 
         # Get the original information of this customer
-        original_customer_data = database_controller.get_customer_by_id(args['current_id'])
+        original_customer_data = db.get_customer_by_id(
+            args['current_id'])
 
-         # Perform validation to see what changes were made to any of the attributes
-         #add balance, 
+        # Perform validation to see what changes were made to any of the attributes
+        # add balance,
         changes = {}
         if updated_customer_object.first_name != original_customer_data.first_name:
             changes['first_name'] = updated_customer_object.first_name
@@ -120,36 +130,45 @@ class editCustomer(Resource):
             changes['phone_number'] = updated_customer_object.phone_number
         if updated_customer_object.email_address != original_customer_data.email_address:
             changes['email_address'] = updated_customer_object.email_address
-        #if updated_customer_object.username != original_customer_data.username: #Removed as we do not want to change a priamy key, 
+        # if updated_customer_object.username != original_customer_data.username: #Removed as we do not want to change a priamy key,
         # otherwise we'd need to chnage all linked reports ect
             # Check if the new username is available
-            #if database_controller.get_customer_by_id(updated_customer_object.username) is None:
-                #changes['id'] = updated_customer_object.username
-            #else:
-                #return "Username is already in use, please choose a different one." #, 400  # Return an error response, don't tink we need this, double check
+            # if db.get_customer_by_id(updated_customer_object.username) is None:
+            # changes['id'] = updated_customer_object.username
+            # else:
+            # return "Username is already in use, please choose a different one." #, 400  # Return an error response, don't tink we need this, double check
 
         # Update the customer's profile based on the changes dictionary
         if changes:
             # Apply the changes to the customer profile in the database
-            database_controller.update_customer_profile(args['current_id'], changes)
-            return "You have successfully updated your profile." #, #200
-        
+            db.update_customer_profile(
+                args['current_id'], changes)
+            return "You have successfully updated your profile."  # , #200
+
         return f"(You have made no changes for this user: {original_customer_data.username})"
+
 
 class editScooter(Resource):
     def __init__(self) -> None:
         super().__init__()
         self._scooter_put_args = reqparse.RequestParser()
-        self._scooter_put_args.add_argument("scooter_id", type=str, help="Scooter id") # At minimum 
+        self._scooter_put_args.add_argument(
+            "scooter_id", type=str, help="Scooter id")  # At minimum
 
-        #It may be better practise to get the scooter id and get the most recent data 
-        self._scooter_put_args.add_argument("status", type=str, help="Scooter status")
-        self._scooter_put_args.add_argument("make", type=str, help="Scooter make")
-        self._scooter_put_args.add_argument("color", type=str, help="Scooter color")
-        self._scooter_put_args.add_argument("location", type=str, help="Scooter location")
-        self._scooter_put_args.add_argument("power", type=float, help="Power remaining")
-        self._scooter_put_args.add_argument("cost", type=float, help="Cost per min")
-        
+        # It may be better practise to get the scooter id and get the most recent data
+        self._scooter_put_args.add_argument(
+            "status", type=str, help="Scooter status")
+        self._scooter_put_args.add_argument(
+            "make", type=str, help="Scooter make")
+        self._scooter_put_args.add_argument(
+            "color", type=str, help="Scooter color")
+        self._scooter_put_args.add_argument(
+            "location", type=str, help="Scooter location")
+        self._scooter_put_args.add_argument(
+            "power", type=float, help="Power remaining")
+        self._scooter_put_args.add_argument(
+            "cost", type=float, help="Cost per min")
+
     def put(self):
         args = self._scooter_put_args.parse_args()
         updated_scooter_object = Scooter(
@@ -160,10 +179,11 @@ class editScooter(Resource):
             power=args['power'],
             cost=args['cost']
         )
-        original_scooter_data = database_controller.get_scooter_by_id(args['scooter_id']) #check this is all good
+        original_scooter_data = db.get_scooter_by_id(
+            args['scooter_id'])  # check this is all good
         # Perform validation to see what changes were made to any of the attributes
 
-        #Note that it is important that these match the tables of the database
+        # Note that it is important that these match the tables of the database
         changes = {}
         if updated_scooter_object.status != original_scooter_data.status:
             changes['status'] = updated_scooter_object.status
@@ -181,23 +201,29 @@ class editScooter(Resource):
         # Update the scooter's profile based on the changes dictionary
         if changes:
             # Apply the changes to the scooter profile in the database
-            database_controller.update_scooter_data(args['current_id'], changes)
-            return "You have successfully updated the scooter profile." #, 200
+            db.update_scooter_data(
+                args['current_id'], changes)
+            return "You have successfully updated the scooter profile."  # , 200
         else:
             return "You have made no changes for this scooter."
 
-                
 
 class addScooter(Resource):
     def __init__(self) -> None:
         super().__init__()
         self._scooter_put_args = reqparse.RequestParser()
-        self._scooter_put_args.add_argument("status", type=str, help="Scooter status")
-        self._scooter_put_args.add_argument("make", type=str, help="Scooter make")
-        self._scooter_put_args.add_argument("color", type=str, help="Scooter color")
-        self._scooter_put_args.add_argument("location", type=str, help="Scooter location")
-        self._scooter_put_args.add_argument("power", type=float, help="Power remaining")
-        self._scooter_put_args.add_argument("cost", type=float, help="Cost per min")
+        self._scooter_put_args.add_argument(
+            "status", type=str, help="Scooter status")
+        self._scooter_put_args.add_argument(
+            "make", type=str, help="Scooter make")
+        self._scooter_put_args.add_argument(
+            "color", type=str, help="Scooter color")
+        self._scooter_put_args.add_argument(
+            "location", type=str, help="Scooter location")
+        self._scooter_put_args.add_argument(
+            "power", type=float, help="Power remaining")
+        self._scooter_put_args.add_argument(
+            "cost", type=float, help="Cost per min")
 
     def put(self):
         args = self._scooter_put_args.parse_args()
@@ -209,57 +235,63 @@ class addScooter(Resource):
             power=args['power'],
             cost=args['cost']
         )
-        database_controller.add_scoooter(scooter)
-        listOfScooters = database_controller.get_scooters_from_db()
+        db.add_scoooter(scooter)
+        listOfScooters = db.get_scooters_from_db()
 
-        # Loop here to test 
+        # Loop here to test
         for scooter in listOfScooters:
             print("Status:", scooter.status)
             print("Make:", scooter.make)
             print("Color:", scooter.color)
             # ScooterID will alwaysd be one if the create tables method stays in this class
             print("Scooter ID:", scooter.scooter_id)
-            print("-----------") 
+            print("-----------")
 
         return f"You added a new scooter to the db colored {scooter.color} and with a charge of {scooter.power}"
-       
-  
 
-  #No validation yet, this would come in the form of making sure an in progress booking cannot be cancled and a completed booking cannot be cancled 
-  #Though a way to assit this before it gets to this point is to only allow the user to select bookings to cancle that are valid
+  # No validation yet, this would come in the form of making sure an in progress booking cannot be cancled and a completed booking cannot be cancled
+  # Though a way to assit this before it gets to this point is to only allow the user to select bookings to cancle that are valid
+
+
 class cancelBooking(Resource):
     def __init__(self) -> None:
         super().__init__()
         self._booking_put_args = reqparse.RequestParser()
-        #self._booking_put_args.add_argument("customer_id", type=int, help="Customer ID")
-        self._booking_put_args.add_argument("booking_id", type=int, help="booking ID") #Double check but all we should need to cancle a booking is the id
-
+        # self._booking_put_args.add_argument("customer_id", type=int, help="Customer ID")
+        # Double check but all we should need to cancle a booking is the id
+        self._booking_put_args.add_argument(
+            "booking_id", type=int, help="booking ID")
 
     def put(self):
         args = self._booking_put_args.parse_args()
         booking_to_cancel_id = args['booking_id']
-        database_controller.set_booking_status('canceled', booking_to_cancel_id) # Change the status to cancled 
+        db.set_booking_status(
+            'canceled', booking_to_cancel_id)  # Change the status to cancled
 
         return f"You canceled a booking of id: {booking_to_cancel_id}"
-
 
 
 class Make_Booking(Resource):
     def __init__(self) -> None:
         super().__init__()
         self._booking_put_args = reqparse.RequestParser()
-        #First interation 
-        self._booking_put_args.add_argument("location", type=str, help="Booking location")
-        self._booking_put_args.add_argument("scooter_id", type=int, help="Scooter ID")
-        self._booking_put_args.add_argument("customer_id", type=int, help="Customer ID")
-        #parse the time here so we can do operations to do with the starttime and checking if it conflicts with other bookings# assuming we get the data as a string 
-        #We should recive a string like this, "2023-10-05 14:30:00". Double check that we we recive data from the api call it will be a
-        self._booking_put_args.add_argument("start_time", type=parse_datetime, help="Start time")
-        self._booking_put_args.add_argument("duration", type=int, help="Duration")
-        self._booking_put_args.add_argument("cost", type=float, help="Booking cost per min")
-        self._booking_put_args.add_argument("status", type=str, help="Booking status")
-
-
+        # First interation
+        self._booking_put_args.add_argument(
+            "location", type=str, help="Booking location")
+        self._booking_put_args.add_argument(
+            "scooter_id", type=int, help="Scooter ID")
+        self._booking_put_args.add_argument(
+            "customer_id", type=int, help="Customer ID")
+        # parse the time here so we can do operations to do with the starttime and checking if it conflicts with other bookings# assuming we get the data as a string
+        # We should recive a string like this, "2023-10-05 14:30:00". Double check that we we recive data from the api call it will be a
+        self._booking_put_args.add_argument(
+            "start_time", type=parse_datetime, help="Start time")
+        self._booking_put_args.add_argument(
+            "duration", type=int, help="Duration")
+        self._booking_put_args.add_argument(
+            "cost", type=float, help="Booking cost per min")
+        self._booking_put_args.add_argument(
+            "status", type=str, help="Booking status")
 
     def put(self):
         args = self._booking_put_args.parse_args()
@@ -272,53 +304,64 @@ class Make_Booking(Resource):
             cost=args['cost'],
             status=args['status']
         )
-       
+
         # Check if the user has enough balance in their account  #The amount is taken only when the booking is initiated
-        booking_customer = database_controller.get_customer_by_id(args['customer_id'])
+        booking_customer = db.get_customer_by_id(
+            args['customer_id'])
         booking_cost = args['duration'] * args['cost']
         if booking_customer.balance - booking_cost < 0:
-            return "Insufficient funds to make the booking."#, 400  # Return an error response
+            # , 400  # Return an error response
+            return "Insufficient funds to make the booking."
 
-        
-        #Check if scooter is avalable
-        scooter_to_book = database_controller.get_scooter_by_id(purposed_booking.scooter_id)
+        # Check if scooter is avalable
+        scooter_to_book = db.get_scooter_by_id(
+            purposed_booking.scooter_id)
 
         if scooter_to_book.status != 'Avalable':
             return f"sorry, your choosen scooter is {scooter_to_book.status}"
-    
 
-       
-        #Purposed booking time cannot conflicts with with booking times of other bookings, meaning the start and end time cannot overlap
-        #Addionally a scooter can only be booked if it has the status avalable , it might be under repair or in use 
+        # Purposed booking time cannot conflicts with with booking times of other bookings, meaning the start and end time cannot overlap
+        # Addionally a scooter can only be booked if it has the status avalable , it might be under repair or in use
 
-        bookings_for_scooter = database_controller.get_bookings_by_scooter_id(args['scooter_id'])
+        bookings_for_scooter = db.get_bookings_by_scooter_id(
+            args['scooter_id'])
 
         for existing_booking in bookings_for_scooter:
-            existing_start_time = existing_booking.start_time #This should be the correct type thanks to the parse datetime method
-            existing_end_time = existing_start_time + timedelta(minutes=existing_booking.duration)
+            # This should be the correct type thanks to the parse datetime method
+            existing_start_time = existing_booking.start_time
+            existing_end_time = existing_start_time + \
+                timedelta(minutes=existing_booking.duration)
 
             purposed_start_time = purposed_booking.start_time
-            purposed_end_time = purposed_start_time + timedelta(minutes=purposed_booking.duration)
+            purposed_end_time = purposed_start_time + \
+                timedelta(minutes=purposed_booking.duration)
 
             # Check if the proposed booking overlaps with any existing booking, # btw \ is a line continuater       #Check if the proposed booking starts while the existing booking is still ongoing.
             if (existing_start_time <= purposed_start_time < existing_end_time) or \
-            (existing_start_time < purposed_end_time <= existing_end_time):                             #check if the proposed booking ends while the existing booking is still ongoing.
-                return "Booking time conflicts with an existing booking."#, 400             Do this for every booking for a the choosen scooter, if no conflics then it is avalable
+                    (existing_start_time < purposed_end_time <= existing_end_time):  # check if the proposed booking ends while the existing booking is still ongoing.
+                # , 400             Do this for every booking for a the choosen scooter, if no conflics then it is avalable
+                return "Booking time conflicts with an existing booking."
 
-
-        database_controller.add_booking(purposed_booking)        
+        db.add_booking(purposed_booking)
         return f"You have made a booking for {purposed_booking.start_time} under the customer id: {purposed_booking.customer_id}"
 
-# Double check if we want a made report to have any impact on scooter avalbility 
+# Double check if we want a made report to have any impact on scooter avalbility
+
+
 class Make_Report(Resource):
     def __init__(self) -> None:
         super().__init__()
         self._report_put_args = reqparse.RequestParser()
-        self._report_put_args.add_argument("scooter_id", type=str, help="Scooter ID")
-        self._report_put_args.add_argument("description", type=str, help="Description of the repair")
-        self._report_put_args.add_argument("linked_report_id", type=str, help="Linked report ID")
-        self._report_put_args.add_argument("time_of_report", type=str, help="Time of report")
-        self._report_put_args.add_argument("status", type=str, help="Report status")
+        self._report_put_args.add_argument(
+            "scooter_id", type=str, help="Scooter ID")
+        self._report_put_args.add_argument(
+            "description", type=str, help="Description of the repair")
+        self._report_put_args.add_argument(
+            "linked_report_id", type=str, help="Linked report ID")
+        self._report_put_args.add_argument(
+            "time_of_report", type=str, help="Time of report")
+        self._report_put_args.add_argument(
+            "status", type=str, help="Report status")
 
     def put(self):
         args = self._report_put_args.parse_args()
@@ -328,21 +371,25 @@ class Make_Report(Resource):
             time_of_report=args['time_of_report'],
             status=args['status']
         )
-        database_controller.add_report(report)
+        db.add_report(report)
         return f"You made a report for scooter: {report.scooter_id} to address: {report.description}"
 
-        
 
 class Make_Repair(Resource):
     def __init__(self) -> None:
         super().__init__()
         self._repair_put_args = reqparse.RequestParser()
-        self._repair_put_args.add_argument("scooter_id", type=str, help="Scooter ID")
-        self._repair_put_args.add_argument("description", type=str, help="Description of the repair")
-        self._repair_put_args.add_argument("linked_report_id", type=str, help="Linked report ID")
-        self._repair_put_args.add_argument("time_of_repair", type=str, help="Time of repair")
-        #Either get this passed in or set it here as 'unaddressed' since that is what it will always be 
-        self._repair_put_args.add_argument("status", type=str, help="Repair status")
+        self._repair_put_args.add_argument(
+            "scooter_id", type=str, help="Scooter ID")
+        self._repair_put_args.add_argument(
+            "description", type=str, help="Description of the repair")
+        self._repair_put_args.add_argument(
+            "linked_report_id", type=str, help="Linked report ID")
+        self._repair_put_args.add_argument(
+            "time_of_repair", type=str, help="Time of repair")
+        # Either get this passed in or set it here as 'unaddressed' since that is what it will always be
+        self._repair_put_args.add_argument(
+            "status", type=str, help="Repair status")
 
     def put(self):
         args = self._repair_put_args.parse_args()
@@ -353,43 +400,46 @@ class Make_Repair(Resource):
             time_of_repair=args['time_of_repair']
         )
         print('repair')
-        database_controller.add_repair(repair)
-        database_controller.set_report_status(repair.linked_report_id, "addressed") # may not want this hardcoded here
+        db.add_repair(repair)
+        db.set_report_status(
+            repair.linked_report_id, "addressed")  # may not want this hardcoded here
         return f"You did a repair at: {repair.time_of_repair} to address: {repair.description}"
 
-#This will be needed to top up the balance, though it is editing account details it is seperate from the editcustomer class
+# This will be needed to top up the balance, though it is editing account details it is seperate from the editcustomer class
+
+
 class Top_up_Balanace(Resource):
     def __init__(self) -> None:
         super().__init__()
         self._customer_put_args = reqparse.RequestParser()
-        self._customer_put_args.add_argument("customerid", type=str, help="CustomerID")
-        self._customer_put_args.add_argument("top_up", type=str, help="Amount to add")
+        self._customer_put_args.add_argument(
+            "customerid", type=str, help="CustomerID")
+        self._customer_put_args.add_argument(
+            "top_up", type=str, help="Amount to add")
 
     def put(self):
         args = self._customer_put_args.parse_args()
-        customer_id=args['customer_id']
-        amount=args['top_up']
-                
-            # Validate customer_id and amount # decide if we want error messages here
+        customer_id = args['customer_id']
+        amount = args['top_up']
+
+        # Validate customer_id and amount # decide if we want error messages here
         if not isinstance(amount, float) or amount <= 0:
             return "Invalid input. Please provide a valid customer ID and a positive amount."
 
-        customer = database_controller.get_customer_by_id(customer_id)
+        customer = db.get_customer_by_id(customer_id)
 
         if customer is None:
             return f"Customer with ID {customer_id} not found."
 
         # Update the balance
         customer.balance += amount
-        database_controller.update_balance(customer_id, customer.balance)
+        db.update_balance(customer_id, customer.balance)
 
         return f"You topped up user {customer_id} with an amount of {amount}. New balance: {customer.balance}"
 
 
-
-
 class GetCompleteHistroy(Resource):
-     def __init__(self) -> None:
+    def __init__(self) -> None:
         super().__init__()
 
 
@@ -398,14 +448,15 @@ class GetAllRepairs(Resource):
         super().__init__()
 
     def get(self):
-         # Retrieve all repair instances from the database
-        repairs = database_controller.get_all_repairs()
+        # Retrieve all repair instances from the database
+        repairs = db.get_all_repairs()
         print('--------All repairs prepairing to send---------------')
         for repair in repairs:
             print(repair.__str__())
         print('-----------------------')
         # Format the repairs data as needed
-        formatted_repairs = [{"repair_id": repair.repair_id, "scooter_id": repair.scooter_id, "description": repair.description, "linked_report_id": repair.linked_report_id, "time_of_repair": repair.time_of_repair} for repair in repairs]
+        formatted_repairs = [{"repair_id": repair.repair_id, "scooter_id": repair.scooter_id, "description": repair.description,
+                              "linked_report_id": repair.linked_report_id, "time_of_repair": repair.time_of_repair} for repair in repairs]
         return formatted_repairs
 
 
@@ -415,13 +466,14 @@ class GetAllReports(Resource):
 
     def get(self):
         # Retrieve all report instances from the database
-        reports = database_controller.get_all_reports()
+        reports = db.get_all_reports()
         print('---------ALL REPORTS prepairing to send--------------')
         for report in reports:
             print(report.__str__())
         print('-----------------------')
         # Format the reports data as needed
-        formatted_reports = [{"report_id": report.id, "scooter_id": report.scooter_id, "description": report.description, "time_of_report": report.time_of_report, "status": report.status} for report in reports]
+        formatted_reports = [{"report_id": report.id, "scooter_id": report.scooter_id, "description": report.description,
+                              "time_of_report": report.time_of_report, "status": report.status} for report in reports]
         return formatted_reports
 
 
@@ -430,7 +482,7 @@ class GetAllBookings(Resource):
         super().__init__()
 
     def get(self):
-        bookings = database_controller.get_all_bookings()
+        bookings = db.get_all_bookings()
         print('--------All booki gs to be sent to API requester-------')
         for booking in bookings:
             print(booking.__str__())
@@ -447,15 +499,16 @@ class GetAllBookings(Resource):
                 "booking_id": booking.booking_id
             }
             for booking in bookings
-            ]        
+        ]
         return formatted_bookings
-        
+
+
 class GetAllScooters(Resource):
     def __init__(self) -> None:
         super().__init__()
 
     def get(self):
-        scooters = database_controller.get_scooters_from_db()
+        scooters = db.get_scooters_from_db()
         print('--------All scooters to be sent to API requester-------')
         for scooter in scooters:
             print(scooter.__str__())
@@ -472,7 +525,8 @@ class GetAllScooters(Resource):
             }
             for scooter in scooters
         ]
-        return formatted_scooters  #Double check this can be sent of if we need to use json.dump()
+        # Double check this can be sent of if we need to use json.dump()
+        return formatted_scooters
 
 
 class GetAllCustomers(Resource):
@@ -480,7 +534,7 @@ class GetAllCustomers(Resource):
         super().__init__()
 
     def get(self):
-        customers = database_controller.get_all_customers()
+        customers = db.get_all_customers()
         print('--------All customers to be sent to API requester-------')
         for customer in customers:
             print(customer.__str__())
@@ -505,12 +559,14 @@ class GetSingleCustomerByID(Resource):
     def __init__(self) -> None:
         super().__init__()
         self._cust_put_args = reqparse.RequestParser()
-        self._cust_put_args.add_argument("current_id", type=int, help="CustomerID")
+        self._cust_put_args.add_argument(
+            "current_id", type=int, help="CustomerID")
 
     def get(self):
         args = self._cust_put_args.parse_args()
         customer_to_find_id = args["current_id"]
-        customer_object = database_controller.get_customer_by_id(customer_to_find_id)
+        customer_object = db.get_customer_by_id(
+            customer_to_find_id)
 
         if customer_object:
             formatted_customer = {
@@ -524,71 +580,73 @@ class GetSingleCustomerByID(Resource):
             }
             return formatted_customer
         else:
-            return {"message": "Customer not found"}#, 404
+            return {"message": "Customer not found"}  # , 404
 
 
 class Login(Resource):
-    def __init__(self) -> None:
-        super().__init__()
-        self._cust_login_args = reqparse.RequestParser()
-        self._cust_login_args.add_argument(
-            "username", type=str, help="username", location='form')
-        self._cust_login_args.add_argument(
-            "password", type=str, help="password", location='form')
-
     def post(self):
-        args = self._cust_login_args.parse_args()
-        # TODO: Find somewhere better to initialise db
-        database_controller = DatabaseConnector()
-        password = None
+        args = request.form
+        username = args['username']
+        password = args['password']
+        # Check if the username exists in the staff CSV file
+        if username in staff_csv_data:
+            staff = db.get_staff(username, password)
+            if username.startswith('~'):
+                # The username starts with ~, indicating an admin
+                if staff:
+                    print(f"Successfully signed in as admin: {staff.username}")
+                    response_data = {'user_type': 'admin',
+                                     'username': staff.username}
+                    return jsonify(response_data)
+            elif username.startswith('_'):
+                # The username starts with _, indicating an engineer
+                if staff:
+                    print(
+                        f"Successfully signed in as engineer: {staff.username}")
+                    response_data = {'user_type': 'engineer',
+                                     'username': staff.username}
+                    return jsonify(response_data)
+        else:
+            # Check if the username exists among regular customers
+            customer = db.get_customer(username, password)
+            if customer:
+                print(
+                    f"Successfully signed in as customer: {customer.username}")
+                response_data = {'user_type': 'customer',
+                                 'username': customer.username}
+                return jsonify(response_data)
 
-        db_user = database_controller.get_customer(
-            args['username'], args['password'])
-        if db_user:
-            print(f"Successfully signed in as {db_user.username}")
-            return redirect('/booking')
-        else :
-            db_engineer = database_controller.get_engineer(
-                args['username'], args['password'])
-            if db_engineer:
-                print(f"Successfully Signed in as {db_engineer.username}")
-                return redirect('/booking')
-        return redirect('login')
-    
-    
+            # If the user is not found in any category, return an error response
+            error_response = {'error': 'Invalid credentials'}
+            return jsonify(error_response), 401
 
 
 # Make /api
-#Retreives 
-api.add_resource(GetAllRepairs, "/all_repairs")
-api.add_resource(GetAllReports, "/all_reports")
-api.add_resource(GetAllBookings,"/all_bookings")
-api.add_resource(GetAllScooters, "/all_scooters")
-api.add_resource(GetAllCustomers, "/all_customers")
+# Retreives
+api.add_resource(GetAllRepairs, "/api/all_repairs")
+api.add_resource(GetAllReports, "/api/all_reports")
+api.add_resource(GetAllBookings, "/api/all_bookings")
+api.add_resource(GetAllScooters, "/api/all_scooters")
+api.add_resource(GetAllCustomers, "/api/all_customers")
 
-#Need to check this one is done right 
-api.add_resource(GetSingleCustomerByID, "get_customer")
+# Need to check this one is done right
+api.add_resource(GetSingleCustomerByID, "/api/get_customer")
 
 # Actions
-api.add_resource(addScooter, "/add_scooter")
-api.add_resource(Make_Booking, "/add_booking")    
-api.add_resource(Make_Report, "/new_report")
-api.add_resource(Make_Repair, "/new_repair")
-api.add_resource(Top_up_Balanace, "/top_up")
-api.add_resource(editScooter, "/edit_scooter")
-api.add_resource(editCustomer, "/edit_customer")
-api.add_resource(cancelBooking, "/cancel_booking")
+api.add_resource(addScooter, '/api/add_scooter', methods=['PUT'])
+api.add_resource(Make_Booking, "/api/add_booking")
+api.add_resource(Make_Report, "/api/new_report")
+api.add_resource(Make_Repair, "/api/new_repair")
+api.add_resource(Top_up_Balanace, "/api/top_up")
+api.add_resource(editScooter, '/api/edit_scooter', methods=['PUT'])
+api.add_resource(editCustomer, "/api/edit_customer")
+api.add_resource(cancelBooking, "/api/cancel_booking")
 
-api.add_resource(Registration, "/api/register")
-
-api.add_resource(Login, '/api/login')
+api.add_resource(Registration, '/api/register', methods=['PUT'])
+api.add_resource(Login, '/api/login', methods=['GET', 'POST'])
 
 app.register_blueprint(site)
 
 if __name__ == "__main__":
-    app.run(host = "0.0.0.0", debug=True)
+    app.run(host="0.0.0.0", debug=True)
     app.run(debug=True)
-    
-    
-
-

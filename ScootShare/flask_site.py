@@ -1,38 +1,68 @@
 # Flask main
-from flask import Flask, Blueprint, render_template, make_response, redirect, request
+from flask import Flask, Blueprint, render_template, make_response, redirect, request, jsonify, session, flash
 from records import Customer
 from db import DatabaseConnector
-import os, requests, json
+import os
+import requests
+import json
 
 site = Blueprint("site", __name__)
+# You can change the session type as needed
+db = DatabaseConnector()
 
 # Frontend Routes
+
+
 @site.route("/", methods=['GET'])
 def landing_view():
     return render_template("landing.html")
 
-@site.route('/api/register', methods=['GET', 'POST'])
-def register_view(): 
-    return render_template("register.html")
 
-@site.route('/api/login', methods=['GET', 'POST'])
-def login_view(): 
-    return render_template("login.html")
+@site.route('/register', methods=["GET", "PUT"])
+def register_view():
+    if request.method == "GET":
+        return render_template("register.html")
+    if request.method == "PUT":
+        return "Success"
 
-@site.route('/booking', methods=['GET', 'POST'])
+
+@site.route('/login', methods=['GET', 'POST'])
+def login_view():
+    if request.method == "GET":
+        return render_template("login.html")
+    if request.method == "POST":
+        return "Success"
+
+
+@site.route('/booking', methods=['GET'])
 def booking_view():
-    return render_template("booking.html")
+    # Fetch all scooters from the database
+    all_scooters = db.get_scooters_from_db()
+
+    # Filter the scooters to only include those with status 'available' (case-insensitive)
+    available_scooters = [
+        scooter for scooter in all_scooters if scooter.status.lower() == 'available']
+
+    return render_template("booking.html", available_scooters=available_scooters)
+
 
 @site.route('/dashboard', methods=['GET', 'POST'])
 def dashboard_view():
     return render_template("dashboard.html")
 
+
 @site.route('/report_issue')
 def report_issue():
     return render_template('report_issue.html')
 
+
 @site.route('/submit_issue', methods=['POST'])
 def submit_issue():
+   # scooter_id = request.form['scooter_id']
+   # issue_description = request.form['issue_description']
 
+    # Save the reported issue to your database or handle as needed
+    # ...
 
-    return redirect(url_for('dashboard'))  
+    # Redirect back to the dashboard after submitting
+    return redirect(url_for('dashboard'))

@@ -10,15 +10,11 @@ class Customer():
         self.password = password
         self.balance = balance
 
+# "SELECT status, make, color, location, power, cost, scooter_id FROM Scooter;"
 
-class Engineer():
-    def __init__(self, username, password):
-        self.username = username
-        self.password = password
 
-#"SELECT status, make, color, location, power, cost, scooter_id FROM Scooter;"
 class Scooter():
-    def __init__(self, status, make, color, location, power, cost,id=None) -> None:
+    def __init__(self, status, make, color, location, power, cost, id=None) -> None:
         self.scooter_id = id
         self.status = status
         self.make = make
@@ -30,12 +26,13 @@ class Scooter():
 
 class History():
     def __init__(self, id, scooter_id) -> None:
-        #Discuss how this will link to the scooter, if we have a scooterID and then get all reports bookings and repairs that relate to that scooter
+        # Discuss how this will link to the scooter, if we have a scooterID and then get all reports bookings and repairs that relate to that scooter
         self.id = id
         self.scooter_id = scooter_id
-        self.bookings = []  
+        self.bookings = []
         self.reports = []
-        self.repairs = []  
+        self.repairs = []
+
 
 class Booking():
     def __init__(self, location, scooter_id, customer_id, start_time, duration, cost, status, booking_id=None) -> None:
@@ -52,7 +49,6 @@ class Booking():
         return f"Booking ID: {self.booking_id}\nLocation: {self.location}\nScooter ID: {self.scooter_id}\nCustomer ID: {self.customer_id}\nStart Time: {self.start_time}\nDuration: {self.duration}\nCost: {self.cost}\nStatus: {self.status}"
 
 
-
 class Report():
     def __init__(self, scooter_id, description, time_of_report, status, report_id=None) -> None:
         self.id = report_id
@@ -60,14 +56,14 @@ class Report():
         self.description = description
         self.time_of_report = time_of_report
         self.status = status
-    
+
     def __str__(self):
         return f"Report ID: {self.id}\nScooter ID: {self.scooter_id}\nDescription: {self.description}\nTime of Report: {self.time_of_report}\nStatus: {self.status}"
-       
+
 
 class Repair():
     def __init__(self, scooter_id, description, linked_report_id, time_of_repair, repair_id=None) -> None:
-        self.scooter_id =scooter_id
+        self.scooter_id = scooter_id
         self.repair_id = repair_id
         self.description = description
         self.linked_report_id = linked_report_id
@@ -77,6 +73,7 @@ class Repair():
         return f"Repair ID: {self.repair_id}\nScooter ID: {self.scooter_id}\nDescription: {self.description}\nLinked Report ID: {self.linked_report_id}\nTime of Repair: {self.time_of_repair}"
 
 
-
-
-
+class Staff():
+    def __init__(self, username, password):
+        self.username = username
+        self.password = password

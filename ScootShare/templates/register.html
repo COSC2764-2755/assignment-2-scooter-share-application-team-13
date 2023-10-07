@@ -23,7 +23,7 @@
         <div class="signup-content">
           <div class="signup-form">
             <h2 class="form-title">Sign up</h2>
-            <form action="{{ url_for('registration') }}" method="POST" class="register-form" id="register-form">
+            <form action="{{ url_for('site.register_view') }}" method="PUT" class="register-form" id="register-form">
               <div class="form-group">
                 <label for="name"><i class="zmdi zmdi-account material-icons-name"></i></label>
                 <input type="text" name="username" id="username" placeholder="Your username" />
@@ -50,7 +50,7 @@
               </div>
               <div class="form-group">
                 <label for="balance"><i class="zmdi zmdi-account material-icons-name"></i></label>
-                <input type="float" name="balance" id="balance" placeholder="Your balance" />
+                <input type="float" name="balance" id="balance" placeholder="Your balance" value="100" readonly />
               </div>
               <div class="form-group form-button">
                 <input type="submit" name="signup" id="signup" class="form-submit" value="Register" />
@@ -59,11 +59,50 @@
           </div>
           <div class="signup-image">
             <figure><img src="/static/images/signup-image.jpg" alt="sing up image"></figure>
-            <a href="{{ url_for('login') }}" class="signup-image-link">I am already a member</a>
+            <a href="{{ url_for('site.login_view') }}" class="signup-image-link">I am already a member</a>
           </div>
         </div>
       </div>
     </section>
+
+    <script>
+      document.getElementById("register-form").addEventListener("submit", function (event) {
+        event.preventDefault();
+        const url = "/api/register"; // Update the URL path as needed
+        const formData = new FormData(this);
+
+        // Convert the form data to a JSON object
+        const formDataObject = {};
+        formData.forEach((value, key) => {
+          formDataObject[key] = value;
+        });
+
+        fetch(url, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formDataObject),
+        })
+          .then((response) => {
+            if (response.status === 200) {
+              console.log("Success");
+              // Redirect or perform other actions upon successful registration.
+              window.location.href = "/login"; // Redirect to the login page, for example.
+            } else {
+              console.error("Error:", response.status);
+              return response.text();
+            }
+          })
+          .then((data) => {
+            console.log(data);
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          });
+      });
+    </script>
+
 
 
     <script src="vendor/jquery/jquery.min.js"></script>
