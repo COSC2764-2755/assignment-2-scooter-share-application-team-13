@@ -70,7 +70,9 @@ class Login(Resource):
             if db_engineer:
                 print(f"Successfully Signed in as {db_engineer.username}")
                 return redirect('/booking')
-
+        return redirect('login')
+    
+    
 api.add_resource(Registration, '/api/register')
 api.add_resource(Login, '/api/login')
 
