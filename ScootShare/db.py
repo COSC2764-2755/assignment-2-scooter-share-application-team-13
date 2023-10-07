@@ -104,12 +104,12 @@ class DatabaseConnector:
             staff = Staff(username, password)
             return staff
 
-    def get_customer_by_id(self, customer_id):
+    def get_customer(self, username):
         """
-        Get a customer by their ID.
+        Get a customer by their username.
 
         Args:
-            customer_id (int): The ID of the customer to retrieve.
+            username: The username of the customer to retrieve.
 
         Returns:
             Customer or None: A Customer object if found, or None if not found.
@@ -117,39 +117,39 @@ class DatabaseConnector:
         con = lite.connect(self._file)
         with con:
             cur = con.cursor()
-            query = "SELECT * FROM Customer WHERE id = ?"
-            cur.execute(query, (customer_id,))
+            query = "SELECT * FROM Customer WHERE username = ?"
+            cur.execute(query, (username,))
             result = cur.fetchone()
 
             if result:
-                id, first_name, last_name, phone_number, email_address, password, balance = result
-                return Customer(id, first_name, last_name, phone_number, email_address, password, balance)
+                first_name, last_name, phone_number, email_address, password, balance = result
+                return Customer(username, first_name, last_name, phone_number, email_address, password, balance)
             else:
                 return None
 
 # Should we add docstrings to our methods? #This may not be needed if i can do it all in the update_customer_prfile method
-    def update_balance(self, customer_id, updated_balance):
+    def update_balance(self, username, updated_balance):
         """
         Update the balance for a customer.
 
         Args:
-            customer_id (int): The ID of the customer to update.
+            username (str): The ID of the customer to update.
             updated_balance (float): The new balance for the customer.
         """
         con = lite.connect(self._file)
         with con:
             cur = con.cursor()
-            query = "UPDATE Customer SET balance = ? WHERE id = ?"
-            cur.execute(query, (updated_balance, customer_id))
+            query = "UPDATE Customer SET balance = ? WHERE username = ?"
+            cur.execute(query, (updated_balance, username))
             con.commit()
 
 # Takes in a dic of changes and a customerID to make the changes to
-    def update_customer_profile(self, customer_id, changes):
+    def update_customer_profile(self, username, changes):
         """
         Update a customer's profile in the database with the provided changes.
 
         Args:
-            customer_id (int): The ID of the customer to update.
+            username: The ID of the customer to update.
             changes (dict): A dictionary of changes to apply to the customer's profile.
         """
         con = lite.connect(self._file)
@@ -158,14 +158,14 @@ class DatabaseConnector:
 
             # Create SQL query to update the customer's profile, #changes is a dictionary, get all keys amd get all values for each key then seperate by a comma
             set_values = ', '.join([f"{key} = ?" for key in changes.keys()])
-            query = f"UPDATE Customer SET {set_values} WHERE id = ?"
+            query = f"UPDATE Customer SET {set_values} WHERE username = ?"
             # Lets say a dic was put in changes = {  "first_name": "NewFirstName",    "last_name": "NewLastName",  "email_address": "newemail@example.com"
             # The query would end up like this #UPDATE Customer SET first_name = ?, last_name = ?, email_address = ? WHERE id = ?
 
             # Add values to update and the customer# Values will "contain id = newid, last_name = newlastname, email_address = newemail@example.com"
             values = list(changes.values())
             # append to last to match up with the WHERE id = ?" being last
-            values.append(customer_id)
+            values.append(username)
 
             # At the moment under a try catch but may just take out
             try:
@@ -187,8 +187,8 @@ class DatabaseConnector:
 
             customers = []
             for result in results:
-                customer_id, f_name, l_name, ph_num, email, password, balance = result
-                customer = Customer(customer_id, f_name,
+                username, f_name, l_name, ph_num, email, password, balance = result
+                customer = Customer(username, f_name,
                                     l_name, ph_num, email, password, balance)
                 customers.append(customer)
 
@@ -226,7 +226,7 @@ class DatabaseConnector:
                         booking_id INTEGER PRIMARY KEY AUTOINCREMENT,                              \
                         location VARCHAR(255),               \
                         scooter_id INT,                              \
-                        customer_id INT,                             \
+                        username VARCHAR(255),                             \
                         start_time DATETIME,                         \
                         duration DECIMAL(10, 2),                     \
                         cost DECIMAL(10, 2),                         \

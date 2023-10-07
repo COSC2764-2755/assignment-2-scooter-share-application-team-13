@@ -75,7 +75,7 @@ class editCustomer(Resource):
         self._cust_post_args = reqparse.RequestParser()
 
         self._cust_post_args.add_argument(
-            "current_id", type=int, help="CustomerID")
+            "username", type=int, help="customer username")
         self._cust_post_args.add_argument(
             "first_name", type=str, help="Customer fName")
         self._cust_post_args.add_argument(
@@ -90,14 +90,14 @@ class editCustomer(Resource):
     def post(self):
         args = self._cust_post_args.parse_args()
         updated_customer_object = Customer(
-            args['current_id'], args['first_name'], args['last_name'],
+            args['username'], args['first_name'], args['last_name'],
             args['phone_number'], args['email_address'],
             args['password'], args['balance']
         )
 
         # Get the original information of this customer
-        original_customer_data = db.get_customer_by_id(
-            args['current_id'])
+        original_customer_data = db.get_customer(
+            args['username'])
 
         # Perform validation to see what changes were made to any of the attributes
         # add balance,
@@ -261,7 +261,7 @@ class Make_Booking(Resource):
         self._booking_post_args.add_argument(
             "scooter_id", type=int, help="Scooter ID")
         self._booking_post_args.add_argument(
-            "username", type=int, help="Customer ID")
+            "username", type=int, help="username")
         # parse the time here so we can do operations to do with the starttime and checking if it conflicts with other bookings# assuming we get the data as a string
         # We should recive a string like this, "2023-10-05 14:30:00". Double check that we we recive data from the api call it will be a
         self._booking_post_args.add_argument(
@@ -286,7 +286,7 @@ class Make_Booking(Resource):
         )
 
         # Check if the user has enough balance in their account  #The amount is taken only when the booking is initiated
-        booking_customer = db.get_customer_by_id(
+        booking_customer = db.get_customer(
             args['username'])
         booking_cost = args['duration'] * args['cost']
         if booking_customer.balance - booking_cost < 0:
@@ -393,7 +393,7 @@ class Top_up_Balanace(Resource):
         super().__init__()
         self._customer_post_args = reqparse.RequestParser()
         self._customer_post_args.add_argument(
-            "customerid", type=str, help="CustomerID")
+            "username", type=str, help="username")
         self._customer_post_args.add_argument(
             "top_up", type=str, help="Amount to add")
 
@@ -406,7 +406,7 @@ class Top_up_Balanace(Resource):
         if not isinstance(amount, float) or amount <= 0:
             return "Invalid input. Please provide a valid customer ID and a positive amount."
 
-        customer = db.get_customer_by_id(username)
+        customer = db.get_customer(username)
 
         if customer is None:
             return f"Customer with ID {username} not found."
@@ -539,7 +539,7 @@ class GetSingleCustomerByID(Resource):
         super().__init__()
         self._cust_post_args = reqparse.RequestParser()
         self._cust_post_args.add_argument(
-            "current_id", type=int, help="CustomerID")
+            "username", type=int, help="CustomerID")
 
     def get(self):
         args = self._cust_post_args.parse_args()
