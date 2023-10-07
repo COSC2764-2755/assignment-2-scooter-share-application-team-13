@@ -112,8 +112,8 @@ class DatabaseConnector:
             result = cur.fetchone()
 
             if result:
-                id, first_name, last_name, phone_number, email_address, username, password, balance = result
-                return Customer(id, first_name, last_name, phone_number, email_address, username, password, balance)
+                id, first_name, last_name, phone_number, email_address, password, balance = result
+                return Customer(id, first_name, last_name, phone_number, email_address, password, balance)
             else:
                 return None
 
@@ -180,8 +180,8 @@ class DatabaseConnector:
 
                 customers = []
                 for result in results:
-                    customer_id, f_name, l_name, ph_num, email, username, password, balance = result
-                    customer = Customer(customer_id, f_name, l_name, ph_num, email, username, password, balance)
+                    customer_id, f_name, l_name, ph_num, email, password, balance = result
+                    customer = Customer(customer_id, f_name, l_name, ph_num, email, password, balance)
                     customers.append(customer)
 
                 return customers
