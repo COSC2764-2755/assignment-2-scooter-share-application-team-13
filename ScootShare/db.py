@@ -383,7 +383,7 @@ class DatabaseConnector:
                 print("Location:", booking.location)
                 print("Booking ID:", booking.booking_id)
                 print("Scooter ID:", booking.scooter_id)
-                print("Customer ID:", booking.customer_id)
+                print("Customer ID:", booking.customer)
                 print("Start Time:", booking.start_time)
                 print("Duration:", booking.duration)
                 print("Cost:", booking.cost)

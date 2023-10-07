@@ -407,7 +407,7 @@ class Top_up_Balanace(Resource):
         if not isinstance(amount, float) or amount <= 0:
             return "Invalid input. Please provide a valid customer ID and a positive amount."
 
-        customer = db.get_customer(username)
+        customer = db.get_customer_object_by_username(username)
 
         if customer is None:
             return f"Customer with ID {username} not found."
@@ -545,7 +545,7 @@ class GetSingleCustomerByID(Resource):
     def get(self):
         args = self._cust_post_args.parse_args()
         customer_to_find_id = args["current_id"]
-        customer_object = db.get_customer_by_id(
+        customer_object = db.get_customer_object_by_username(
             customer_to_find_id)
 
         if customer_object:
