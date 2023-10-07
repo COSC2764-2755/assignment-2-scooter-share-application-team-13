@@ -616,9 +616,26 @@ class Login(Resource):
                                  'username': customer.username}
                 return jsonify(response_data)
 
+<<<<<<< HEAD
             # If the user is not found in any category, return an error response
             error_response = {'error': 'Invalid credentials'}
             return jsonify(error_response), 401
+=======
+        db_user = database_controller.get_customer(
+            args['username'], args['password'])
+        if db_user:
+            print(f"Successfully signed in as {db_user.username}")
+            return redirect('/booking')
+        else :
+            db_engineer = database_controller.get_staff(
+                args['username'], args['password'])
+            if db_engineer:
+                print(f"Successfully Signed in as {db_engineer.username}")
+                return redirect('/booking')
+        return redirect('login')
+    
+    
+>>>>>>> 627d500ea30037d669cfc4684f99afed7d5e3830
 
 
 # Make /api
