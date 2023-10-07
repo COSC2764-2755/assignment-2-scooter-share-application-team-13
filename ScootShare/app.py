@@ -237,7 +237,7 @@ class cancelBooking(Resource):
     def __init__(self) -> None:
         super().__init__()
         self._booking_post_args = reqparse.RequestParser()
-        # self._booking_post_args.add_argument("customer_id", type=int, help="Customer ID")
+        # self._booking_post_args.add_argument("username", type=int, help="Customer ID")
         # Double check but all we should need to cancle a booking is the id
         self._booking_post_args.add_argument(
             "booking_id", type=int, help="booking ID")
@@ -261,7 +261,7 @@ class Make_Booking(Resource):
         self._booking_post_args.add_argument(
             "scooter_id", type=int, help="Scooter ID")
         self._booking_post_args.add_argument(
-            "customer_id", type=int, help="Customer ID")
+            "username", type=int, help="Customer ID")
         # parse the time here so we can do operations to do with the starttime and checking if it conflicts with other bookings# assuming we get the data as a string
         # We should recive a string like this, "2023-10-05 14:30:00". Double check that we we recive data from the api call it will be a
         self._booking_post_args.add_argument(
@@ -278,7 +278,7 @@ class Make_Booking(Resource):
         purposed_booking = Booking(
             location=args['location'],
             scooter_id=args['scooter_id'],
-            customer_id=args['customer_id'],
+            customer=args['username'],
             start_time=args['start_time'],
             duration=args['duration'],
             cost=args['cost'],
@@ -287,7 +287,7 @@ class Make_Booking(Resource):
 
         # Check if the user has enough balance in their account  #The amount is taken only when the booking is initiated
         booking_customer = db.get_customer_by_id(
-            args['customer_id'])
+            args['username'])
         booking_cost = args['duration'] * args['cost']
         if booking_customer.balance - booking_cost < 0:
             # , 400  # Return an error response
@@ -323,7 +323,7 @@ class Make_Booking(Resource):
                 return "Booking time conflicts with an existing booking."
 
         db.add_booking(purposed_booking)
-        return f"You have made a booking for {purposed_booking.start_time} under the customer id: {purposed_booking.customer_id}"
+        return f"You have made a booking for {purposed_booking.start_time} under the customer id: {purposed_booking.customer}"
 
 # Double check if we want a made report to have any impact on scooter avalbility
 
@@ -399,23 +399,23 @@ class Top_up_Balanace(Resource):
 
     def post(self):
         args = self._customer_post_args.parse_args()
-        customer_id = args['customer_id']
+        username = args['username']
         amount = args['top_up']
 
-        # Validate customer_id and amount # decide if we want error messages here
+        # Validate username and amount # decide if we want error messages here
         if not isinstance(amount, float) or amount <= 0:
             return "Invalid input. Please provide a valid customer ID and a positive amount."
 
-        customer = db.get_customer_by_id(customer_id)
+        customer = db.get_customer_by_id(username)
 
         if customer is None:
-            return f"Customer with ID {customer_id} not found."
+            return f"Customer with ID {username} not found."
 
         # Update the balance
         customer.balance += amount
-        db.update_balance(customer_id, customer.balance)
+        db.update_balance(username, customer.balance)
 
-        return f"You topped up user {customer_id} with an amount of {amount}. New balance: {customer.balance}"
+        return f"You topped up user {username} with an amount of {amount}. New balance: {customer.balance}"
 
 
 class GetCompleteHistroy(Resource):
@@ -471,7 +471,7 @@ class GetAllBookings(Resource):
             {
                 "location": booking.location,
                 "scooter_id": booking.scooter_id,
-                "customer_id": booking.customer_id,
+                "username": booking.username,
                 "start_time": booking.start_time,
                 "duration": booking.duration,
                 "cost": booking.cost,
@@ -521,12 +521,11 @@ class GetAllCustomers(Resource):
         print('-----------------------')
         formatted_customers = [
             {
-                "customer_id": customer.customer_id,
+                "username": customer.username,
                 "first_name": customer.first_name,
                 "last_name": customer.last_name,
                 "phone_number": customer.phone_number,
                 "email_address": customer.email_address,
-                "username": customer.username,
                 "password": customer.password,
                 "balance": customer.balance
             }
@@ -550,7 +549,7 @@ class GetSingleCustomerByID(Resource):
 
         if customer_object:
             formatted_customer = {
-                "customer_id": customer_object.username,
+                "username": customer_object.username,
                 "first_name": customer_object.first_name,
                 "last_name": customer_object.last_name,
                 "phone_number": customer_object.phone_number,

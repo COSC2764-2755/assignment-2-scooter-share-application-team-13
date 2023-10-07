@@ -35,18 +35,18 @@ class History():
 
 
 class Booking():
-    def __init__(self, location, scooter_id, customer_id, start_time, duration, cost, status, booking_id=None) -> None:
+    def __init__(self, location, scooter_id, customer, start_time, duration, cost, status, booking_id=None) -> None:
         self.location = location
         self.booking_id = booking_id
         self.scooter_id = scooter_id
-        self.customer_id = customer_id
+        self.customer = customer
         self.start_time = start_time
         self.duration = duration
         self.cost = cost
         self.status = status
 
     def __str__(self):
-        return f"Booking ID: {self.booking_id}\nLocation: {self.location}\nScooter ID: {self.scooter_id}\nCustomer ID: {self.customer_id}\nStart Time: {self.start_time}\nDuration: {self.duration}\nCost: {self.cost}\nStatus: {self.status}"
+        return f"Booking ID: {self.booking_id}\nLocation: {self.location}\nScooter ID: {self.scooter_id}\nCustomer ID: {self.customer}\nStart Time: {self.start_time}\nDuration: {self.duration}\nCost: {self.cost}\nStatus: {self.status}"
 
 
 class Report():
