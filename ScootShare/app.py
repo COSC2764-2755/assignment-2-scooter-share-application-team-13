@@ -82,7 +82,7 @@ class editCustomer(Resource):
         self._cust_post_args = reqparse.RequestParser()
 
         self._cust_post_args.add_argument(
-            "username", type=int, help="customer username")
+            "username", type=str, help="customer username")
         self._cust_post_args.add_argument(
             "first_name", type=str, help="Customer fName")
         self._cust_post_args.add_argument(
@@ -306,7 +306,6 @@ class Make_Booking(Resource):
                 cost=args['cost'],
                 status=args['status']
             )
-      
             booking_customer = db.get_customer_object_by_username(
                 args['username'])
 
@@ -368,10 +367,10 @@ class Make_Report(Resource):
         try:
             args = self._report_post_args.parse_args()
             report = Report(
-                scooter_id=args['scooter_id'],
-                description=args['description'],
-                time_of_report=args['time_of_report'],
-                status=args['status']
+                scooter_id=args["scooter_id"],
+                description=args["description"],
+                time_of_report=args["time_of_report"],
+                status=args["status"]
             )
             db.add_report(report)
             return f"You made a report for scooter: {report.scooter_id} to address: {report.description}"
@@ -487,7 +486,7 @@ class GetAllReports(Resource):
             print('-----------------------')
             # Format the reports data as needed
             formatted_reports = [{"report_id": report.id, "scooter_id": report.scooter_id, "description": report.description,
-                                  "time_of_report": report.time_of_report, "status": report.status} for report in reports]
+                                  "time_of_report": str(report.time_of_report), "status": report.status} for report in reports]
             return formatted_reports
         except Exception as e:
             return "An error occurred while getting all reports.\n" + str(e)
@@ -587,12 +586,12 @@ class GetSingleCustomerByID(Resource):
         super().__init__()
         self._cust_post_args = reqparse.RequestParser()
         self._cust_post_args.add_argument(
-            "username", type=int, help="CustomerID")
+            "username", type=str, help="CustomerID")
 
     def get(self):
         try:
             args = self._cust_post_args.parse_args()
-            customer_to_find_id = args["current_id"]
+            customer_to_find_id = args["username"]
             customer_object = db.get_customer_object_by_username(
                 customer_to_find_id)
 
@@ -604,7 +603,7 @@ class GetSingleCustomerByID(Resource):
                     "phone_number": customer_object.phone_number,
                     "email_address": customer_object.email_address,
                     "password": customer_object.password,
-                    "balance": customer_object.balance
+                    "balance": float(customer_object.balance)
                 }
                 return formatted_customer
             else:
