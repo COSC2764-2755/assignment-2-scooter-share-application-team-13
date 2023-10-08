@@ -52,24 +52,28 @@ class Registration(Resource):
             "balance", type=float, help="balance")
 
     def post(self):
-        args = self._cust_reg_args.parse_args()
-        customer_object = Customer(args['username'], args['first_name'], args['last_name'],
-                                   args['phone_number'], args['email_address'],
-                                   args['password'], args['balance'])
-        print("Debug: ", customer_object.username, customer_object.first_name,)
-        print(args["username"], args["first_name"],
-              args["last_name"], args["phone_number"])
-        # check if we want to do the validation here to check if the customer id already exists,
-        # this is already done in the edit customer class so it would be easy to move accross
-        # TODO Check if user uses prefixes for admin/engineer
         try:
-            db.add_customer(customer_object)
-            message = f"Account with username {customer_object.username} created successfully!"
-            return message
+            args = self._cust_reg_args.parse_args()
+            customer_object = Customer(args['username'], args['first_name'], args['last_name'],
+                                       args['phone_number'], args['email_address'],
+                                       args['password'], args['balance'])
+            print("Debug: ", customer_object.username,
+                  customer_object.first_name,)
+            print(args["username"], args["first_name"],
+                  args["last_name"], args["phone_number"])
+            # check if we want to do the validation here to check if the customer id already exists,
+            # this is already done in the edit customer class so it would be easy to move accross
+            # TODO Check if user uses prefixes for admin/engineer
+            try:
+                db.add_customer(customer_object)
+                message = f"Account with username {customer_object.username} created successfully!"
+                return message
+            except Exception as e:
+                # Handle the exception, and provide an error message
+                message = "An error occurred while creating the account. Please try again later."
+                print(message, e)
         except Exception as e:
-            # Handle the exception, and provide an error message
-            message = "An error occurred while creating the account. Please try again later."
-            print(message, e)
+            return "An error occurred while making the booking.\n" + str(e)
 
 
 class editCustomer(Resource):
@@ -291,7 +295,7 @@ class Make_Booking(Resource):
                 cost=args['cost'],
                 status=args['status']
             )
-      
+
             booking_customer = db.get_customer_object_by_username(
                 args['username'])
 
@@ -299,7 +303,7 @@ class Make_Booking(Resource):
             if booking_customer.balance - booking_cost < 0:
                 # , 400  # Return an error response
                 return "Insufficient funds to make the booking."
-            
+
             # Check if scooter is avalable
             scooter_to_book = db.get_scooter_by_id(
                 purposed_booking.scooter_id)
@@ -639,5 +643,5 @@ api.add_resource(Login, '/api/login', methods=['GET', 'POST'])
 app.register_blueprint(site)
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", debug=True)
+    # app.run(host="0.0.0.0", debug=True)
     app.run(debug=True)
