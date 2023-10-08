@@ -1,5 +1,3 @@
-import sqlite3 as lite
-import csv
 import pandas as pd
 from records import *
 from db_utils import hash_password, verify_password
@@ -59,14 +57,13 @@ class DatabaseConnector():
     def get_customer(self, username: str, password: str) -> Customer:
         with self._connection.cursor() as cur:
             # get customer record by username
-            query = "SELECT * FROM Customer WHERE username = ?;"
+            query = "SELECT * FROM Customer WHERE username = %s"
             print("Querying database for username:", username)
             cur.execute(query, (username,))
             result = cur.fetchone()
             if result is None:
                 # Handle the case where the user is not found
                 return None
-
         # Check if the password matches
         # Get stored password from db result
         stored_password = result[5]
@@ -76,13 +73,14 @@ class DatabaseConnector():
 
         # create customer object from db
         customer = Customer(
-            result[0], result[1], result[2], result[3], result[4], result[5], result[6])
+            result['username'], result['first_name'], result['last_name'], result['phone_number'], result['email_address'], result['password'], result['balance'])
         # return customer object
+        print("username: ", customer.username, "password: ", customer.password)
         return customer
 
     def get_staff(self, username: str, password: str):
         with self._connection.cursor() as cur:
-            query = "SELECT * FROM Staff WHERE username = ?;"
+            query = "SELECT * FROM Staff WHERE username = %s;"
             cur.execute(query, (username,))
             result = cur.fetchone()
             if result is None:
@@ -107,7 +105,7 @@ class DatabaseConnector():
             Customer or None: A Customer object if found, or None if not found.
         """
         with self._connection.cursor() as cur:
-            query = "SELECT * FROM Customer WHERE username = ?"
+            query = "SELECT * FROM Customer WHERE username = %s"
             cur.execute(query, (username,))
             result = cur.fetchone()
             print(result)
@@ -127,7 +125,7 @@ class DatabaseConnector():
             updated_balance (float): The new balance for the customer.
         """
         with self._connection.cursor() as cur:
-            query = "UPDATE Customer SET balance = ? WHERE username = ?"
+            query = "UPDATE Customer SET balance = %s WHERE username = %s"
             cur.execute(query, (updated_balance, username))
             self._connection.commit()
 
@@ -272,7 +270,7 @@ class DatabaseConnector():
 
     def change_scooter_status(self, scooter_id, new_status):
         with self._connection.cursor() as cur:
-            query = "UPDATE Scooter SET status = ? WHERE id = ?"
+            query = "UPDATE Scooter SET status = %s WHERE id = %s"
             cur.execute(query, (new_status, scooter_id))
             self._connection.commit()
 
@@ -282,7 +280,7 @@ class DatabaseConnector():
 
     def get_scooter_by_id(self, scooter_id):
         with self._connection.cursor() as cur:
-            query = "SELECT * FROM Scooter WHERE scooter_id = ?"
+            query = "SELECT * FROM Scooter WHERE scooter_id = %s"
             print(scooter_id)
             cur.execute(query, (scooter_id,))
             row = cur.fetchone()
@@ -335,7 +333,7 @@ class DatabaseConnector():
 
     def get_booking_by_id(self, booking_id):
         with self._connection.cursor() as cur:
-            query = "SELECT * FROM Booking WHERE id = ?"
+            query = "SELECT * FROM Booking WHERE id = %s"
             cur.execute(query, (booking_id))
             row = cur.fetchone()
             # Double check that this maps out correctly when getting the db data in an instance
@@ -389,7 +387,7 @@ class DatabaseConnector():
 # Takes in a customerID and gets all bookings attached to that customer
     def get_bookings_by_customer_id(self, customer_id):
         with self._connection.cursor() as cur:
-            query = "SELECT * FROM Booking WHERE customer_id = ?"
+            query = "SELECT * FROM Booking WHERE customer_id = %s"
             cur.execute(query, (customer_id,))
             booking_data = cur.fetchall()
 
@@ -400,7 +398,7 @@ class DatabaseConnector():
 
     def get_bookings_by_scooter_id(self, scooter_id):
         with self._connection.cursor() as cur:
-            query = "SELECT * FROM Booking WHERE scooter_id = ?"
+            query = "SELECT * FROM Booking WHERE scooter_id = %s"
             cur.execute(query, (scooter_id,))
             booking_data = cur.fetchall()
 
@@ -425,7 +423,7 @@ class DatabaseConnector():
 
     def set_booking_status(self, new_status, booking_id):
         with self._connection.cursor() as cur:
-            query = "UPDATE Booking SET status = ? WHERE booking_id = ?"
+            query = "UPDATE Booking SET status = %s WHERE booking_id = %s"
             cur.execute(query, (new_status, booking_id))
             self._connection.commit()
 
@@ -435,7 +433,7 @@ class DatabaseConnector():
 
     def get_repairs_by_scooter_id(self, scooter_id):
         with self._connection.cursor() as cur:
-            query = "SELECT * FROM Repair WHERE scooter_id = ?"
+            query = "SELECT * FROM Repair WHERE scooter_id = %s"
             cur.execute(query, (scooter_id,))
             repair_data = cur.fetchall()
 
@@ -487,7 +485,7 @@ class DatabaseConnector():
 
     def get_report(self, report_id):
         with self._connection.cursor() as cur:
-            query = "SELECT scooter_id, description, time_of_report, status, report_id FROM Report WHERE id = ?"
+            query = "SELECT scooter_id, description, time_of_report, status, report_id FROM Report WHERE id = %s"
             cur.execute(query, (report_id,))
             result = cur.fetchone()
             if result:
@@ -500,13 +498,13 @@ class DatabaseConnector():
 
     def set_report_status(self, report_id, new_status):
         with self._connection.cursor() as cur:
-            query = "UPDATE Report SET status = ? WHERE report_id = ?"
+            query = "UPDATE Report SET status = %s WHERE report_id = %s"
             cur.execute(query, (new_status, report_id))
             self._connection.commit()
 
     def change_report_status(self, report_id, new_status):
         with self._connection.cursor() as cur:
-            query = "UPDATE Report SET status = ? WHERE id = ?"
+            query = "UPDATE Report SET status = %s WHERE id = %s"
             cur.execute(query, (new_status, report_id))
             self._connection.commit()
 
@@ -528,7 +526,7 @@ class DatabaseConnector():
 
     def get_reports_by_scooter_id(self, scooter_id):
         with self._connection.cursor() as cur:
-            query = "SELECT * FROM Report WHERE scooter_id = ?"
+            query = "SELECT * FROM Report WHERE scooter_id = %s"
             cur.execute(query, (scooter_id,))
             report_data = cur.fetchall()
 
@@ -541,7 +539,6 @@ class DatabaseConnector():
         with self._connection.cursor() as cur:
             cur.execute("SELECT COUNT(*) FROM Staff")
             row = cur.fetchone()
-            print('debug: ', row)
             if row is not None:
                 count = row.get('COUNT(*)')
                 if count == 0:
@@ -556,7 +553,7 @@ class DatabaseConnector():
     def get_engineer(self, username: str, password: str) -> Engineer:
             with self._connection.cursor() as cur:
                 # get engineer record by username
-                query = "SELECT * FROM Engineer WHERE username = ?;"
+                query = "SELECT * FROM Engineer WHERE username = %s;"
                 print("Querying database for username:", username)
                 cur.execute(query, (username,))
                 result = cur.fetchone()

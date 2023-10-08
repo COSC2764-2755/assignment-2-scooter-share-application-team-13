@@ -627,36 +627,37 @@ class Login(Resource):
             args = self._cust_login_args.parse_args()
             username = args['username']
             password = args['password']
-            # Check if the username exists in the staff CSV file
-            staff = db.get_staff(username, password)
-            if staff:
-                if username.startswith('~'):
-                    # The username starts with ~, indicating an admin
+            if username.startswith('~'):
+                # The username starts with ~, indicating an admin
+                staff = db.get_staff(username, password)
+                if staff:
                     print(f"Successfully signed in as admin: {staff.username}")
                     response_data = {'user_type': 'admin',
-                                     'username': staff.username}
+                                        'username': staff.username}
                     return jsonify(response_data)
-                elif username.startswith('_'):
-                    # The username starts with _, indicating an engineer
-                    print(
-                        f"Successfully signed in as engineer: {staff.username}")
+            elif username.startswith('_'):
+                # The username starts with _, indicating an engineer
+                staff = db.get_staff(username, password)
+                if staff:
+                    print(f"Successfully signed in as engineer: {staff.username}")
                     response_data = {'user_type': 'engineer',
-                                     'username': staff.username}
+                                        'username': staff.username}
                     return jsonify(response_data)
             else:
-                # Check if the username exists among regular customers
+                print("Check if the username exists among regular customers")
                 customer = db.get_customer(username, password)
                 if customer:
                     print(
                         f"Successfully signed in as customer: {customer.username}")
                     response_data = {'user_type': 'customer',
-                                     'username': customer.username}
+                                        'username': customer.username}
                     return jsonify(response_data)
 
                 # If the user is not found in any category, return an error response
                 error_response = {'error': 'Invalid credentials'}
                 return jsonify(error_response), 401
         except Exception as e:
+            print(e)
             return "An error occurred while logging in.\n" + str(e)
 
 
