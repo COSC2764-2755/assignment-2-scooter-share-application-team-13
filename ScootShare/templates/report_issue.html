@@ -8,10 +8,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     
     <style>
-<<<<<<< Updated upstream
-=======
  
->>>>>>> Stashed changes
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -121,6 +118,48 @@
     <footer>
         <p>........ScootShare......</p>
     </footer>
+
+
+    <script>
+        document.getElementById("report_issue-form").addEventListener("submit", function (event) {
+            event.preventDefault();
+            
+            const url = "/api/report_issue";
+            const formData = new FormData(this);
+        
+            const formDataObject = {};
+            formData.forEach((value, key) => {
+                formDataObject[key] = value;
+            });
+        
+            // Log the formData to check its contents
+            console.log(formDataObject);
+        
+            fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(formDataObject),
+            })
+            .then(async (response) => {
+                if (response.status === 200) {
+                    const reportData = await response.json();
+                    console.log("Success:", reportData);
+                    alert("Report submitted successfully!");
+                    window.location.href = "booking.html"; 
+                } else {
+                    const errorMessage = await response.text();
+                    console.error("Error:", response.status, errorMessage);
+                    alert("Error submitting report. Please try again."); 
+                }
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+                alert("An error occurred. Please try again."); 
+            });
+        });
+  </script>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
