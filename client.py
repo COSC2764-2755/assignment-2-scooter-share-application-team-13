@@ -22,15 +22,34 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     print("Connected to the server.")
 
     # Send cusotmer_id and hashed password to server
-    s.sendall(f"{username}:{hashed_password}".encode())
+    s.sendall(f"{username}:{hashed_password}:{scooter_id}".encode())
     print("Username and password sent")
-    #response = s.recv(4096).decode()
-    #print(response)
+    
 
     print("Disconnecting from server.")
-print("Connection closed.")
 
 
+
+
+def wake_up():
+    username = input("Enter Username : ")
+    password = input("Enter password: ")
+    scooter_id = input("Enter the scooter ID for your booked scooter: ")
+
+    hashed_password = sha256_crypt.hash(password)
+
+    print("Attempting to connect to the server...")
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect(ADDRESS)
+        print("Connected to the server.")
+
+        # Send cusotmer_id and hashed password to server
+        s.sendall(f"{username}:{hashed_password}:{scooter_id}".encode())
+        print("Username, password and booking ID sent")
+
+
+        response = s.recv(4096).decode()
+        print(response)
 
 
 
