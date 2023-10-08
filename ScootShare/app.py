@@ -343,7 +343,7 @@ class Make_Booking(Resource):
                     return "Booking time conflicts with an existing booking."
 
             db.add_booking(purposed_booking)
-            return f"You have made a booking for {purposed_booking.start_time} under the customer id: {purposed_booking.customer}"
+            return f"You have made a booking!"
         except Exception as e:
             return "An error occurred while making the booking.\n" + str(e)
 # Double check if we want a made report to have any impact on scooter avalbility
@@ -408,7 +408,7 @@ class Make_Repair(Resource):
             db.add_repair(repair)
             db.set_report_status(
                 repair.linked_report_id, "addressed")  # may not want this hardcoded here
-            return f"You did a repair at: {repair.time_of_repair} to address: {repair.description}"
+            return f"You did a repair at: {repair.time_of_repair} to address: {repair.description} for scooter {repair.scooter_id}"
         except Exception as e:
             return "An error occurred while making the repair.\n" + str(e)
 

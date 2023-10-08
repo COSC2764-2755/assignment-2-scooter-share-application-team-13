@@ -53,13 +53,7 @@ class TestUserMethods(unittest.TestCase):
             )
             customers.append(customer)
 
-        expected = Customer{"username": TESTUSERNAME,
-                "first_name": "Garry",
-                "last_name": "Howitzer",
-                "phone_number": "1122334455",
-                "email_address": "test@example.com",
-                "password": TESTPASSWORD,
-                "balance": 69.96}
+        expected = Customer(TESTUSERNAME, "Garry","Howitzer", "1122334455", "test@example.com", TESTPASSWORD, 69.96)
         self.assertIn(expected, customers)
 
 
@@ -70,7 +64,7 @@ class TestUserMethods(unittest.TestCase):
             "username": TESTUSERNAME
         }
         response = requests.get(BASE+ customer_endpoint, data=json.dumps(customer_data, headers=headers))
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200) #Check if we need to include
         self.assertEqual(response.json(), {"username": TESTUSERNAME, "first_name": "Garry"})
 
 class TestScooterMethods(unittest.TestCase):
@@ -114,7 +108,7 @@ class TestBookingMethods(unittest.TestCase):
         response = requests.post(BASE + endpoint, data=json.dumps(booking_data), headers=headers)  # Use json.dumps to convert the payload to JSON
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), "You have made a booking!")
+        self.assertEqual(response.text, "You have made a booking!")
 
     def test_cancel_booking_success(self):
         data ={
@@ -166,12 +160,9 @@ class TestReportMethods(unittest.TestCase):
             )
             reports.append(report)
 
-            expected_report_data = Report{
-                "scooter_id": "1",
-                "description": "Broken headlight",
-                "time_of_report": "2023-09-28 15:30:00",
-                "status": "Reported"
-            }
+            expected_report_data = Report(
+               1, "Broken headlight", "2023-09-28 15:30:00", "Reported"
+            )
             self.assertIn(expected_report_data, reports)
 
 
@@ -213,13 +204,9 @@ class TestRepairMethods(unittest.TestCase):
             )
             repairs.append(repair)
 
-        expected_repair = Repair{
-            "scooter_id": "1",
-            "description": "Replace brake pads", 
-            "linked_report_id": "1",
-            "time_of_repair": "2023-09-29 10:00:00",
-            "repair_id": 1
-        }
+        expected_repair = Repair(
+             1, "Replace brake pads",  1, "2023-09-29 10:00:00", 1
+        )
         # Assert that the expected repair is present in the list of repairs
         #compares objects of the same class
         self.assertIn(expected_repair, repairs)
