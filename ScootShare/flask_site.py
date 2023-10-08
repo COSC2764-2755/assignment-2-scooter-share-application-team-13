@@ -49,9 +49,11 @@ def booking_view():
 def dashboard_view():
     return render_template("dashboard.html")
 
+
 @site.route('/engineer_dashboard', methods=['GET', 'POST'])
 def engineer_dashboard_view():
     return render_template("engineer_dashboard.html")
+
 
 @site.route('/report_issue')
 def report_issue():
@@ -59,6 +61,7 @@ def report_issue():
 
 @site.route('/submit_issue', methods=['POST'])
 def submit_issue():
+<<<<<<< HEAD
     return render_template('booking.html')
     
 @site.route('/top-up', methods=['POST'])
@@ -78,3 +81,7 @@ def top_up_balance():
     db.update_balance(username, customer.balance)
 
     return jsonify({"message": f"You topped up user {username} with an amount of {top_up_amount}. New balance: {customer.balance}"})
+=======
+
+    return redirect(url_for('dashboard'))
+>>>>>>> 5c0a0c8fb2e376d14d6061035f61c5a289d7960e

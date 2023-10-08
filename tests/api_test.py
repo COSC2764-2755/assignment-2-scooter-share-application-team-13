@@ -1,38 +1,38 @@
-import requests, json
+import requests, json, unittest
 from records import *
+
 
 BASE = "http://127.0.0.1:5000/api/"
 TESTUSERNAME = "Gazza"
 TESTPASSWORD = "Howie123"
 
 
+class TestUserMethods(unittest.TestCase):
+    def test_create_user(self):
+        # Test create user
+        payload = {"username": TESTUSERNAME,
+                "first_name": "Garry",
+                "last_name": "Howitzer",
+                "phone_number": "1122334455",
+                "email_address": "test@example.com",
+                "password": TESTPASSWORD,
+                "balance": 69.96}
+        headers = {"Content-Type": "application/json"}  # Set the Content-Type header
+        endpoint = "register"
+        response = requests.post(BASE + endpoint, data=json.dumps(payload), headers=headers)  # Use json.dumps to convert the payload to JSON
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), "Account with username Gazza created successfully!")
 
-def create_user():
-    # Test create user
-    payload = {"username": TESTUSERNAME,
-            "first_name": "Garry",
-            "last_name": "Howitzer",
-            "phone_number": "1122334455",
-            "email_address": "test@example.com",
-            "password": TESTPASSWORD,
-            "balance": 69.96}
-    headers = {"Content-Type": "application/json"}  # Set the Content-Type header
-    endpoint = "register"
-    response = requests.post(BASE + endpoint, data=json.dumps(payload), headers=headers)  # Use json.dumps to convert the payload to JSON
-
-    print(response.json())
-
-
-
-def login_user():
-    payload = {
-        "username": TESTUSERNAME,
-        "password": TESTPASSWORD
-    }
-    headers = {"Content-Type": "application/json"}  # Set the Content-Type header
-    endpoint = "login"
-    response = requests.post(BASE + endpoint, data=json.dumps(payload), headers=headers)
-    print(response.json())
+    def test_login_user(self):
+        payload = {
+            "username": TESTUSERNAME,
+            "password": TESTPASSWORD
+        }
+        headers = {"Content-Type": "application/json"}  # Set the Content-Type header
+        endpoint = "login"
+        response = requests.post(BASE + endpoint, data=json.dumps(payload), headers=headers)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {"user_type": "customer", "username": "Gazza"})
 
 def create_scooters():
 
@@ -79,7 +79,7 @@ def create_bookings():
     booking_data = {
         "location": "Location C",
         "scooter_id": 1,  
-        "username": 1,  
+        "username": TESTUSERNAME,  
         "start_time": "2023-09-28 14:00:00",  
         "duration": 45,  # 
         #The cost of a booking will be durtion (in mins) * scootercostPerMin
@@ -99,7 +99,7 @@ def create_bookings():
     booking_data = {
         "location": "Location B",
         "scooter_id": 1,  
-        "customer_id": 1,  
+        "username": TESTUSERNAME,  
         "start_time": "2023-09-28 14:00:00",  
         "duration": 50,  # 
         #The cost of a booking will be durtion (in mins) * scootercostPerMin
@@ -251,22 +251,22 @@ def get_single_customer():
     customers_response = requests.get(BASE+ customer_endpoint, data=json.dumps(customer_data))
     
 
-def main():
-    #Creates users,scooters,bookings and reports on api call
-    create_user()
-    create_scooters()
-    create_bookings()
-    create_report()
+# def main():
+#     #Creates users,scooters,bookings and reports on api call
+#     create_user()
+#     create_scooters()
+# #     create_bookings()
+# #     create_report()
 
-#Youl notice that the report is initially created as reported, after creating a repair job for that report it will set the report to addressed
-    get_all_reports() #will show a reported report (unaddressed)
-    create_repair_job() #This method creates a report job to address the created report
-    get_all_reports() #will show a addressed report
-    get_all_repairs() #This is the repair done
+# # #Youl notice that the report is initially created as reported, after creating a repair job for that report it will set the report to addressed
+# #     get_all_reports() #will show a reported report (unaddressed)
+# #     create_repair_job() #This method creates a report job to address the created report
+# #     get_all_reports() #will show a addressed report
+# #     get_all_repairs() #This is the repair done
     
-    create_user()
-    login_user()
+# #     create_user()
+# #     login_user()
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()
 
