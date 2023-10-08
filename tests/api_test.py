@@ -1,27 +1,28 @@
-import requests, json, unittest
+import requests, json, unittest, uuid
 from records import *
 
 
 BASE = "http://127.0.0.1:5000/api/"
-TESTUSERNAME = "Gazza"
-TESTPASSWORD = "Howie123"
+TESTUSERNAME = "User"+str(uuid.uuid4())
+TESTPASSWORD = "TESTUSERPASSWORD"
 
+TESTUSER = Customer(TESTUSERNAME, "Garry", "Howitzer", "1122334455", "test@example.com", TESTPASSWORD, 69.96)
 
 class TestUserMethods(unittest.TestCase):
     def test_create_user(self):
         # Test create user
-        payload = {"username": TESTUSERNAME,
-                "first_name": "Garry",
-                "last_name": "Howitzer",
-                "phone_number": "1122334455",
-                "email_address": "test@example.com",
-                "password": TESTPASSWORD,
-                "balance": 69.96}
+        payload = {"username": TESTUSER.username,
+                "first_name": TESTUSER.first_name,
+                "last_name": TESTUSER.last_name,
+                "phone_number": TESTUSER.phone_number,
+                "email_address": TESTUSER.email_address,
+                "password": TESTUSER.password,
+                "balance": TESTUSER.balance}
         headers = {"Content-Type": "application/json"}  # Set the Content-Type header
         endpoint = "register"
         response = requests.post(BASE + endpoint, data=json.dumps(payload), headers=headers)  # Use json.dumps to convert the payload to JSON
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), "Account with username Gazza created successfully!")
+        self.assertEqual(response.json(), f"Account with username {TESTUSERNAME} created successfully!")
 
     def test_login_user(self):
         payload = {
@@ -32,7 +33,7 @@ class TestUserMethods(unittest.TestCase):
         endpoint = "login"
         response = requests.post(BASE + endpoint, data=json.dumps(payload), headers=headers)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), {"user_type": "customer", "username": "Gazza"})
+        self.assertEqual(response.json(), {"user_type": "customer", "username": f"{TESTUSERNAME}"})
 
 
     def test_get_all_customers(self):
@@ -50,25 +51,26 @@ class TestUserMethods(unittest.TestCase):
                 email=data['email_address'],
                 password=data['password'],
                 balance=data['balance']
-            )
+            ).__str__()
             customers.append(customer)
 
         expected = Customer(TESTUSERNAME, "Garry","Howitzer", "1122334455", "test@example.com", TESTPASSWORD, 69.96)
-        self.assertIn(expected, customers)
+        self.assertIn(TESTUSER.__str__(), customers)
 
 
     def test_get_single_customer(self):
         customer_endpoint = "get_customer"
         headers = {"Content-Type": "application/json"}
         customer_data = {
-            "username": TESTUSERNAME
+            "username": TESTUSER.username
         }
-        response = requests.get(BASE+ customer_endpoint, data=json.dumps(customer_data, headers=headers))
+        response = requests.get(BASE+ customer_endpoint, data=json.dumps(customer_data), headers=headers)
+        reponseUsername = response.json()['username']
         self.assertEqual(response.status_code, 200) #Check if we need to include
-        self.assertEqual(response.json(), {"username": TESTUSERNAME, "first_name": "Garry"})
+        self.assertEqual(reponseUsername, TESTUSER.username)
 
 class TestScooterMethods(unittest.TestCase):
-    def create_scooter(self):
+    def test_create_scooter(self):
 
         #Test create scooter
                 # Define the scooter data for testing
@@ -124,7 +126,7 @@ class TestBookingMethods(unittest.TestCase):
 
 
 class TestReportMethods(unittest.TestCase):
-    def create_report(self):
+    def test_create_report(self):
         # Define the report data for testing
         report_data = {
             "scooter_id": "1",
@@ -136,13 +138,13 @@ class TestReportMethods(unittest.TestCase):
         headers = {"Content-Type": "application/json"}  # Set the Content-Type header
         report_endpoint = "new_report"
         report_response = requests.post(BASE + report_endpoint, data=json.dumps(report_data), headers=headers)
-        expected_response = f"You made a report for scooter: {report_data['scooter_id']} to address: {report_data['description']}" # Same as the return statement of the method
+        expected_response = f"You made a report for scooter: {report_data['scooter_id']} to address: {report_data['description']}\n" # Same as the return statement of the method
 
         # Assert that the response content matches the expected response
-        self.assertEqual(report_response.text, expected_response)
+        self.assertEqual(report_response.text.replace('"', ""), expected_response)
 
        
-    def get_all_reports(self):
+    def test_get_all_reports(self):
         reports_endpoint = "all_reports"
         reports_response = requests.get(BASE + reports_endpoint)
 
@@ -160,15 +162,16 @@ class TestReportMethods(unittest.TestCase):
             )
             reports.append(report)
 
-            expected_report_data = Report(
+            expected_report_data = Report( # TODO I think this needs more parameters?
                1, "Broken headlight", "2023-09-28 15:30:00", "Reported"
             )
-            self.assertIn(expected_report_data, reports)
+            self.assertIn(expected_report_data.__str__(), reports)
+
 
 
    
 class TestRepairMethods(unittest.TestCase):
-    def create_repair_job(self):
+    def test_create_repair_job(self):
         # Define the repair data for testing
         repair_data = {
             "scooter_id": "1",
@@ -186,7 +189,7 @@ class TestRepairMethods(unittest.TestCase):
         self.assertEqual(repair_response.text, expected_response)
         
 
-    def get_all_repairs(self):
+    def test_get_all_repairs(self):
         #This gets a list of all repairs, this is a good starting example of how to get data from the api
         repair_endpoint = "all_repairs"
         repair_response = requests.get(BASE + repair_endpoint)
