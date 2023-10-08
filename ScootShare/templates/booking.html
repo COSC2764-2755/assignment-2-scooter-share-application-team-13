@@ -116,12 +116,15 @@
                         <p>Location: {{ scooter.location }}</p>
                         <p>Power: {{ scooter.power }}</p>
                         <p>Cost: {{ scooter.cost }}</p>
-                        <button class="btn btn-primary book-button"
-                            data-scooter-id="{{ scooter.scooter_id }} data-booking-id=" {{ scooter.booking_id
-                            }}"">Book</button>
+                        <!-- Add an input field for start_time -->
+                        <input type="datetime-local" id="start-time-{{ scooter.scooter_id }}" class="form-control"
+                            placeholder="Select Start Time">
+                        <button class="btn btn-primary book-button" data-scooter-id="{{ scooter.scooter_id }}"
+                            data-booking-id="{{ scooter.booking_id }}">Book</button>
                         <button class="btn btn-primary cancel-book-button"
                             data-scooter-id="{{ scooter.scooter_id }}">Cancel Book</button>
                     </div>
+
                 </div>
             </div>
             {% endfor %}
@@ -232,16 +235,42 @@
             }
         }
 
+        function formatDateToCustomString(date) {
+            const year = date.getUTCFullYear();
+            const month = String(date.getUTCMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+            const day = String(date.getUTCDate()).padStart(2, '0');
+            const hours = String(date.getUTCHours()).padStart(2, '0');
+            const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+            const seconds = String(date.getUTCSeconds()).padStart(2, '0');
+
+            return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+        }
+
         function makeBooking(scooter_id) {
+            const start_time_input = document.getElementById(`start-time-${scooter_id}`);
+            const start_time = start_time_input.value;
+
+            // Create a luxon DateTime object from the start_time string
+            const datetime_object = luxon.DateTime.fromISO(start_time);
+
+            // Check if datetime_object is a valid DateTime object
+            if (!datetime_object.isValid) {
+                alert("Please select a valid start time.");
+                return;
+            }
+
+            // Now, datetime_object is a luxon DateTime object
+            console.log(datetime_object);
+
             const bookingData = {
-                location: "Location C",
-                scooter_id: 4,
-                username: "211",
-                start_time: "2023-09-28 14:00:00",
-                duration: 45,
-                cost: 1.0,
-                status: "Available"
+                scooter_id: scooter_id,
+                username: sessionStorage.getItem('username'), // Use the logged-in username as the 'username'
+                start_time: datetime_object.toISO(), // Convert to ISO string format
+                duration: 45, // Adjust as needed
+                cost: 1.0, // Adjust as needed
+                status: "Available", // Adjust as needed
             };
+
             // Make a POST request to your API endpoint
             fetch("/api/add_booking", {
                 method: "POST",
@@ -273,7 +302,6 @@
                     console.error("Error making booking:", error);
                 });
         }
-
         function cancelBooking(scooter_id) {
             // Create an object with the booking data
             const bookingData = {
@@ -326,12 +354,25 @@
             bookButtons.forEach(button => {
                 button.addEventListener("click", handleBookingButtonClick);
             });
+
+            // Parse start_time and update the UI
+            const startTimes = document.querySelectorAll('[data-start-time]');
+            startTimes.forEach(startTimeElement => {
+                const startTimeString = startTimeElement.getAttribute('data-start-time');
+                const startTimeDate = new Date(startTimeString);
+
+                // Format the date as needed (e.g., to display it in a different format)
+                const formattedStartTime = startTimeDate.toLocaleString(); // Adjust the format as needed
+
+                // Update the UI with the formatted start time
+                startTimeElement.textContent = `Start Time: ${formattedStartTime}`;
+            });
         });
 
-        document.getElementById("logout-btn").addEventListener("click", function() {
+        document.getElementById("logout-btn").addEventListener("click", function () {
             // Clear the sessionStorage
             sessionStorage.clear();
-        
+
             // Redirect to the login page or landing page after logout
             window.location.href = "{{ url_for('site.landing_view') }}";
         });
@@ -370,6 +411,8 @@
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/luxon/2.0.2/luxon.min.js"></script>
+
 </body>
 
 </html>

@@ -101,3 +101,21 @@ def balance():
     session['balance'] = customer.balance  # Update balance in session
 
     return jsonify({"message": f"You are Logged in as {username}. Your balance is: {customer.balance}"})
+
+
+@site.route('/get_scooters', methods=['GET'])
+def get_scooters():
+    # Replace this with your logic to fetch scooter data from the server
+    scooter_data = [
+        {
+            'scooter_id': 1,
+            'status': 'Available',
+            'make': 'Scooter Make',
+            'color': 'Scooter Color',
+            'location': 'Scooter Location',
+            'power': 'Scooter Power',
+            'cost': 10.0,
+        },
+        # Add more scooter data as needed
+    ]
+    return render_template('your_template.html', available_scooters=scooter_data)
