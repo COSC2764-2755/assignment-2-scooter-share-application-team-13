@@ -1,0 +1,72 @@
+Team Contributions 
+
+ 
+Lachlan Stewart-Pearce | s3845132 
+
+-Primary Responsibilities: 
+
+-Backend API development using Flask. 
+
+-Integration with Google Cloud Platform. 
+
+-Database design and normalization. 
+
+-Code reviews and debugging. 
+
+-Unit testing. 
+
+-Version Controlling 
+
+Jenik Patel | s3896446 
+
+-Primary Responsibilities: 
+
+-Frontend development with API integration 
+
+-Authentication and Authorization. 
+
+-Optimizing API Calls. (Frontend) 
+
+-Testing and Debugging 
+
+-Form Handling. 
+
+-User Input Validation. 
+
+-Assisted in database design. 
+
+-Testing and Debugging (Frontend). 
+
+Sanjula Lahiru Ananda Samarakoon M D G | S3737333  
+
+-Primary Responsibilities: 
+
+-Frontend development and UI/UX design. 
+
+-Documentation and README maintenance. 
+
+-Implemented the Top up Feature 
+
+-Assisted in Api integration with Frontend. 
+
+-Assisted in front-end development. 
+
+-Routing. 
+
+-Error Handling 
+
+Joshua Kreppold | s3838911 
+
+-Primary Responsibilities: 
+
+-Socket programming for real-time communication. 
+
+-Setting up and maintaining the Trello board. 
+
+-Unit testing and quality assurance. 
+
+-Assisted in backend API development. 
+
+-Code reviews. 
+
+-Unit testing. 
