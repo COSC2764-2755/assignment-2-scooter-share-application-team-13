@@ -63,10 +63,12 @@ def engineer_dashboard_view():
 def report_issue():
     return render_template('report_issue.html')
 
+
 @site.route('/submit_issue', methods=['POST'])
 def submit_issue():
     return render_template('booking.html')
-    
+
+
 @site.route('/top-up', methods=['POST'])
 def top_up_balance():
     data = request.json

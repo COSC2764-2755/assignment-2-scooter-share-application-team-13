@@ -213,6 +213,42 @@
         <h2 class="text-center mb-4">Dashboard</h2>
 
         <!-- Container for Bookings -->
+        <div id="reports-container">
+            <h3>Reports</h3>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Report ID</th>
+                        <th>Scooter ID</th>
+                        <th>Description</th>
+                        <th>Time Of Report</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="report-table-body">
+                    <!-- Data will be populated here -->
+                </tbody>
+            </table>
+        </div>
+        <!-- Container for Bookings -->
+        <div id="repair-container">
+            <h3>Repairs</h3>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Repairs ID</th>
+                        <th>Scooter ID</th>
+                        <th>Description</th>
+                        <th>Linked Report ID</th>
+                        <th>Time Of Repair</th>
+                    </tr>
+                </thead>
+                <tbody id="repair-table-body">
+                    <!-- Data will be populated here -->
+                </tbody>
+            </table>
+        </div>
+        <!-- Container for Bookings -->
         <div id="bookings-container">
             <h3>Bookings</h3>
             <table class="table table-bordered">
@@ -287,6 +323,26 @@
 
     <script>
         function fetchDataAndPopulateContainers() {
+            // Fetch reports
+            fetch("/api/all_reports")
+                .then(response => response.json())
+                .then(reports => {
+                    const reportTableBody = document.getElementById("report-table-body");
+                    reportTableBody.innerHTML = generateHTMLForReports(reports);
+                })
+                .catch(error => {
+                    console.error("Error fetching reports:", error);
+                });
+            // Fetch repairs
+            fetch("/api/all_repairs")
+                .then(response => response.json())
+                .then(repairs => {
+                    const repairTableBody = document.getElementById("repair-table-body");
+                    repairTableBody.innerHTML = generateHTMLForRepairs(repairs);
+                })
+                .catch(error => {
+                    console.error("Error fetching repairs:", error);
+                });
             // Fetch bookings
             fetch("/api/all_bookings")
                 .then(response => response.json())
@@ -328,6 +384,36 @@
             fetchDataAndPopulateContainers();
         });
 
+        function generateHTMLForReports(reports) {
+            let html = "";
+            reports.forEach(report => {
+                html += `
+            <tr>
+                <td>${report.report_id}</td>
+                <td>${report.scooter_id}</td>
+                <td>${report.description}</td>
+                <td>${report.time_of_report}</td>
+                <td>${report.status}</td>
+            </tr>
+        `;
+            });
+            return html;
+        }
+        function generateHTMLForRepairs(repairs) {
+            let html = "";
+            repairs.forEach(repair => {
+                html += `
+            <tr>
+                <td>${repair.repair_id}</td>
+                <td>${repair.scooter_id}</td>
+                <td>${repair.description}</td>
+                <td>${repair.linked_report_id}</td>
+                <td>${repair.time_of_repair}</td>
+            </tr>
+        `;
+            });
+            return html;
+        }
         function generateHTMLForBookings(bookings) {
             let html = "";
             bookings.forEach(booking => {
