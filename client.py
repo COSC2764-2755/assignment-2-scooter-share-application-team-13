@@ -1,6 +1,10 @@
 import socket
-from passlib.hash import sha256_crypt
 
+
+
+#Change to bcrypt 
+from passlib.hash import sha256_crypt
+import socket_utils
 HOST = input("Enter IP address of server: ") # Defaults to listen on all Ip's
 PORT = 65000
 ADDRESS = (HOST, PORT)
@@ -10,46 +14,67 @@ ADDRESS = (HOST, PORT)
 
 
 
-username = input("Enter Username : ")
-password = input("Enter password: ")
-scooter_id = input("Enter the scooter ID for your booked scooter: ")
-
-hashed_password = sha256_crypt.hash(password)
-
-print("Attempting to connect to the server...")
-with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-    s.connect(ADDRESS)
-    print("Connected to the server.")
-
-    # Send cusotmer_id and hashed password to server
-    s.sendall(f"{username}:{hashed_password}:{scooter_id}".encode())
-    print("Username and password sent")
-    
-
-    print("Disconnecting from server.")
-
-
-
-
-def wake_up():
-    username = input("Enter Username : ")
-    password = input("Enter password: ")
-    scooter_id = input("Enter the scooter ID for your booked scooter: ")
-
-    hashed_password = sha256_crypt.hash(password)
-
+def login(username, password):
     print("Attempting to connect to the server...")
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect(ADDRESS)
         print("Connected to the server.")
 
         # Send cusotmer_id and hashed password to server
-        s.sendall(f"{username}:{hashed_password}:{scooter_id}".encode())
+        s.sendall(f"{username}:{password}".encode())
+        print("Username, password and booking ID sent")
+
+        print("Waiting for Master Pi reponse")
+        while(True):
+            object = socket_utils.recvJson(s)
+            if("Login" in object):
+                print(f"You have logged in {username}")
+                return True
+            return False
+
+
+
+def wake_up():
+    while True:
+        username = input("Enter Username : ")
+        password = input("Enter password: ")
+        hashed_password = sha256_crypt.hash(password)
+
+
+        if login(username,hashed_password):
+            look_for_booking()
+            break
+        
+        else:
+            print("Login failed. Please re-enter your details.")
+            continue  # Restart the login process
+    wake_up()
+
+
+
+# Call the wake_up function to start the login process
+   
+
+
+
+def look_for_booking():
+    while True:
+        scooter_id = input("Enter the scooter ID for your booked scooter: ")
+
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect(ADDRESS)
+        print("Connected to the server.")
+
+        # Send cusotmer_id and hashed password to server
+        s.sendall(f"{scooter_id}".encode())
         print("Username, password and booking ID sent")
 
 
-        response = s.recv(4096).decode()
-        print(response)
+
+
+
+        
+       
 
 
 
