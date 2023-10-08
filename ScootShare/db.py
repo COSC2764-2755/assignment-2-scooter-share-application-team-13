@@ -15,7 +15,7 @@ class DatabaseConnector():
                                              password=self._PASSWORD,
                                              db=self._DATABASE,
                                              charset='utf8mb4',
-                                             cursorclass=pymysql.cursors.DictCursor)
+                                             cursorclass=pymysql.cursors.Cursor)
 
     def create_table(self) -> None:
         with self._connection.cursor() as cur:
@@ -73,7 +73,7 @@ class DatabaseConnector():
 
         # create customer object from db
         customer = Customer(
-            result['username'], result['first_name'], result['last_name'], result['phone_number'], result['email_address'], result['password'], result['balance'])
+            result[0], result[1], result[2], result[3], result[4], result[5], result[6])
         # return customer object
         print("username: ", customer.username, "password: ", customer.password)
         return customer
@@ -85,7 +85,7 @@ class DatabaseConnector():
             result = cur.fetchone()
             if result is None:
                 return None
-            stored_password_hash = result[1]
+            stored_password_hash = result[5]
             if not verify_password(stored_password_hash, password):
                 return None
 
@@ -540,7 +540,7 @@ class DatabaseConnector():
             cur.execute("SELECT COUNT(*) FROM Staff")
             row = cur.fetchone()
             if row is not None:
-                count = row.get('COUNT(*)')
+                count = row[0]
                 if count == 0:
                     query = "INSERT INTO Staff (username, password) VALUES (%s, %s)"
                     staff_data = [
