@@ -64,15 +64,15 @@
         formDataObject[key] = value;
       });
 
-
-      // Log the formData to check its contents
-      console.log(formDataObject);
-
       // Check if the username starts with '~' or '_'
       const username = formData.get("username");
-      if (username && (username.startsWith('~') || username.startsWith('_'))) {
+      if (username && username.startsWith('~')) {
         // You can set a custom field in the data to indicate the user type
-        formData.append("user_type", "admin_or_engineer");
+        formData.append("user_type", "admin");
+      } else if (username && username.startsWith('_')) {
+        formData.append("user_type", "engineer");
+      } else {
+        formData.append("user_type", "customer");
       }
 
       fetch(url, {
@@ -88,9 +88,13 @@
             sessionStorage.setItem("username", user_data["username"]);
             sessionStorage.setItem("user_type", user_data["user_type"]);
             console.log("Success");
-            // Check if the user_type is 'admin_or_engineer' and redirect to the dashboard
-            if (formData.get("user_type") === "admin_or_engineer") {
-              window.location.href = "/dashboard"; // Redirect to the dashboard for admin/engineer.
+
+            // Redirect based on user_type
+            const user_type = formData.get("user_type");
+            if (user_type === "admin") {
+              window.location.href = "/dashboard"; // Redirect to the dashboard for admin.
+            } else if (user_type === "engineer") {
+              window.location.href = "/engineer_dashboard"; // Redirect to the dashboard for engineer.
             } else {
               window.location.href = "/booking"; // Redirect to the booking page for regular customers.
             }
