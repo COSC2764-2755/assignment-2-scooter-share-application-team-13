@@ -281,7 +281,7 @@ class Make_Booking(Resource):
         self._booking_post_args.add_argument(
             "scooter_id", type=int, help="Scooter ID")
         self._booking_post_args.add_argument(
-            "username", type=int, help="username")
+            "username", type=str, help="username")
         # parse the time here so we can do operations to do with the starttime and checking if it conflicts with other bookings# assuming we get the data as a string
         # We should recive a string like this, "2023-10-05 14:30:00". Double check that we we recive data from the api call it will be a
         self._booking_post_args.add_argument(
@@ -296,6 +296,7 @@ class Make_Booking(Resource):
     def post(self):
         try:
             args = self._booking_post_args.parse_args()
+
             purposed_booking = Booking(
                 location=args['location'],
                 scooter_id=args['scooter_id'],
@@ -305,19 +306,15 @@ class Make_Booking(Resource):
                 cost=args['cost'],
                 status=args['status']
             )
-            print(args['username'])
-            # Check if the user has enough balance in their account  #The amount is taken only when the booking is initiated
-            # Problem assigning
+      
             booking_customer = db.get_customer_object_by_username(
                 args['username'])
-
-            print(booking_customer.__str__)
 
             booking_cost = args['duration'] * args['cost']
             if booking_customer.balance - booking_cost < 0:
                 # , 400  # Return an error response
                 return "Insufficient funds to make the booking."
-
+            
             # Check if scooter is avalable
             scooter_to_book = db.get_scooter_by_id(
                 purposed_booking.scooter_id)
@@ -327,10 +324,8 @@ class Make_Booking(Resource):
 
             # Purposed booking time cannot conflicts with with booking times of other bookings, meaning the start and end time cannot overlap
             # Addionally a scooter can only be booked if it has the status avalable , it might be under repair or in use
-
             bookings_for_scooter = db.get_bookings_by_scooter_id(
                 args['scooter_id'])
-
             for existing_booking in bookings_for_scooter:
                 # This should be the correct type thanks to the parse datetime method
                 existing_start_time = existing_booking.start_time
