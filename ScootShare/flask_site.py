@@ -57,8 +57,24 @@ def engineer_dashboard_view():
 def report_issue():
     return render_template('report_issue.html')
 
-
 @site.route('/submit_issue', methods=['POST'])
 def submit_issue():
+    return render_template('booking.html')
     
-    return redirect(url_for('dashboard'))  
+@site.route('/top-up', methods=['POST'])
+def top_up_balance():
+    data = request.json
+    username = data.get('username')
+    top_up_amount = data.get('top_up')
+
+    if not username or not isinstance(top_up_amount, (int, float)) or top_up_amount <= 0:
+        return jsonify({"message": "Invalid input. Please provide a valid username and a positive amount."}), 400
+
+    customer = db.get_customer_object_by_username(username)
+    if not customer:
+        return jsonify({"message": f"Customer with username {username} not found."}), 404
+
+    customer.balance += top_up_amount
+    db.update_balance(username, customer.balance)
+
+    return jsonify({"message": f"You topped up user {username} with an amount of {top_up_amount}. New balance: {customer.balance}"})

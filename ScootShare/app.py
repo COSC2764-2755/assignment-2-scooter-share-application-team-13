@@ -404,7 +404,7 @@ class Top_up_Balanace(Resource):
         self._customer_post_args.add_argument(
             "username", type=str, help="username")
         self._customer_post_args.add_argument(
-            "top_up", type=str, help="Amount to add")
+            "top_up", type=float, help="Amount to add")
 
     def post(self):
         args = self._customer_post_args.parse_args()
