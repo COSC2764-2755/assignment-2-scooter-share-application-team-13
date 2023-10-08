@@ -31,8 +31,14 @@ def login_view():
     if request.method == "GET":
         return render_template("login.html")
     if request.method == "POST":
-        return "Success"
-
+        # Assuming you have some logic here to validate the user's credentials
+        # Once validated:
+        username = request.form.get('username')
+        customer = db.get_customer_object_by_username(username)
+        if customer:
+            session['username'] = username
+            session['balance'] = customer.balance
+        return redirect(url_for('site.booking_view'))
 
 @site.route('/booking', methods=['GET'])
 def booking_view():
@@ -42,18 +48,16 @@ def booking_view():
     available_scooters = [
         scooter for scooter in all_scooters if scooter.status.lower() == 'available']
 
-    return render_template("booking.html", available_scooters=available_scooters)
-
+    user_balance = session.get('balance', 0)  # Fetch balance from session
+    return render_template("booking.html", available_scooters=available_scooters, balance=user_balance)
 
 @site.route('/dashboard', methods=['GET', 'POST'])
 def dashboard_view():
     return render_template("dashboard.html")
 
-
 @site.route('/engineer_dashboard', methods=['GET', 'POST'])
 def engineer_dashboard_view():
     return render_template("engineer_dashboard.html")
-
 
 @site.route('/report_issue')
 def report_issue():
@@ -61,7 +65,6 @@ def report_issue():
 
 @site.route('/submit_issue', methods=['POST'])
 def submit_issue():
-<<<<<<< HEAD
     return render_template('booking.html')
     
 @site.route('/top-up', methods=['POST'])
@@ -79,9 +82,6 @@ def top_up_balance():
 
     customer.balance += top_up_amount
     db.update_balance(username, customer.balance)
+    session['balance'] = customer.balance  # Update balance in session
 
     return jsonify({"message": f"You topped up user {username} with an amount of {top_up_amount}. New balance: {customer.balance}"})
-=======
-
-    return redirect(url_for('dashboard'))
->>>>>>> 5c0a0c8fb2e376d14d6061035f61c5a289d7960e

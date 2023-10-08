@@ -285,102 +285,6 @@
 
     </div>
 
-<<<<<<< HEAD
-    <main>
-        <h2 class="text-center mb-4">Dashboard</h2>
-        
-        <!-- Display Available Money -->
-        <p><strong>Available Money:</strong> ${{ available_money }}</p>
-
-        <!-- Available Scooters List -->
-        <h3>Available Scooters:</h3>
-        <ul>
-            {% for scooter in scooters %}
-            <li>
-                <h4>Scooter ID: {{ scooter.id }}</h4>
-                <p>Details: {{ scooter.details }}</p>
-                <form action="/book/{{ scooter.id }}" method="post">
-                    <button type="submit">Book</button>
-                </form>
-            </li>
-            {% endfor %}
-        </ul>
-
-        <!-- My Bookings List -->
-        <h2>My Bookings</h2>
-        <ul>
-            {% for booking in bookings %}
-        <li>
-        <h4>Booking ID: {{ booking.id }}</h4>
-        <p>Scooter ID: {{ booking.scooter_id }}</p>
-        <form action="/cancel_booking/{{ booking.id }}" method="post">
-            <button type="submit">Cancel Booking</button>
-        </form>
-            </li>
-            {% endfor %}
-            </ul>
-
-            <!-- Scooter Usage History -->
-            <h2>Scooter Usage History</h2>
-            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#scooterHistory" aria-expanded="false" aria-controls="scooterHistory">
-             View History
-            </button>
-            <div class="collapse" id="scooterHistory">
-                <ul>
-                {% for history in scooter_histories %}
-            <li>
-            <h4>Date: {{ history.date }}</h4>
-            <p>Scooter ID: {{ history.scooter_id }}</p>
-            <p>Duration: {{ history.duration }}</p>
-                     </li>
-             {% endfor %}
-             </ul>
-        </div>
-        
-<!-- Additional Functionalities -->
-<h3 class="text-center mb-4">Functionalities</h3>
-<ul class="functionality-list">
-    <li class="functionality-item">
-        <a href="/unlock_scooter"><i class="fas fa-unlock"></i>Unlock a Scooter</a>
-    </li>
-    <li class="functionality-item">
-        <a href="/report_issue"><i class="fas fa-exclamation-triangle"></i>Report Scooter Issues</a>
-    </li>
-    <li class="functionality-item">
-        <a href="/return_scooter"><i class="fas fa-lock"></i>Return/Lock a Scooter</a>
-    </li>
-    <li class="functionality-item">
-        <a href="/logout"><i class="fas fa-sign-out-alt"></i>Logout</a>
-    </li>
-</ul>
-
-<style>
-    .functionality-list {
-        list-style-type: none;
-        padding: 0;
-    }
-    .functionality-item {
-        margin: 10px 0;
-        text-align: center;
-    }
-</style>
-
-
-<style>
-    .functionality-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: 20px;
-        justify-content: center;
-    }
-</style>
-
-
-
-    <footer>
-        <p>........ScootShare......</p>
-    </footer>
-=======
     <script>
         function fetchDataAndPopulateContainers() {
             // Fetch bookings
@@ -740,7 +644,6 @@
     </style>
 
 
->>>>>>> 5c0a0c8fb2e376d14d6061035f61c5a289d7960e
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
