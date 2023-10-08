@@ -332,7 +332,7 @@ class Make_Booking(Resource):
                     return "Booking time conflicts with an existing booking."
 
             db.add_booking(purposed_booking)
-            return f"You have made a booking for {purposed_booking.start_time} under the customer id: {purposed_booking.customer}"
+            return f"You have made a booking for {purposed_booking.start_time} under the customer id: {purposed_booking.username}"
         except Exception as e:
             return "An error occurred while making the booking.\n" + str(e)
 # Double check if we want a made report to have any impact on scooter avalbility
@@ -481,7 +481,7 @@ class GetAllBookings(Resource):
             {
                 "location": booking.location,
                 "scooter_id": booking.scooter_id,
-                "username": booking.username,
+                "username": booking.customer,
                 "start_time": booking.start_time,
                 "duration": booking.duration,
                 "cost": booking.cost,
@@ -536,7 +536,6 @@ class GetAllCustomers(Resource):
                 "last_name": customer.last_name,
                 "phone_number": customer.phone_number,
                 "email_address": customer.email_address,
-                "password": customer.password,
                 "balance": customer.balance
             }
             for customer in customers

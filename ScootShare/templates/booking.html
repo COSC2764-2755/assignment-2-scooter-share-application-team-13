@@ -9,7 +9,6 @@
     <style>
         .scooter-image {
             width: 100%;
-            height: 200px;
             object-fit: cover;
         }
     </style>
@@ -69,13 +68,7 @@
             <div class="carousel-inner">
                 <div class="carousel-item active">
                     <img src="/static/images/banner5.png" class="d-block w-100 carousel-image" alt="Banner 1">
-                </div>
-                <div class="carousel-item">
-                    <img src="/static/images/banner4.jpg" class="d-block w-100 carousel-image" alt="Banner 4">
-                </div>
-                <div class="carousel-item">
-                    <img src="/static/images/banner1.png" class="d-block w-100 carousel-image" alt="Banner 5">
-                </div>
+                </div>s
                 <div class="carousel-caption d-none d-md-block">
                     <h5>Latest Scooters</h5>
                     <p>Check out our latest additions!</p>
@@ -111,7 +104,7 @@
             {% for scooter in available_scooters %}
             <div class="col-md-4">
                 <div class="card">
-                    <img src="{{ scooter.image_url }}" alt="Scooter Image" class="card-img-top scooter-image">
+                    <img src="../static/images/scooter.jpg" alt="Scooter Image" class="card-img-top scooter-image">
                     <div class="card-body">
                         <h5>Scooter ID: {{ scooter.scooter_id }}</h5>
                         <p>Status: {{ scooter.status }}</p>
@@ -121,7 +114,8 @@
                         <p>Power: {{ scooter.power }}</p>
                         <p>Cost: {{ scooter.cost }}</p>
                         <button class="btn btn-primary book-button"
-                            data-scooter-id="{{ scooter.scooter_id }}">Book</button>
+                            data-scooter-id="{{ scooter.scooter_id }} data-booking-id=" {{ scooter.booking_id
+                            }}"">Book</button>
                         <button class="btn btn-primary cancel-book-button"
                             data-scooter-id="{{ scooter.scooter_id }}">Cancel Book</button>
                     </div>
@@ -222,22 +216,28 @@
 
         document.getElementById("top-up-btn").addEventListener("click", handleTopUp);
 
-        function updateUI(username) {
+        function updateUI(username, balance) {
             // Update username
             const usernameElement = document.getElementById('username');
             usernameElement.textContent = username;
+
+            // Update balance if available
+            if (balance !== undefined) {
+                const balanceElement = document.getElementById('balance');
+                console.log("Updating balance:", balance);
+                balanceElement.textContent = balance;
+            }
         }
 
         function makeBooking(scooter_id) {
             const bookingData = {
-                location: "Location A",
-                scooter_id: scooter_id,
-                username: sessionStorage.getItem('username'),
-                duration: "40",
+                location: "Location C",
+                scooter_id: 4,
+                username: "211",
                 start_time: "2023-09-28 14:00:00",
-                cost: 1,
-                status: status,
-                // Add other booking data here
+                duration: 45,
+                cost: 1.0,
+                status: "Available"
             };
             // Make a POST request to your API endpoint
             fetch("/api/add_booking", {
@@ -251,11 +251,24 @@
                 .then(data => {
                     // Handle the response from the API, e.g., display a success message or handle errors
                     console.log(data); // You can replace this with your desired handling logic
+
+                    // If the booking was successful, find the corresponding "Book" button and update its text
+                    if (data.success) {
+                        const bookingId = data.bookingId; // Replace with the actual response property name
+
+                        // Find the "Book" button with the matching data-booking-id attribute
+                        const bookButton = document.querySelector(`[data-booking-id="${bookingId}"]`);
+
+                        // Update the button text to "Booked"
+                        if (bookButton) {
+                            bookButton.textContent = "Booked";
+                            bookButton.disabled = true; // Optionally, disable the button
+                        }
+                    }
                 })
                 .catch(error => {
                     console.error("Error making booking:", error);
                 });
-
         }
 
         function cancelBooking(scooter_id) {
@@ -265,8 +278,8 @@
                 location: "Location A",
                 scooter_id: scooter_id,
                 username: sessionStorage.getItem('username'),
-                duration: "40",
-                start_time: "2023-09-28 14:00:00",
+                duration: 40, // Pass duration as an integer, not a string
+                start_time: "2023-01-28 14:00:00", // Leave start_time as a string
                 cost: 1,
                 status: status,
             };

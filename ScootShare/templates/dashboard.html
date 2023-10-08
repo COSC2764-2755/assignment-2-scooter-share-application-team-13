@@ -212,7 +212,7 @@
         </h3>
         <h2 class="text-center mb-4">Dashboard</h2>
 
-        <!-- Container for Bookings -->
+        <!-- Container for Reports -->
         <div id="reports-container">
             <h3>Reports</h3>
             <table class="table table-bordered">
@@ -230,7 +230,28 @@
                 </tbody>
             </table>
         </div>
-        <!-- Container for Bookings -->
+        <!-- Container for Usages -->
+        <div id="usage-container">
+            <h3>Scooter Usage History</h3>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Booking ID</th>
+                        <th>Location</th>
+                        <th>Scooter ID</th>
+                        <th>Username</th>
+                        <th>Start Time</th>
+                        <th>Duration</th>
+                        <th>Cost</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="usage-table-body">
+                    <!-- Data will be populated here -->
+                </tbody>
+            </table>
+        </div>
+        <!-- Container for Repairs -->
         <div id="repair-container">
             <h3>Repairs</h3>
             <table class="table table-bordered">
@@ -275,15 +296,7 @@
             <h3>Scooters</h3>
             <table class="table table-bordered">
                 <thead>
-                    <tr>
-                        <th>Scooter ID</th>
-                        <th>Status</th>
-                        <th>Make</th>
-                        <th>Color</th>
-                        <th>Location</th>
-                        <th>Power</th>
-                        <th>Cost</th>
-                    </tr>
+
                 </thead>
                 <tbody id="scooter-table-body">
                     <!-- Data will be populated here -->
@@ -304,7 +317,6 @@
                         <th>Username</th>
                         <th>First Name</th>
                         <th>Last Name</th>
-                        <th>Password</th>
                         <th>Phone Number</th>
                         <th>Email</th>
                         <th>Balance</th>
@@ -352,6 +364,17 @@
                 })
                 .catch(error => {
                     console.error("Error fetching bookings:", error);
+                });
+            // Fetch Usage
+            fetch("/api/all_bookings")
+                .then(response => response.json())
+                .then(usages => {
+                    const completeBookings = usages.filter(usage => usage.status === "Complete");
+                    const usageTableBody = document.getElementById("usage-table-body");
+                    usageTableBody.innerHTML = generateHTMLForBookings(completeBookings);
+                })
+                .catch(error => {
+                    console.error("Error fetching usages:", error);
                 });
 
             // Fetch scooters
@@ -433,6 +456,25 @@
             return html;
         }
 
+        function generateHTMLForUsages(usages) {
+            let html = "";
+            usages.forEach(usage => {
+                html += `
+            <tr>
+                <td>${usage.booking_id}</td>
+                <td>${usage.location}</td>
+                <td>${usage.scooter_id}</td>
+                <td>${usage.username}</td>
+                <td>${usage.start_time}</td>
+                <td>${usage.duration}</td>
+                <td>${usage.cost}</td>
+                <td>${usage.status}</td>
+            </tr>
+        `;
+            });
+            return html;
+        }
+
         let scooters = [];
         function generateHTMLForScooters(scooters) {
             let html = "<table class='table table-bordered'>";
@@ -463,7 +505,6 @@
                 <td>${customer.username}</td>
                 <td>${customer.first_name}</td>
                 <td>${customer.last_name}</td>
-                <td>${customer.password}</td>
                 <td>${customer.phone_number}</td>
                 <td>${customer.email_address}</td>
                 <td>${customer.balance}</td>
