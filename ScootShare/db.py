@@ -73,8 +73,9 @@ class DatabaseConnector():
 
         # create customer object from db
         customer = Customer(
-            result[0], result[1], result[2], result[3], result[4], result[5], result[6])
+            result['username'], result['first_name'], result['last_name'], result['phone_number'], result['email_address'], result['password'], result['balance'])
         # return customer object
+        print("username: ", customer.username, "password: ", customer.password)
         return customer
 
     def get_staff(self, username: str, password: str):
@@ -538,7 +539,6 @@ class DatabaseConnector():
         with self._connection.cursor() as cur:
             cur.execute("SELECT COUNT(*) FROM Staff")
             row = cur.fetchone()
-            print('debug: ', row)
             if row is not None:
                 count = row.get('COUNT(*)')
                 if count == 0:
