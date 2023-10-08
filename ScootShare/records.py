@@ -10,6 +10,9 @@ class Customer():
         self.password = password
         self.balance = balance
 
+    def __str__(self):
+        return f"Username: {self.username}\nFirst Name: {self.first_name}\nLast Name: {self.last_name}\nPhone Number: {self.phone_number}\nEmail Address: {self.email_address}\nBalance: {self.balance}"
+
 # "SELECT status, make, color, location, power, cost, scooter_id FROM Scooter;"
 
 
