@@ -759,9 +759,9 @@ class update_booking_status():
 
 # Console API calls
 
-api.add_resource(console_Login, "/api/booking_login")
-api.add_resource(console_find_Booking, "/api/get_single_booking")
-api.add_resource(update_booking_status, "/api/update_booking_status")
+#api.add_resource(console_Login, "/api/booking_login")
+#api.add_resource(console_find_Booking, "/api/get_single_booking")
+#api.add_resource(update_booking_status, "/api/update_booking_status")
 
 
 
