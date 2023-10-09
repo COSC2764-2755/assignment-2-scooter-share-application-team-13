@@ -8,6 +8,42 @@ from flask_restful import Api, Resource, reqparse
 from records import *
 import os
 
+
+def seed_data() -> None:
+    existing_customer = db.get_customer_object_by_username("testuser")
+    if not existing_customer:
+        test_user = Customer(
+            username="testuser",
+            f_name="John",
+            l_name="Doe",
+            ph_num="123-456-7890",
+            email="john.doe@example.com",
+            password="123",
+            balance=1000.00
+        )
+        print('test customer added, Login with username: testuser & pw: 123')
+        db.add_customer(test_user)
+    else:
+        print('User already exists: Login with username: testuser & pw: 123')
+#Addeds a new scooter when we run 
+
+    scooters = db.get_scooters_from_db()
+    scooter_count = len(scooters)
+    if scooter_count < 3: 
+        print('scooter added')
+        test_scooter = Scooter(
+            status="Available",
+            make="BrandX",
+            color="Red",
+            location="Street A",
+            power=99,
+            cost=10.00,
+        )
+        db.add_scoooter(test_scooter)
+        print(f'scooter added, there are {scooter_count+ 1} scooters in the db')
+    else:
+        print(f'there are {scooter_count} scooters in the db')
+
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 api = Api(app)
@@ -19,13 +55,15 @@ db.create_repair_table()
 db.create_table()
 db.create_staff_table()
 db.populate_staff()
+seed_data()
 
 
 def parse_datetime(value: str):
     try:
         # Parse the input string as a datetime object # takes in something like this: "2023-10-05 14:30:00"
         # Adjust the format as needed
-        return datetime.strptime(value, "%Y-%m-%d %H:%M:%S")
+        parsed_datetime = datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%f%z")
+        return parsed_datetime.strftime('%Y-%m-%d %H:%M:%S')
     # if you attempt to parse a string as a datetime, and the string does not match the expected format, this exception will be raised
     # bad practise to catch general exceptions but for the moment helps in debugging
     except Exception as thrown_exception:
@@ -656,6 +694,16 @@ api.add_resource(Login, '/api/login', methods=['GET', 'POST'])
 
 app.register_blueprint(site)
 
+
+
+
+
+
 if __name__ == "__main__":
     # app.run(host="0.0.0.0", debug=True)
     app.run(debug=True)
+
+    
+    
+
+    
