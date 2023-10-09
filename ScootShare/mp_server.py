@@ -172,13 +172,18 @@ def send_booking_determine_ifto_start(booking):
 
 #Update booking status when send_booking_determine_ifto_start() returns true, and when waitforbookingtoend recives a end message
 def updateBookingStatus(booking_id, new_status):
-    endpoint= "update_booking"
+    endpoint= "update_booking_status"
     booking_data = {
         "booking_id": booking_id,
         "new_status": new_status
     }
-    reponse = requests.get(BASE + endpoint, data=json.dumps(booking_data)) #consider validation for the reponse
-    print(f"booking status for booking id: {booking_id} changed to {new_status}")
+    response = requests.get(BASE + endpoint, data=json.dumps(booking_data)) #consider validation for the reponse
+    result = response.json().get("result")
+    
+    if result:
+        print(f"Booking status for booking id: {booking_id} changed to {new_status}")
+    else:
+        print(f"Failed to update booking status for booking id: {booking_id}")
 
     
 

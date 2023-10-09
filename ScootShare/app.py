@@ -707,9 +707,9 @@ class console_find_Booking():
         super().__init__()
         self._cust_booking_args = reqparse.RequestParser()
         self._cust_booking_args.add_argument(
-            "customer", type=str, help="username")
+            "customer", type=str, help="bookings username")
         self._cust_booking_args.add_argument(
-            "scooter_id", type=int, help="password")
+            "scooter_id", type=int, help="scooter id of booking")
         
     
      def post(self):
@@ -736,12 +736,35 @@ class console_find_Booking():
             return None
         
 
-     
+class update_booking_status():
+     def __init__(self) -> None:
+        super().__init__()
+        self._booking_args = reqparse.RequestParser()
+        self._booking_args.add_argument(
+            "booking_id", type=int, help="booking id to update")
+        self._cust_booking_args.add_argument(
+            "new_status", type=str, help="new status of booking")
+        
+        def post(self):
+            try: 
+                args = self._booking_args.parse_args()
+                db.set_booking_status(args['new_status'],args['booking_id'] )
+                return {"result: True"}
+            except Exception as e:
+                print(e)
+                print("An error occurred while logging in through AP.\n" + str(e))
+                return {"result": False}
 
-# Make /api
+
+
+# Console API calls
 
 api.add_resource(console_Login, "/api/booking_login")
 api.add_resource(console_find_Booking, "/api/get_single_booking")
+api.add_resource(update_booking_status, "/api/update_booking_status")
+
+
+
 # Retreives
 api.add_resource(GetAllRepairs, "/api/all_repairs")
 api.add_resource(GetAllReports, "/api/all_reports")
