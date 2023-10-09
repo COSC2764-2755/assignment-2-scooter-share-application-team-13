@@ -82,7 +82,7 @@ class editCustomer(Resource):
         self._cust_post_args = reqparse.RequestParser()
 
         self._cust_post_args.add_argument(
-            "username", type=int, help="customer username")
+            "username", type=str, help="customer username")
         self._cust_post_args.add_argument(
             "first_name", type=str, help="Customer fName")
         self._cust_post_args.add_argument(
@@ -294,8 +294,7 @@ class Make_Booking(Resource):
                 duration=args['duration'],
                 cost=args['cost'],
                 status=args['status']
-            )
-
+                )
             booking_customer = db.get_customer_object_by_username(
                 args['username'])
 
@@ -332,7 +331,7 @@ class Make_Booking(Resource):
                     return "Booking time conflicts with an existing booking."
 
             db.add_booking(purposed_booking)
-            return f"You have made a booking for {purposed_booking.start_time} under the customer id: {purposed_booking.username}"
+            return f"You have made a booking!"
         except Exception as e:
             return "An error occurred while making the booking.\n" + str(e)
 # Double check if we want a made report to have any impact on scooter avalbility
@@ -354,15 +353,18 @@ class Make_Report(Resource):
             "status", type=str, help="Report status")
 
     def post(self):
-        args = self._report_post_args.parse_args()
-        report = Report(
-            scooter_id=args['scooter_id'],
-            description=args['description'],
-            time_of_report=args['time_of_report'],
-            status=args['status']
-        )
-        db.add_report(report)
-        return f"You made a report for scooter: {report.scooter_id} to address: {report.description}"
+        try:
+            args = self._report_post_args.parse_args()
+            report = Report(
+                scooter_id=args["scooter_id"],
+                description=args["description"],
+                time_of_report=args["time_of_report"],
+                status=args["status"]
+            )
+            db.add_report(report)
+            return f"You made a report for scooter: {report.scooter_id} to address: {report.description}"
+        except Exception as e:
+            return "An error occurred while making the report.\n" + str(e)
 
 
 class Make_Repair(Resource):
@@ -382,18 +384,21 @@ class Make_Repair(Resource):
             "status", type=str, help="Repair status")
 
     def post(self):
-        args = self._repair_post_args.parse_args()
-        repair = Repair(
-            scooter_id=args['scooter_id'],
-            description=args['description'],
-            linked_report_id=args['linked_report_id'],
-            time_of_repair=args['time_of_repair']
-        )
-        print('repair')
-        db.add_repair(repair)
-        db.set_report_status(
-            repair.linked_report_id, "addressed")  # may not want this hardcoded here
-        return f"You did a repair at: {repair.time_of_repair} to address: {repair.description}"
+        try:
+            args = self._repair_post_args.parse_args()
+            repair = Repair(
+                scooter_id=args['scooter_id'],
+                description=args['description'],
+                linked_report_id=args['linked_report_id'],
+                time_of_repair=args['time_of_repair']
+            )
+            print('repair')
+            db.add_repair(repair)
+            db.set_report_status(
+                repair.linked_report_id, "addressed")  # may not want this hardcoded here
+            return f"You did a repair at: {repair.time_of_repair} to address: {repair.description} for scooter {repair.scooter_id}"
+        except Exception as e:
+            return "An error occurred while making the repair.\n" + str(e)
 
 # This will be needed to top up the balance, though it is editing account details it is seperate from the editcustomer class
 
@@ -455,16 +460,19 @@ class GetAllReports(Resource):
         super().__init__()
 
     def get(self):
-        # Retrieve all report instances from the database
-        reports = db.get_all_reports()
-        print('---------ALL REPORTS prepairing to send--------------')
-        for report in reports:
-            print(report.__str__())
-        print('-----------------------')
-        # Format the reports data as needed
-        formatted_reports = [{"report_id": report.id, "scooter_id": report.scooter_id, "description": report.description,
-                              "time_of_report": report.time_of_report, "status": report.status} for report in reports]
-        return formatted_reports
+        try:
+            # Retrieve all report instances from the database
+            reports = db.get_all_reports()
+            print('---------ALL REPORTS prepairing to send--------------')
+            for report in reports:
+                print(report.__str__())
+            print('-----------------------')
+            # Format the reports data as needed
+            formatted_reports = [{"report_id": report.id, "scooter_id": report.scooter_id, "description": report.description,
+                                  "time_of_report": str(report.time_of_report), "status": report.status} for report in reports]
+            return formatted_reports
+        except Exception as e:
+            return "An error occurred while getting all reports.\n" + str(e)
 
 
 class GetAllBookings(Resource):
@@ -548,27 +556,30 @@ class GetSingleCustomerByID(Resource):
         super().__init__()
         self._cust_post_args = reqparse.RequestParser()
         self._cust_post_args.add_argument(
-            "username", type=int, help="CustomerID")
+            "username", type=str, help="CustomerID")
 
     def get(self):
-        args = self._cust_post_args.parse_args()
-        customer_to_find_id = args["current_id"]
-        customer_object = db.get_customer_object_by_username(
-            customer_to_find_id)
+        try:
+            args = self._cust_post_args.parse_args()
+            customer_to_find_id = args["username"]
+            customer_object = db.get_customer_object_by_username(
+                customer_to_find_id)
 
-        if customer_object:
-            formatted_customer = {
-                "username": customer_object.username,
-                "first_name": customer_object.first_name,
-                "last_name": customer_object.last_name,
-                "phone_number": customer_object.phone_number,
-                "email_address": customer_object.email_address,
-                "password": customer_object.password,
-                "balance": customer_object.balance
-            }
-            return formatted_customer
-        else:
-            return {"message": "Customer not found"}  # , 404
+            if customer_object:
+                formatted_customer = {
+                    "username": customer_object.username,
+                    "first_name": customer_object.first_name,
+                    "last_name": customer_object.last_name,
+                    "phone_number": customer_object.phone_number,
+                    "email_address": customer_object.email_address,
+                    "password": customer_object.password,
+                    "balance": float(customer_object.balance)
+                }
+                return formatted_customer
+            else:
+                return {"message": "Customer not found"}  # , 404
+        except Exception as e:
+            return "An error occurred while getting the customer.\n" + str(e)
 
 
 class Login(Resource):
@@ -581,38 +592,42 @@ class Login(Resource):
             "password", type=str, help="password")
 
     def post(self):
-        args = self._cust_login_args.parse_args()
-        username = args['username']
-        password = args['password']
-        # Check if the username exists in the staff CSV file
-        staff = db.get_staff(username, password)
-        if staff:
+        try:
+            args = self._cust_login_args.parse_args()
+            username = args['username']
+            password = args['password']
             if username.startswith('~'):
                 # The username starts with ~, indicating an admin
-                print(f"Successfully signed in as admin: {staff.username}")
-                response_data = {'user_type': 'admin',
-                                 'username': staff.username}
-                return jsonify(response_data)
+                staff = db.get_staff(username, password)
+                if staff:
+                    print(f"Successfully signed in as admin: {staff.username}")
+                    response_data = {'user_type': 'admin',
+                                        'username': staff.username}
+                    return jsonify(response_data)
             elif username.startswith('_'):
                 # The username starts with _, indicating an engineer
-                print(
-                    f"Successfully signed in as engineer: {staff.username}")
-                response_data = {'user_type': 'engineer',
-                                 'username': staff.username}
-                return jsonify(response_data)
-        else:
-            # Check if the username exists among regular customers
-            customer = db.get_customer(username, password)
-            if customer:
-                print(
-                    f"Successfully signed in as customer: {customer.username}")
-                response_data = {'user_type': 'customer',
-                                 'username': customer.username}
-                return jsonify(response_data)
+                staff = db.get_staff(username, password)
+                if staff:
+                    print(f"Successfully signed in as engineer: {staff.username}")
+                    response_data = {'user_type': 'engineer',
+                                        'username': staff.username}
+                    return jsonify(response_data)
+            else:
+                print("Check if the username exists among regular customers")
+                customer = db.get_customer(username, password)
+                if customer:
+                    print(
+                        f"Successfully signed in as customer: {customer.username}")
+                    response_data = {'user_type': 'customer',
+                                        'username': customer.username}
+                    return jsonify(response_data)
 
-            # If the user is not found in any category, return an error response
-            error_response = {'error': 'Invalid credentials'}
-            return jsonify(error_response), 401
+                # If the user is not found in any category, return an error response
+                error_response = {'error': 'Invalid credentials'}
+                return jsonify(error_response), 401
+        except Exception as e:
+            print(e)
+            return "An error occurred while logging in.\n" + str(e)
 
 
 # Make /api
