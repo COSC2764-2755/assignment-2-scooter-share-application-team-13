@@ -69,6 +69,15 @@ def parse_datetime(value: str):
     except Exception as thrown_exception:
         print(f"Error: {thrown_exception}")
 
+def is_booking_active(bookings):
+        current_time = datetime.now()
+        for booking in bookings: 
+            end_time = booking.start_time + timedelta(minutes=booking.duration)
+            if booking.start_time <= current_time <= end_time:
+                return booking
+            else:
+                return booking
+
 
 class Registration(Resource):
     def __init__(self) -> None:
@@ -668,7 +677,71 @@ class Login(Resource):
             return "An error occurred while logging in.\n" + str(e)
 
 
+class console_Login(Resource):
+    def __init__(self) -> None:
+        super().__init__()
+        self._cust_login_args = reqparse.RequestParser()
+        self._cust_login_args.add_argument(
+            "username", type=str, help="username")
+        self._cust_login_args.add_argument(
+            "password", type=str, help="password")
+
+    def post(self):
+        try:
+            args = self._cust_login_args.parse_args()
+            username = args['username']
+            password = args['password']
+
+            customer = db.get_customer(username, password)
+
+            if customer is not None:
+                return {"success": True}
+
+        except Exception as e:
+            print(e)
+            print("An error occurred while logging in through AP.\n" + str(e))
+            return {"success": False}
+
+class console_find_Booking():
+     def __init__(self) -> None:
+        super().__init__()
+        self._cust_booking_args = reqparse.RequestParser()
+        self._cust_booking_args.add_argument(
+            "customer", type=str, help="username")
+        self._cust_booking_args.add_argument(
+            "scooter_id", type=int, help="password")
+        
+    
+     def post(self):
+        try:
+            args = self._cust_booking_args.parse_args()
+            bookings = db.get_scooter_bookings_for_customer(args['customer'], args['scooter_id'])
+            booking = is_booking_active(bookings)
+
+            formatted_booking={
+                "location": booking.location,
+                "scooter_id": booking.scooter_id,
+                "username": booking.customer,
+                "start_time": booking.start_time,
+                "duration": booking.duration,
+                "cost": booking.cost,
+                "status": booking.status,
+                "booking_id": booking.booking_id
+            }
+            return formatted_booking
+
+        except Exception as e:
+            print(e)
+            print("An error occurred while logging in through AP.\n" + str(e))
+            return None
+        
+
+     
+
 # Make /api
+
+api.add_resource(console_Login, "/api/booking_login")
+api.add_resource(console_find_Booking, "/api/get_single_booking")
 # Retreives
 api.add_resource(GetAllRepairs, "/api/all_repairs")
 api.add_resource(GetAllReports, "/api/all_reports")

@@ -304,7 +304,7 @@ class DatabaseConnector():
         scooters = [Scooter(*row) for row in scooters_data]
 
         return scooters
-# Gets all scooters in the db
+
 
     def get_bookings_from_db(self):
         with self._connection.cursor() as cur:
@@ -315,7 +315,18 @@ class DatabaseConnector():
         bookings = [Booking(*row) for row in booking_data]
 
         return bookings
-# Gets all scooters in the db
+
+    def get_scooter_bookings_for_customer(self, customerID, scooterID):
+        with self._connection.cursor() as cur:
+            query = "SELECT * FROM Booking WHERE username = %s AND scooter_ID = %s;"
+            cur.execute(query, (customerID, scooterID))
+            booking_data = cur.fetchall()
+
+        bookings = [Booking(*row) for row in booking_data]
+
+        return bookings
+
+
 
     def get_customers_from_db(self):
         with self._connection.cursor() as cur:
@@ -576,3 +587,5 @@ class DatabaseConnector():
                     result[0], result[1])
                 # return customer object
                 return engineer
+            
+

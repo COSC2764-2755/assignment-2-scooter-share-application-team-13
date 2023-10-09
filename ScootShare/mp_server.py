@@ -75,7 +75,7 @@ def wait_for_login_input():
 def validate_login_from_api(received_username, received_hash):
     endpoint = "booking_login"  # Make sure this matches the API endpoint
     customer_data = {
-        "customer": received_username,
+        "username": received_username,
         "password": received_hash
     }
     response = requests.get(BASE + endpoint, data=json.dumps(customer_data))  #Assumes the api returns true or false #API login method needs to be made
@@ -117,9 +117,9 @@ def wait_for_scooter_id():
 def find_booking_from_api(received_username, booked_scooter_id, time):
     endpoint = "get_single_booking" #Need to make this
     booking_data_to_send = {
-        "customer": received_username,
-        "scooter_id":booked_scooter_id,
-        "time": time #Time is a datetime and not a string 
+        "username": received_username,
+        "scooter_id":booked_scooter_id
+       #"time": time #Time is a datetime and not a string 
     }
     response = requests.get(BASE + endpoint, data=json.dumps(booking_data_to_send))
 
@@ -132,7 +132,7 @@ def find_booking_from_api(received_username, booked_scooter_id, time):
                 booking_id=booking_data['booking_id'],
                 location=booking_data['location'],
                 scooter_id=booking_data['scooter_id'],
-                customer_id=booking_data['customer'],
+                customer=booking_data['username'],
                 start_time=booking_data['start_time'],
                 duration=booking_data['duration'],
                 cost=booking_data['cost'],
