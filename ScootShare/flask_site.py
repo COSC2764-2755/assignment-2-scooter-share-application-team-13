@@ -35,7 +35,7 @@ def login_view():
         if customer:
             session['username'] = username
             session['balance'] = customer.balance
-        return redirect(url_for('site.booking_view'))
+        return redirect(url_for('site.booking_view')) #Check this
 
 
 @site.route('/booking', methods=['GET'])
