@@ -1,6 +1,7 @@
 import socket
-
-
+from records import *
+import datetime
+import time
 
 #Change to bcrypt 
 from passlib.hash import sha256_crypt
@@ -11,53 +12,48 @@ ADDRESS = (HOST, PORT)
 
 
 
+def wake_up():
+    while True:
+        username = input("Enter Username: ")
+        password = input("Enter Password: ")
+        hashed_password = sha256_crypt.hash(password)  # Change hash algorithm if necessary
+
+        if login(username, hashed_password):  # Assuming login function exists and returns True on success
+            booking = look_for_booking(username)  # Assuming look_for_booking function exists
+            if booking:
+                if attempt_booking_start():
+                    if start_booking(booking):  # Start timer
+                        change_status(booking.booking_id, "completed")  # Change status and send to database
+                    break
+            break
+        else:
+            continue  # Restart the login process
+
+    wake_up()
 
 
 
+# Login Send and Login wait 
 def login(username, password):
     print("Attempting to connect to the server...")
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect(ADDRESS)
-        print("Connected to the server.")
-
         # Send cusotmer_id and hashed password to server
-        s.sendall(f"{username}:{password}".encode())
-        print("Username, password and booking ID sent")
+        login_data = {"username": username, "password": password}
+        socket_utils.sendJson(socket, login_data)
 
+        print("Sent credentials for review in the .")
         print("Waiting for Master Pi reponse")
         while(True):
             object = socket_utils.recvJson(s)
             if("Login" in object):
                 print(f"You have logged in {username}")
                 return True
+            print("Login failed. Please re-enter your details.")
             return False
 
-
-
-def wake_up():
-    while True:
-        username = input("Enter Username : ")
-        password = input("Enter password: ")
-        hashed_password = sha256_crypt.hash(password)
-
-
-        if login(username,hashed_password):
-            look_for_booking()
-            break
-        
-        else:
-            print("Login failed. Please re-enter your details.")
-            continue  # Restart the login process
-    wake_up()
-
-
-
-# Call the wake_up function to start the login process
-   
-
-
-
-def look_for_booking():
+#Booking info send, wait for result
+def look_for_booking(username):
     while True:
         scooter_id = input("Enter the scooter ID for your booked scooter: ")
 
@@ -65,16 +61,100 @@ def look_for_booking():
         s.connect(ADDRESS)
         print("Connected to the server.")
 
-        # Send cusotmer_id and hashed password to server
-        s.sendall(f"{scooter_id}".encode())
-        print("Username, password and booking ID sent")
+        booking_data = {"scooter_id": scooter_id, "username": username}
+        socket_utils.sendJson(socket, booking_data)
+
+        print("Username booking ID sent, Waiting for Master Pi reponse")
+        while(True):
+            booking = socket_utils.recvJson(s)
+            if "Booking" in booking:
+                received_booking_data = booking["Booking"]
+                received_booking = Booking(
+                    received_booking_data["location"],
+                    received_booking_data["scooter_id"],
+                    received_booking_data["customer_id"],
+                    received_booking_data["start_time"],
+                    received_booking_data["duration"],
+                    received_booking_data["cost"],
+                    received_booking_data["status"],
+                    received_booking_data["booking_id"]
+                )
+                print("Received Booking Object:")
+                print(received_booking.__str__)
+                return received_booking
+            elif booking is None:
+                print("No booking was found")   
+                return None
+
+
+def attempt_booking_start():
+    while True:
+        response = input("Would you like to start the booking? Y or N: ")
+        if response == "Y":
+            return True
+        elif response == "N":
+            return False
+        else:
+            print("Invalid input. Please enter 'Y' or 'N'.")
 
 
 
+#Send request to start, send end request
+def start_booking(booking):
+    # Get the current time in "%Y-%m-%d %H:%M:%S" format
+    current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
+    # Calculate the booking end time
+    booking_start_time = datetime.datetime.strptime(booking.start_time, "%Y-%m-%d %H:%M:%S")
+    booking_end_time = booking_start_time + datetime.timedelta(minutes=booking.duration)
+     #manage if duration is represented as a straing or int, such as 10 for 10 mins
 
+    # Check if the current time is after the booking end time
+    if current_time <= booking_end_time.strftime("%Y-%m-%d %H:%M:%S"):
+        print("Booking can start now.")
         
+        # Calculate the time remaining until the booking end time
+        time_remaining = (booking_end_time - datetime.datetime.now()).total_seconds()
+        change_status(booking.booking_id,"started")
+        # Start a timer for the remaining time  #We will also wanna show a status chnage on the sensehat LED
+        while time_remaining > 0:
+            print(f"Time remaining: {int(time_remaining / 60)} minutes {int(time_remaining % 60)} seconds", end='\r')
+            time.sleep(1)
+            time_remaining -= 1
+        
+        print("Booking has ended.")
+        change_status(booking.booking_id,"completed")
+        # Here, you can update the booking status as "completed" in the database
+        return True
+    else:
+        print("Booking cannot now as we are past the endtime")
+        return False
+
+   
        
+
+
+
+def change_status(booking_id, new_status):
+    status_data = {"booking_id": booking_id,"new_status": new_status}
+    socket_utils.sendJson(socket, status_data)
+    print(f'Status changed to: {new_status} for bookingid: {booking_id}')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
