@@ -6,6 +6,7 @@ import pymysql
 class DatabaseConnector():
     def __init__(self) -> None:
         self._ADDRESS = '34.129.153.24' #TODO fill with actual ip
+        #self.ADDRESS = '34.151.70.244' #This is Joshuas cloud instance #All details of my cloud instace match user,pw and db name
         self._USER = 'root'
         self._PASSWORD = 'scootshare'
         self._DATABASE = 'scoot_share'
