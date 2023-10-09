@@ -47,18 +47,24 @@ def login(username, password):
         s.connect(ADDRESS)
         # Send cusotmer_id and hashed password to server
         login_data = {"username": username, "password": password}
-        socket_utils.sendJson(socket, login_data)
+        socket_utils.sendJson(s, login_data)
 
-        print("Sent credentials for review in the .")
+        print("Sent credentials for review")
         print("Waiting for Master Pi reponse")
+        s.listen()
+######################
+
         while(True):
-            object = socket_utils.recvJson(s)
-            if("Login" in object):
-                if object["Login"] == "success":
-                    print(f"You have logged in {username}")
-                    return True
-            print("Login failed. Please re-enter your details.")
-            return False
+            conn, addr = s.accept()
+            with conn:
+                object = socket_utils.recvJson(conn)
+
+                if("Login" in object):
+                    if object["Login"] == "success":
+                        print(f"You have logged in {username}")
+                        return True
+                print("Login failed. Please re-enter your details.")
+                return False
 
 #Booking info send, wait for result
 def look_for_booking(username):
@@ -70,7 +76,7 @@ def look_for_booking(username):
             print("Connected to the server.")
 
             booking_data = {"scooter_id": scooter_id, "username": username}
-            socket_utils.sendJson(socket, booking_data)
+            socket_utils.sendJson(s, booking_data)
 
 #Now wait to receive the booking 
         print("Username and booking ID sent, Waiting for Master Pi to send booking data or None")
@@ -117,7 +123,7 @@ def send_user_reply(result):
         data = {"reply": "no"}
     else: 
         data = {"reply": "yes"}
-    socket_utils.sendJson(socket, data)
+    socket_utils.sendJson(s, data)
     
 
 
@@ -126,7 +132,7 @@ def send_end_booking_message():
         s.connect(ADDRESS)
         print("Telling the MP the booking has ended")
         data = {"status": "completed"}   
-        socket_utils.sendJson(socket, data)
+        socket_utils.sendJson(s, data)
 
 
 #Send request to start, send end request

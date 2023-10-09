@@ -20,13 +20,18 @@ ADDRESS = (HOST, PORT)
 
 def main():
     
-    for username, passowrd in wait_for_login_input():
+    login_data = wait_for_login_input() #Getting this error:too many values to unpack (expected 2)
+    if login_data:
+        username, password = login_data
+        print('about to send to api')
+        result = validate_login_from_api(username, password)
 
-        result = validate_login_from_api(username, passowrd)
+        #Now we validate with api
+        
         send_login_result(result) #Boolean for true or false if the login was approaved by the api
         if not result:
             print('Failure to sign in') # Restart 
-            break
+            main() #Wanting to move
 
         for username,scooter_id in wait_for_scooter_id():      
             booking_object = find_booking_from_api(username, scooter_id, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
@@ -57,7 +62,7 @@ def wait_for_login_input():
             with conn:
                
                 # Receive username and hashed password from client
-                data = socket_utils.recvJson(socket)
+                data = socket_utils.recvJson(conn) #Needs to be an active connection, not s 
                 received_username = data.get("username")
                 received_hash = data.get("password")
                 print(f"Received username: {received_username} Received hash: {received_hash}")
@@ -95,13 +100,13 @@ def send_login_result(status):
 def wait_for_scooter_id():
     print("Waiting for scooter details")
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.bind(ADDRESS)
+        #s.bind(ADDRESS)
         s.listen()
 
         while True:
             conn, addr = s.accept()
             with conn:
-                data = socket_utils.recvJson(socket)
+                data = socket_utils.recvJson(conn)
                 scooter_id = data["scooter_id"]
                 username = data["username"]  # You can also extract the username
                 return username, scooter_id
@@ -152,12 +157,16 @@ def send_booking_determine_ifto_start(booking):
         socket_utils.sendJson(s, booking)
 
         # Ask if the user wants to start the booking on the client side     #Corresponds with sned_start_message or send_user_no_reply
-        while True:
-            response = socket_utils.recvJson(s)
+        s.connect(ADDRESS)
+        #s.bind(ADDRESS)
+        s.listen()
+        conn = s.accept()
+        with conn:
+            response = socket_utils.recvJson(conn)
             if "no" in response:
                 return False
-            else:
-                return True
+            
+            return True
 
 
 
@@ -178,13 +187,15 @@ def updateBookingStatus(booking_id, new_status):
 def wait_for_booking_end():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect(ADDRESS)
-        s.bind(ADDRESS)
+        #s.bind(ADDRESS)
         s.listen()
-        print("Connected, waitng for the booking to end")
-        data = socket_utils.recvJson(s)
-        #See if this needs to return anything
-        new_status = data["status"]
-        return new_status
+        conn = s.accept()
+        with conn:
+            print("waitng for the booking to end")
+            data = socket_utils.recvJson(conn)
+            #See if this needs to return anything
+            new_status = data["status"]
+            return new_status
 
 
 
