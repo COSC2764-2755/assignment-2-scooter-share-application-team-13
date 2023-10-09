@@ -189,3 +189,4 @@ def wait_for_booking_end():
 
 
 
+main()

@@ -6,7 +6,8 @@ import time
 #Change to bcrypt 
 from passlib.hash import sha256_crypt
 import socket_utils
-HOST = input("Enter IP address of server: ") # Defaults to listen on all Ip's
+#HOST = input("Enter IP address of server: ") # Defaults to listen on all Ip's
+HOST = "192.168.20.11" # This needs to be specfic to the machine the server/main pi is listening on
 PORT = 65000
 ADDRESS = (HOST, PORT)
 
@@ -176,7 +177,7 @@ def start_booking(booking):
 
 
 
-
+wake_up()
 
 
 

@@ -5,14 +5,14 @@ import socket, json, struct
 
 
 #Methods showen in class, send json (sends json data) and recvJson (Receives and turns into dictionary)
-def sendJson(socket, object):
+def sendJson(socket: socket.socket, object):
     jsonString = json.dumps(object)
     data = jsonString.encode("utf-8")
     jsonLength = struct.pack("!i", len(data))
     socket.sendall(jsonLength)
     socket.sendall(data)
 
-def recvJson(socket):
+def recvJson(socket: socket.socket):
     buffer = socket.recv(4)
     jsonLength = struct.unpack("!i", buffer)[0]
 
