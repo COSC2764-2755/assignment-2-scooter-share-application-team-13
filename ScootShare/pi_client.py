@@ -51,7 +51,7 @@ def login(username, password):
 
         print("Sent credentials for review")
         print("Waiting for Master Pi reponse")
-        s.listen()
+        s.listen() #Allows us to except connections, see if this is meant to be here
 ######################
 
         while(True):

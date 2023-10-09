@@ -5,7 +5,7 @@ import datetime
 import socket_utils
 from records import *
 #Import records
-BASE = "http://127.0.0.1:5000/api/" #
+BASE = "http://127.0.0.1:5000/" #
 #USERNAME = "admin"
 #PASSWORD_HASH = sha256_crypt.hash("pass123")
 HOST = ""
@@ -73,7 +73,7 @@ def wait_for_login_input():
 
 #Test login input
 def validate_login_from_api(received_username, received_hash):
-    endpoint = "booking_login"  # Make sure this matches the API endpoint
+    endpoint = "/api/booking_login"  # Make sure this matches the API endpoint
     customer_data = {
         "username": received_username,
         "password": received_hash
@@ -115,7 +115,7 @@ def wait_for_scooter_id():
  
 
 def find_booking_from_api(received_username, booked_scooter_id, time):
-    endpoint = "get_single_booking" #Need to make this
+    endpoint = "/api/get_single_booking" #Need to make this
     booking_data_to_send = {
         "username": received_username,
         "scooter_id":booked_scooter_id

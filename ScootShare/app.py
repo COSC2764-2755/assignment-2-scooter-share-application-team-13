@@ -737,23 +737,23 @@ class console_find_Booking():
         
 
 class update_booking_status():
-     def __init__(self) -> None:
+    def __init__(self) -> None:
         super().__init__()
         self._booking_args = reqparse.RequestParser()
         self._booking_args.add_argument(
             "booking_id", type=int, help="booking id to update")
-        self._cust_booking_args.add_argument(
+        self._booking_args.add_argument(
             "new_status", type=str, help="new status of booking")
         
-        def post(self):
-            try: 
-                args = self._booking_args.parse_args()
-                db.set_booking_status(args['new_status'],args['booking_id'] )
-                return {"result: True"}
-            except Exception as e:
-                print(e)
-                print("An error occurred while logging in through AP.\n" + str(e))
-                return {"result": False}
+    def post(self):
+                try: 
+                    args = self._booking_args.parse_args()
+                    db.set_booking_status(args['new_status'],args['booking_id'] )
+                    return {"result: True"}
+                except Exception as e:
+                    print(e)
+                    print("An error occurred while logging in through AP.\n" + str(e))
+                    return {"result": False}
 
 
 
