@@ -33,7 +33,7 @@ Welcome to ScooterShare - a next-generation solution designed to streamline the 
 
 ## Project Board
 
-### Trello Board:
+### GitHub Project Board:
 
 ![Trello Board](TrelloBoard_GitHubProject.png)
 
