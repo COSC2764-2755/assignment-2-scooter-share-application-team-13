@@ -21,20 +21,25 @@ ADDRESS = (HOST, PORT)
 def main():
     
     for username, passowrd in wait_for_login_input():
-        if not validate_login_from_api(username, passowrd):
+
+        result = validate_login_from_api(username, passowrd)
+        send_login_result(result) #Boolean for true or false if the login was approaved by the api
+        if not result:
             print('Failure to sign in') # Restart 
+            break
 
-    for username,scooter_id in wait_for_scooter_id():      
-        booking_object = find_booking_from_api(username, scooter_id, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+        for username,scooter_id in wait_for_scooter_id():      
+            booking_object = find_booking_from_api(username, scooter_id, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
-        #Send the booking details to client, determine if they are starting the booking #(retruns a true or false)
-        if send_booking_determine_ifto_start(booking_object):
-                updateBookingStatus(booking_object.id, 'started') #ensure this matches up with the records class
+            #Send the booking details to client, determine if they are starting the booking #(retruns a true or false)
+            if send_booking_determine_ifto_start(booking_object):
+                    updateBookingStatus(booking_object.id, 'started') #ensure this matches up with the records class# API method
 
-                wait_for_booking_end()
-                updateBookingStatus(booking_object.booking_id, 'completed')
+                    status =wait_for_booking_end()
+                    updateBookingStatus(booking_object.booking_id, status)
 
-            #Make a method to wait for the scooter to tell us the booking is over 
+                #Make a method to wait for the scooter to tell us the booking is over 
+    main() #Goes back to the start, check if this is the best way to do this
         
 
 
@@ -52,8 +57,9 @@ def wait_for_login_input():
             with conn:
                
                 # Receive username and hashed password from client
-                data = conn.recv(4096).decode()
-                received_username, received_hash = data.split(":")
+                data = socket_utils.recvJson(socket)
+                received_username = data.get("username")
+                received_hash = data.get("password")
                 print(f"Received username: {received_username} Received hash: {received_hash}")
 
                 return received_username,received_hash
@@ -78,16 +84,30 @@ def validate_login_from_api(received_username, received_hash):
         print("Login failed")
         return False
 
-def send_login_result():
-    #Success or failure
+def send_login_result(status):
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect(ADDRESS)
+        print("About to send a reply to say if the login was succesful")
+        response = {"Login": "success" if status else "failure"}
+        socket_utils.sendJson(socket, response)
 
             
 def wait_for_scooter_id():
-    print("Waiting to receive id")
-    username = 1
-    scooter_id = 2
+    print("Waiting for scooter details")
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.bind(ADDRESS)
+        s.listen()
 
-    return username, scooter_id
+        while True:
+            conn, addr = s.accept()
+            with conn:
+                data = socket_utils.recvJson(socket)
+                scooter_id = data["scooter_id"]
+                username = data["username"]  # You can also extract the username
+                return username, scooter_id
+
+        
+ 
 
 def find_booking_from_api(received_username, booked_scooter_id, time):
     endpoint = "get_single_booking" #Need to make this
@@ -125,24 +145,19 @@ def find_booking_from_api(received_username, booked_scooter_id, time):
 
 #Send booking details # Wait for reply , send even if none as that will automically make the reply no. #Wait for reply
 def send_booking_determine_ifto_start(booking):
-
-    #if booking is None:
-     #   return False
-
-
     # Send booking details to Client
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect(ADDRESS)
         print("Connected.")
         socket_utils.sendJson(s, booking)
 
-        # Ask if the user wants to start the booking on the client side
+        # Ask if the user wants to start the booking on the client side     #Corresponds with sned_start_message or send_user_no_reply
         while True:
             response = socket_utils.recvJson(s)
-            if "yes" in response:
-                return True
-            elif "no" in response:
+            if "no" in response:
                 return False
+            else:
+                return True
 
 
 
@@ -163,9 +178,13 @@ def updateBookingStatus(booking_id, new_status):
 def wait_for_booking_end():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect(ADDRESS)
+        s.bind(ADDRESS)
+        s.listen()
         print("Connected, waitng for the booking to end")
-        response = socket_utils.recvJson(s)
+        data = socket_utils.recvJson(s)
         #See if this needs to return anything
+        new_status = data["status"]
+        return new_status
 
 
 

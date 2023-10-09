@@ -21,10 +21,16 @@ def wake_up():
         if login(username, hashed_password):  # Assuming login function exists and returns True on success
             booking = look_for_booking(username)  # Assuming look_for_booking function exists
             if booking:
-                if attempt_booking_start():
-                    if start_booking(booking):  # Start timer
-                        change_status(booking.booking_id, "completed")  # Change status and send to database
-                    break
+                if confirm_booking_start_with_user():
+                    if not start_booking(booking):  # Start timer
+                        #change_status(booking.booking_id, "completed")  # Change status and send to database
+                        send_user_reply(False)
+                        break
+                    else:
+                        send_user_reply(True)
+            else:
+                send_user_reply(False)# I need to say that the user said no to the booking if attempt start is false or if booking is None
+                break
             break
         else:
             continue  # Restart the login process
@@ -47,8 +53,9 @@ def login(username, password):
         while(True):
             object = socket_utils.recvJson(s)
             if("Login" in object):
-                print(f"You have logged in {username}")
-                return True
+                if object["Login"] == "success":
+                    print(f"You have logged in {username}")
+                    return True
             print("Login failed. Please re-enter your details.")
             return False
 
@@ -58,36 +65,38 @@ def look_for_booking(username):
         scooter_id = input("Enter the scooter ID for your booked scooter: ")
 
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.connect(ADDRESS)
-        print("Connected to the server.")
+            s.connect(ADDRESS)
+            print("Connected to the server.")
 
-        booking_data = {"scooter_id": scooter_id, "username": username}
-        socket_utils.sendJson(socket, booking_data)
+            booking_data = {"scooter_id": scooter_id, "username": username}
+            socket_utils.sendJson(socket, booking_data)
 
-        print("Username booking ID sent, Waiting for Master Pi reponse")
-        while(True):
-            booking = socket_utils.recvJson(s)
-            if "Booking" in booking:
-                received_booking_data = booking["Booking"]
-                received_booking = Booking(
-                    received_booking_data["location"],
-                    received_booking_data["scooter_id"],
-                    received_booking_data["customer_id"],
-                    received_booking_data["start_time"],
-                    received_booking_data["duration"],
-                    received_booking_data["cost"],
-                    received_booking_data["status"],
-                    received_booking_data["booking_id"]
-                )
-                print("Received Booking Object:")
-                print(received_booking.__str__)
-                return received_booking
-            elif booking is None:
-                print("No booking was found")   
-                return None
+#Now wait to receive the booking 
+        print("Username and booking ID sent, Waiting for Master Pi to send booking data or None")
+        booking = socket_utils.recvJson(s)
+        
+        if booking is None:
+            print("No booking was found")   
+            return None
+
+        received_booking_data = booking["Booking"]
+        received_booking = Booking(
+            received_booking_data["location"],
+            received_booking_data["scooter_id"],
+            received_booking_data["customer_id"],
+            received_booking_data["start_time"],
+            received_booking_data["duration"],
+            received_booking_data["cost"],
+            received_booking_data["status"],
+            received_booking_data["booking_id"]
+        )
+        print("Received Booking Object:")
+        print(received_booking.__str__)
+        return received_booking
+       
 
 
-def attempt_booking_start():
+def confirm_booking_start_with_user():
     while True:
         response = input("Would you like to start the booking? Y or N: ")
         if response == "Y":
@@ -97,6 +106,26 @@ def attempt_booking_start():
         else:
             print("Invalid input. Please enter 'Y' or 'N'.")
 
+
+def send_user_reply(result):
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect(ADDRESS)
+        print("Connected to the server.")
+
+    if not result:
+        data = {"reply": "no"}
+    else: 
+        data = {"reply": "yes"}
+    socket_utils.sendJson(socket, data)
+    
+
+
+def send_end_booking_message():
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect(ADDRESS)
+        print("Telling the MP the booking has ended")
+        data = {"status": "completed"}   
+        socket_utils.sendJson(socket, data)
 
 
 #Send request to start, send end request
@@ -115,7 +144,7 @@ def start_booking(booking):
         
         # Calculate the time remaining until the booking end time
         time_remaining = (booking_end_time - datetime.datetime.now()).total_seconds()
-        change_status(booking.booking_id,"started")
+        #change_status(booking.booking_id,"started")
         # Start a timer for the remaining time  #We will also wanna show a status chnage on the sensehat LED
         while time_remaining > 0:
             print(f"Time remaining: {int(time_remaining / 60)} minutes {int(time_remaining % 60)} seconds", end='\r')
@@ -123,7 +152,7 @@ def start_booking(booking):
             time_remaining -= 1
         
         print("Booking has ended.")
-        change_status(booking.booking_id,"completed")
+        #change_status(booking.booking_id,"completed")
         # Here, you can update the booking status as "completed" in the database
         return True
     else:
@@ -134,11 +163,11 @@ def start_booking(booking):
        
 
 
-
-def change_status(booking_id, new_status):
-    status_data = {"booking_id": booking_id,"new_status": new_status}
-    socket_utils.sendJson(socket, status_data)
-    print(f'Status changed to: {new_status} for bookingid: {booking_id}')
+#Decided to do all the status changes on the server side 
+#def change_status(booking_id, new_status):
+  #  status_data = {"booking_id": booking_id,"new_status": new_status}
+   # socket_utils.sendJson(socket, status_data)
+   # print(f'Status changed to: {new_status} for bookingid: {booking_id}')
 
 
 
